@@ -1,6 +1,9 @@
+SHELL := /bin/bash
 .PHONY: ci fmt-check lint types test format mutate install
 
-ci: fmt-check lint types test
+ci:
+	@mkdir -p logs
+	@$(MAKE) fmt-check lint types test 2>&1 | tee logs/ci.log; exit $${PIPESTATUS[0]}
 
 fmt-check:
 	uv run ruff format --check .
