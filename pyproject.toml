@@ -25,6 +25,10 @@ skip_covered = false
 branch = true
 source = ["abcdef", "tic"]
 
+[tool.pytest-gremlins]
+paths = ["abcdef"]
+
+
 [tool.pytest.ini_options]
 addopts = "--cov=abcdef --cov=tic --cov-report=term-missing"
 

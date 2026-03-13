@@ -1,0 +1,96 @@
+"""Core package — abstract base classes and marker interfaces.
+
+Covers CQRS, DDD, and Event Sourcing. Sub-packages follow the ABCDEF Venn diagram:
+  c/   — CQRS only
+  d/   — DDD only
+  de/  — DDD + Event Sourcing
+  cde/ — CQRS + DDD + Event Sourcing
+"""
+
+from .c import (
+    Command,
+    CommandBus,
+    CommandHandler,
+    CommandRegistry,
+    EventBus,
+    MessageBus,
+    Query,
+    QueryBus,
+    QueryHandler,
+    QueryRegistry,
+    Result,
+    TCommand,
+    TQuery,
+    TQueryResult,
+    TResult,
+)
+from .c.markers import command, command_handler, projection, query, query_handler
+from .cde import Event
+from .cde.markers import event
+from .d import (
+    AggregateId,
+    AggregateRoot,
+    Repository,
+    ValueObject,
+)
+from .d.markers import (
+    aggregate,
+    domain_service,
+    factory,
+    identifier,
+    repository,
+    specification,
+    value_object,
+)
+from .de import (
+    AggregateState,
+    AggregateStore,
+    EventSourcedAggregate,
+    EventSourcedRepository,
+    EventStore,
+    Snapshot,
+)
+from .markers import _get_marker
+
+__all__ = [
+    "AggregateId",
+    "AggregateRoot",
+    "AggregateState",
+    "AggregateStore",
+    "Command",
+    "CommandBus",
+    "CommandHandler",
+    "CommandRegistry",
+    "Event",
+    "EventBus",
+    "EventSourcedAggregate",
+    "EventSourcedRepository",
+    "EventStore",
+    "MessageBus",
+    "Query",
+    "QueryBus",
+    "QueryHandler",
+    "QueryRegistry",
+    "Repository",
+    "Result",
+    "Snapshot",
+    "TCommand",
+    "TQuery",
+    "TQueryResult",
+    "TResult",
+    "ValueObject",
+    "_get_marker",
+    "aggregate",
+    "command",
+    "command_handler",
+    "domain_service",
+    "event",
+    "factory",
+    "identifier",
+    "projection",
+    "query",
+    "query_handler",
+    "repository",
+    "specification",
+    "value_object",
+]

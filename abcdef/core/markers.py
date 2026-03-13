@@ -1,0 +1,21 @@
+"""Shared marker inspection utility.
+
+Provides runtime inspection of architecture markers applied by the
+c/, d/, and cde/ marker modules.
+"""
+
+from typing import cast
+
+
+def _get_marker(cls: type, marker_attr: str) -> str | None:
+    """Get marker value from class or its parents.
+
+    Args:
+        cls: The class to inspect.
+        marker_attr: The marker attribute name (__cqrs_type__ or __ddd_type__).
+
+    Returns:
+        The marker value if found on the class or any base class, None otherwise.
+    """
+    value = getattr(cls, marker_attr, None)
+    return cast("str", value) if value is not None else None

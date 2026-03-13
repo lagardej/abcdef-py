@@ -21,7 +21,8 @@ format:
 	uv run ruff format .
 
 mutate:
-	uv run pytest --gremlins
+	@mkdir -p logs
+	uv run pytest --gremlins 2>&1 | tee logs/gremlins.log; exit ${PIPESTATUS[0]}
 
 install:
 	@for hook in scripts/hooks/*; do \

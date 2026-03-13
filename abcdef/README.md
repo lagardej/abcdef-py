@@ -1,0 +1,64 @@
+# ABCDEF — A Basic CQRS, DDD, Event-Sourcing Framework
+
+Minimal framework providing the plumbing for event-sourced, domain-driven applications using CQRS patterns.
+
+## Structure
+
+```
+abcdef/
+├── core/              # Abstract base classes and marker interfaces
+│   ├── c/             # CQRS — commands, queries, handlers, buses, registries
+│   ├── d/             # DDD — aggregates, value objects, repositories
+│   ├── de/            # DDD + ES — event-sourced aggregates, stores, repositories
+│   ├── cde/           # CQRS + DDD + ES — Event base class
+│   └── markers.py     # Shared marker inspection utility (_get_marker)
+└── in_memory/         # In-memory implementations for testing and development
+```
+
+## Core Concepts
+
+Each concept lives in the `core/` sub-package matching its paradigm intersection — CQRS (`c/`),
+DDD (`d/`), both plus Event Sourcing (`de/`, `cde/`):
+
+| Package | Paradigms | Contents |
+|---------|-----------|----------|
+| `c/` | CQRS | `Command`, `Query`, handlers, buses, registries, `Result` |
+| `d/` | DDD | `AggregateRoot`, `AggregateId`, `ValueObject`, `Repository` |
+| `de/` | DDD + ES | `EventSourcedAggregate`, `EventStore`, `AggregateStore`, `EventSourcedRepository`, `Snapshot` |
+| `cde/` | CQRS + DDD + ES | `Event` |
+
+- **Command** — Intent to mutate state; handled by exactly one `CommandHandler`
+- **Query** — Request to read state; handled by exactly one `QueryHandler`
+- **Event** — Immutable record of something that happened in the domain
+- **AggregateRoot** — Entity that maintains invariants and emits events
+- **ValueObject** — Immutable, identity-free object compared by value
+- **Repository** — Abstracts persistence; loads and saves aggregates
+- **EventStore** — Append-only store; single source of truth for event sourcing
+- **AggregateStore** — Persists aggregate state records for replay optimisation
+- **EventSourcedAggregate** — Aggregate with version tracking and event application
+- **EventSourcedRepository** — Orchestrates event replay and state persistence strategy
+- **MessageBus / CommandBus / QueryBus / EventBus** — Publish/subscribe infrastructure
+
+## Architecture Markers
+
+Each paradigm package exposes decorators for runtime annotation:
+
+| Marker | Package | Attribute set |
+|--------|---------|---------------|
+| `@command`, `@query`, `@command_handler`, `@query_handler`, `@projection` | `c/` | `__cqrs_type__` |
+| `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@specification`, `@factory`, `@identifier` | `d/` | `__ddd_type__` |
+| `@event` | `cde/` | `__cqrs_type__` |
+
+`_get_marker(cls, attr)` (from `core/markers.py`) inspects a class or its parents for a marker attribute.
+All markers are re-exported from `abcdef.core` for convenience.
+
+## Event Sourcing
+
+- Event store is append-only — events are never modified or deleted
+- Aggregates are rebuilt by replaying events from the event store
+- State records capture aggregate state at a version boundary for performance
+- Delta replay: load latest state record, replay only events after its version
+- `EventSourcedAggregate` exposes framework-internal methods prefixed with `_`
+  (`_get_uncommitted_events`, `_mark_events_as_committed`, `_mark_state_saved`,
+  `_load_from_history`) — called by the repository, not by domain code
+- Projections are read models derived from events, never from the event store directly
