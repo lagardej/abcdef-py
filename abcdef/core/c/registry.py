@@ -3,7 +3,8 @@
 from collections.abc import Callable
 from typing import Any, TypeVar, cast
 
-from .command import Command, Result
+from ..result import Result
+from .command import Command
 from .message_bus import CommandBus, QueryBus
 from .query import Query
 

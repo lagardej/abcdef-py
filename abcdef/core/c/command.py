@@ -3,8 +3,8 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
+from ..result import Result
 from . import markers
-from .result import Result
 
 TCommand = TypeVar("TCommand", bound="Command")
 TResult = TypeVar("TResult", bound=Result)
