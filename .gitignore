@@ -1,3 +1,7 @@
+# Project files
+.tic/
+logs/
+
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -14,5 +18,32 @@ wheels/
 .pytest_cache/
 .ruff_cache/
 
-.tic/
-logs/
+# IDEs — JetBrains (PyCharm, IntelliJ, etc.)
+.idea/
+
+# IDEs — VS Code
+.vscode/
+
+# IDEs — Vim/Neovim
+*.swp
+*.swo
+Session.vim
+.netrwhist
+
+# IDEs — Emacs
+*~
+\#*\#
+.\#*
+
+# IDEs — Eclipse
+.project
+.classpath
+.settings/
+
+# IDEs — Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
