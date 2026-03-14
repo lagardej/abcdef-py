@@ -8,6 +8,7 @@ from abcdef.core import (
     document,
     document_store,
     domain_service,
+    event_store,
     factory,
     identifier,
     projector,
@@ -268,6 +269,39 @@ class TestDddMarkers:
         cls = type("Id", (), {})
         identifier(cls)
         assert cls.__ddd_type__ == "identifier"  # type: ignore[attr-defined]
+
+
+# ---------------------------------------------------------------------------
+# de/ markers
+# ---------------------------------------------------------------------------
+
+
+class TestEsMarkers:
+    """Tests for Event Sourcing marker decorators."""
+
+    def test_event_store_returns_class_unchanged(self) -> None:
+        """@event_store returns the decorated class itself."""
+        cls = type("ES", (), {})
+        result = event_store(cls)
+        assert result is cls
+
+    def test_event_store_sets_es_type(self) -> None:
+        """@event_store sets __es_type__ to 'event_store'."""
+        cls = type("ES", (), {})
+        event_store(cls)
+        assert cls.__es_type__ == "event_store"  # type: ignore[attr-defined]
+
+    def test_event_store_marker_visible_on_subclass(self) -> None:
+        """@event_store marker is inherited by subclasses."""
+
+        @event_store
+        class BaseES:
+            pass
+
+        class SubES(BaseES):
+            pass
+
+        assert _get_marker(SubES, "__es_type__") == "event_store"
 
 
 # ---------------------------------------------------------------------------

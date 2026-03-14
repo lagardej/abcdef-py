@@ -3,10 +3,10 @@
 from abc import ABC, abstractmethod
 
 from ..d import AggregateId, AggregateRoot
-from ..d import markers as d_markers
+from . import markers as de_markers
 
 
-@d_markers.repository
+@de_markers.event_store
 class EventStore[TId: AggregateId, TEntity: AggregateRoot](ABC):
     """Base interface for event stores.
 

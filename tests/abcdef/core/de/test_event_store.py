@@ -1,5 +1,6 @@
 """Tests for EventStore abstraction via an in-memory implementation."""
 
+from abcdef.core import EventStore
 from abcdef.in_memory import InMemoryEventStore
 from tests.abcdef.conftest import make_id
 
@@ -10,6 +11,18 @@ class DummyEvent:
     def __init__(self, value: str) -> None:
         """Initialise with a value."""
         self.value = value
+
+
+class TestEventStoreMarker:
+    """Tests for EventStore architecture marker."""
+
+    def test_event_store_has_es_type_marker(self) -> None:
+        """EventStore is marked with __es_type__ = 'event_store'."""
+        assert EventStore.__es_type__ == "event_store"  # type: ignore[attr-defined]
+
+    def test_event_store_does_not_have_repository_marker(self) -> None:
+        """EventStore must not be marked as a DDD repository."""
+        assert getattr(EventStore, "__ddd_type__", None) != "repository"
 
 
 class TestEventStore:

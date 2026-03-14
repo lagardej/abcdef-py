@@ -6,10 +6,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Bugs
 
-- **`EventStore` incorrectly marked as `@d_markers.repository`** — `event_store.py` applies the DDD repository
-  marker to `EventStore`. An event store is not a repository. The marker is wrong and would mislead any tooling
-  inspecting `__ddd_type__`. Remove the marker or introduce a dedicated `event_store` marker.
-
 - **`_should_save_state()` is dead code and inconsistent** — `EventSourcedRepository` has a `_should_save_state(event_count)`
   method that is never called. The live threshold logic in `save()` uses `version - base_version >= threshold` (delta-based),
   while `_should_save_state` uses `event_count % threshold` (total-based) — a different and weaker strategy. Remove the

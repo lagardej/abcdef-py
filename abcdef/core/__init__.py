@@ -1,10 +1,10 @@
-"""Core package — abstract base classes and marker interfaces.
+"""Core package -- abstract base classes and marker interfaces.
 
 Covers CQRS, DDD, and Event Sourcing. Sub-packages follow the ABCDEF Venn diagram:
-  c/   — CQRS only
-  d/   — DDD only
-  de/  — DDD + Event Sourcing
-  cde/ — CQRS + DDD + Event Sourcing
+  c/   -- CQRS only
+  d/   -- DDD only
+  de/  -- DDD + Event Sourcing
+  cde/ -- CQRS + DDD + Event Sourcing
 """
 
 from .c import (
@@ -59,6 +59,7 @@ from .de import (
     EventSourcedRepository,
     EventStore,
     Snapshot,
+    event_store,
 )
 from .markers import _get_marker
 
@@ -99,6 +100,7 @@ __all__ = [
     "document_store",
     "domain_service",
     "event",
+    "event_store",
     "factory",
     "identifier",
     "projector",
