@@ -5,10 +5,12 @@ from abcdef.core import (
     aggregate,
     command,
     command_handler,
+    document,
+    document_store,
     domain_service,
     factory,
     identifier,
-    projection,
+    projector,
     query,
     query_handler,
     repository,
@@ -138,17 +140,41 @@ class TestCqrsMarkers:
         query_handler(cls)
         assert cls.__cqrs_type__ == "query_handler"  # type: ignore[attr-defined]
 
-    def test_projection_returns_class_unchanged(self) -> None:
-        """@projection returns the decorated class itself."""
-        cls = type("Proj", (), {})
-        result = projection(cls)
+    def test_document_returns_class_unchanged(self) -> None:
+        """@document returns the decorated class itself."""
+        cls = type("Doc", (), {})
+        result = document(cls)
         assert result is cls
 
-    def test_projection_sets_cqrs_type(self) -> None:
-        """@projection sets __cqrs_type__ to 'projection'."""
+    def test_document_sets_cqrs_type(self) -> None:
+        """@document sets __cqrs_type__ to 'document'."""
+        cls = type("Doc", (), {})
+        document(cls)
+        assert cls.__cqrs_type__ == "document"  # type: ignore[attr-defined]
+
+    def test_document_store_returns_class_unchanged(self) -> None:
+        """@document_store returns the decorated class itself."""
+        cls = type("DocStore", (), {})
+        result = document_store(cls)
+        assert result is cls
+
+    def test_document_store_sets_cqrs_type(self) -> None:
+        """@document_store sets __cqrs_type__ to 'document_store'."""
+        cls = type("DocStore", (), {})
+        document_store(cls)
+        assert cls.__cqrs_type__ == "document_store"  # type: ignore[attr-defined]
+
+    def test_projector_returns_class_unchanged(self) -> None:
+        """@projector returns the decorated class itself."""
         cls = type("Proj", (), {})
-        projection(cls)
-        assert cls.__cqrs_type__ == "projection"  # type: ignore[attr-defined]
+        result = projector(cls)
+        assert result is cls
+
+    def test_projector_sets_cqrs_type(self) -> None:
+        """@projector sets __cqrs_type__ to 'projector'."""
+        cls = type("Proj", (), {})
+        projector(cls)
+        assert cls.__cqrs_type__ == "projector"  # type: ignore[attr-defined]
 
 
 # ---------------------------------------------------------------------------

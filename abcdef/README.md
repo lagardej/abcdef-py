@@ -22,7 +22,7 @@ DDD (`d/`), both plus Event Sourcing (`de/`, `cde/`):
 
 | Package | Paradigms | Contents |
 |---------|-----------|----------|
-| `c/` | CQRS | `Command`, `Query`, handlers, buses, registries, `Result` |
+| `c/` | CQRS | `Command`, `Query`, handlers, buses, registries, `Result`, `Document`, `DocumentStore` |
 | `d/` | DDD | `AggregateRoot`, `AggregateId`, `ValueObject`, `Repository` |
 | `de/` | DDD + ES | `EventSourcedAggregate`, `EventStore`, `AggregateStore`, `EventSourcedRepository`, `Snapshot` |
 | `cde/` | CQRS + DDD + ES | `Event` |
@@ -38,6 +38,9 @@ DDD (`d/`), both plus Event Sourcing (`de/`, `cde/`):
 - **EventSourcedAggregate** — Aggregate with version tracking and event application
 - **EventSourcedRepository** — Orchestrates event replay and state persistence strategy
 - **MessageBus / CommandBus / QueryBus / EventBus** — Publish/subscribe infrastructure
+- **Document** — Denormalised, query-optimised read model built from domain events
+- **DocumentStore** — Query-side persistence; counterpart to `Repository` on the write side
+- **Projector** — Subscribes to domain events and updates Documents in a DocumentStore
 
 ## Architecture Markers
 
@@ -45,7 +48,7 @@ Each paradigm package exposes decorators for runtime annotation:
 
 | Marker | Package | Attribute set |
 |--------|---------|---------------|
-| `@command`, `@query`, `@command_handler`, `@query_handler`, `@projection` | `c/` | `__cqrs_type__` |
+| `@command`, `@query`, `@command_handler`, `@query_handler`, `@document`, `@document_store`, `@projector` | `c/` | `__cqrs_type__` |
 | `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@specification`, `@factory`, `@identifier` | `d/` | `__ddd_type__` |
 | `@event` | `cde/` | `__cqrs_type__` |
 
@@ -61,4 +64,5 @@ All markers are re-exported from `abcdef.core` for convenience.
 - `EventSourcedAggregate` exposes framework-internal methods prefixed with `_`
   (`_get_uncommitted_events`, `_mark_events_as_committed`, `_mark_state_saved`,
   `_load_from_history`) — called by the repository, not by domain code
-- Projections are read models derived from events, never from the event store directly
+- Projectors consume events and write Documents; Documents are never derived
+  from the event store directly

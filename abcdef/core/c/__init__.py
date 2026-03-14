@@ -5,10 +5,14 @@ Command/Query Responsibility Segregation.
 """
 
 from .command import Command, CommandHandler, TCommand, TResult
+from .document import Document
+from .document_store import DocumentStore
 from .markers import (
     command,
     command_handler,
-    projection,
+    document,
+    document_store,
+    projector,
     query,
     query_handler,
 )
@@ -22,6 +26,8 @@ __all__ = [
     "CommandBus",
     "CommandHandler",
     "CommandRegistry",
+    "Document",
+    "DocumentStore",
     "EventBus",
     "MessageBus",
     "Query",
@@ -35,7 +41,9 @@ __all__ = [
     "TResult",
     "command",
     "command_handler",
-    "projection",
+    "document",
+    "document_store",
+    "projector",
     "query",
     "query_handler",
 ]

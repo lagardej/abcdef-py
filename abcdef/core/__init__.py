@@ -12,6 +12,8 @@ from .c import (
     CommandBus,
     CommandHandler,
     CommandRegistry,
+    Document,
+    DocumentStore,
     EventBus,
     MessageBus,
     Query,
@@ -24,7 +26,15 @@ from .c import (
     TQueryResult,
     TResult,
 )
-from .c.markers import command, command_handler, projection, query, query_handler
+from .c.markers import (
+    command,
+    command_handler,
+    document,
+    document_store,
+    projector,
+    query,
+    query_handler,
+)
 from .cde import Event
 from .cde.markers import event
 from .d import (
@@ -61,6 +71,8 @@ __all__ = [
     "CommandBus",
     "CommandHandler",
     "CommandRegistry",
+    "Document",
+    "DocumentStore",
     "Event",
     "EventBus",
     "EventSourcedAggregate",
@@ -83,11 +95,13 @@ __all__ = [
     "aggregate",
     "command",
     "command_handler",
+    "document",
+    "document_store",
     "domain_service",
     "event",
     "factory",
     "identifier",
-    "projection",
+    "projector",
     "query",
     "query_handler",
     "repository",
