@@ -6,11 +6,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Bugs
 
-- **`_should_save_state()` is dead code and inconsistent** — `EventSourcedRepository` has a `_should_save_state(event_count)`
-  method that is never called. The live threshold logic in `save()` uses `version - base_version >= threshold` (delta-based),
-  while `_should_save_state` uses `event_count % threshold` (total-based) — a different and weaker strategy. Remove the
-  dead method.
-
 - **`ValueObject.__hash__` raises on unhashable attributes** — `hash(tuple(sorted(self.__dict__.items())))` will raise
   `TypeError` if any attribute is unhashable (e.g. a list or dict field). No protection, no documentation of the
   constraint. Value objects with collection attributes break silently at runtime.

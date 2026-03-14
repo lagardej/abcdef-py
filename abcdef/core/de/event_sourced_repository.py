@@ -166,17 +166,3 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
             "State persistence enabled but _create_from_state() not implemented. "
             "Override in subclass if using state records."
         )
-
-    def _should_save_state(self, event_count: int) -> bool:
-        """Determine if a state record should be persisted.
-
-        Default strategy: persist every N events.
-        Override in subclasses for different strategies.
-
-        Args:
-            event_count: Total number of events for the aggregate.
-
-        Returns:
-            True if state should be persisted.
-        """
-        return event_count > 0 and event_count % self._snapshot_threshold == 0
