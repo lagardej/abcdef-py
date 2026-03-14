@@ -276,7 +276,7 @@ This keeps the codebase clean and prevents accumulation of deprecated patterns.
 - **[README.md](README.md)** — Project overview, usage, tech stack, development workflow
 - **[docs/design/architecture.md](docs/design/architecture.md)** — Authoritative architecture reference (modules,
   layers, patterns, design principles)
-- **[docs/tasks.md](docs/tasks.md)** — Project task list: short-lived work items and current tasks
+- **[docs/backlog.md](docs/backlog.md)** — Project backlog: bugs, tasks, and improvements
 
 ---
 
