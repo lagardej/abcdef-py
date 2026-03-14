@@ -1,75 +1,51 @@
 """Tests for Aggregate Root and Aggregate ID."""
 
-from uuid import UUID
-
-import pytest
-
 from abcdef.core import AggregateId
-from tests.abcdef.conftest import make_id
+from tests.abcdef.conftest import StrAggregateId, make_id
 from tests.abcdef.core.d.fixtures import DummyAggregate
 
 
-class TestAggregateId:
-    """Tests for AggregateId."""
+class TestAggregateIdSerialisation:
+    """Tests for the AggregateId serialisation contract.
 
-    def test_default_generates_uuid(self) -> None:
-        """AggregateId() with no args generates a UUID."""
-        agg_id = AggregateId()
-        assert isinstance(agg_id.value, UUID)
+    Uses StrAggregateId — a minimal string-backed concrete implementation
+    defined in conftest — to exercise the abstract contract without coupling
+    the tests to any production implementation.
+    """
 
-    def test_two_defaults_are_distinct(self) -> None:
-        """Two AggregateId() calls produce different IDs."""
-        assert AggregateId() != AggregateId()
+    def test_str_returns_string(self) -> None:
+        """str() returns a non-empty string."""
+        agg_id = StrAggregateId("abc")
+        assert isinstance(str(agg_id), str)
+        assert str(agg_id) == "abc"
 
-    def test_accepts_uuid_object(self) -> None:
-        """AggregateId accepts a UUID directly."""
-        uid = UUID("12345678-1234-5678-1234-567812345678")
-        agg_id = AggregateId(uid)
-        assert agg_id.value == uid
+    def test_from_str_round_trips(self) -> None:
+        """from_str(str(id)) produces an equal ID."""
+        original = StrAggregateId("abc")
+        restored = StrAggregateId.from_str(str(original))
+        assert original == restored
 
-    def test_accepts_uuid_string(self) -> None:
-        """AggregateId coerces a UUID string to UUID."""
-        uid_str = "12345678-1234-5678-1234-567812345678"
-        agg_id = AggregateId(uid_str)
-        assert isinstance(agg_id.value, UUID)
-        assert str(agg_id.value) == uid_str
+    def test_equality_same_value(self) -> None:
+        """Two IDs with the same string are equal."""
+        assert StrAggregateId("x") == StrAggregateId("x")
 
-    def test_rejects_non_uuid_string(self) -> None:
-        """AggregateId raises ValueError for strings that are not valid UUIDs."""
-        with pytest.raises(ValueError):
-            AggregateId("not-a-uuid")
+    def test_inequality_different_value(self) -> None:
+        """Two IDs with different strings are not equal."""
+        assert StrAggregateId("x") != StrAggregateId("y")
 
-    def test_string_representation(self) -> None:
-        """str() returns the canonical UUID string."""
-        uid_str = "12345678-1234-5678-1234-567812345678"
-        agg_id = AggregateId(uid_str)
-        assert str(agg_id) == uid_str
-
-    def test_equality_by_value(self) -> None:
-        """Two AggregateIds with the same UUID are equal."""
-        uid = UUID("12345678-1234-5678-1234-567812345678")
-        assert AggregateId(uid) == AggregateId(uid)
-
-    def test_inequality_by_value(self) -> None:
-        """Two AggregateIds with different UUIDs are not equal."""
-        assert AggregateId() != AggregateId()
-
-    def test_immutable(self) -> None:
-        """AggregateId is immutable."""
-        agg_id = AggregateId()
-        with pytest.raises(AttributeError, match="immutable"):
-            agg_id.value = UUID("12345678-1234-5678-1234-567812345678")  # type: ignore[misc]
+    def test_is_aggregate_id(self) -> None:
+        """StrAggregateId is an instance of AggregateId."""
+        assert isinstance(StrAggregateId("x"), AggregateId)
 
     def test_hashable(self) -> None:
-        """AggregateId can be used in sets and dicts."""
+        """AggregateId instances can be used in sets and dicts."""
         id1 = make_id()
         id2 = make_id()
         assert len({id1, id2}) == 2
 
     def test_hash_consistent_with_equality(self) -> None:
         """Equal AggregateIds have the same hash."""
-        uid = UUID("12345678-1234-5678-1234-567812345678")
-        assert hash(AggregateId(uid)) == hash(AggregateId(uid))
+        assert hash(StrAggregateId("abc")) == hash(StrAggregateId("abc"))
 
 
 class TestAggregateRoot:

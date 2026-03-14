@@ -1,84 +1,69 @@
 """Aggregate Root abstraction."""
 
-from abc import ABC
-from uuid import UUID, uuid4
+from abc import ABC, abstractmethod
+from typing import Self
 
 from . import markers
 
 
-class AggregateId:
-    """Internal identity for an aggregate.
+class AggregateId(ABC):
+    """Abstract identity for an aggregate.
 
     Infrastructure-level identity, not a domain concept. Aggregates identify
     themselves to the outside world via their own domain attributes; this ID
     exists solely to satisfy persistence and equality mechanics.
 
-    Accepts a UUID, a UUID string, or nothing on construction; strings are
-    coerced to UUID so the stored value is always canonical. If omitted, a
-    new random UUID is generated.
-
-    Attributes:
-        value: The canonical UUID representing this identity.
+    Subclasses define the concrete storage format and construction logic.
+    The serialisation contract is defined by __str__ and from_str, which
+    must round-trip: ``cls.from_str(str(id))`` must equal ``id``.
     """
 
-    def __init__(self, value: UUID | str | None = None) -> None:
-        """Initialise the aggregate ID.
-
-        Args:
-            value: A UUID, a UUID string, or None to generate a new UUID.
-        """
-        if value is None:
-            self.__dict__["_value"] = uuid4()
-        elif isinstance(value, UUID):
-            self.__dict__["_value"] = value
-        else:
-            self.__dict__["_value"] = UUID(value)
-
-    @property
-    def value(self) -> UUID:
-        """The canonical UUID for this identity.
+    @abstractmethod
+    def __str__(self) -> str:
+        """Serialise to a string.
 
         Returns:
-            The UUID value.
+            A stable string representation that can be deserialised
+            by from_str.
         """
-        return self.__dict__["_value"]
+        ...
 
-    def __setattr__(self, name: str, val: object) -> None:
-        """Prevent mutation after construction.
+    @classmethod
+    @abstractmethod
+    def from_str(cls, value: str) -> Self:
+        """Deserialise from a string produced by __str__.
+
+        Args:
+            value: A string previously returned by __str__.
+
+        Returns:
+            An AggregateId equal to the original.
 
         Raises:
-            AttributeError: Always — AggregateId is immutable.
+            ValueError: If the string is not a valid representation.
         """
-        raise AttributeError("AggregateId is immutable")
+        ...
 
     def __eq__(self, other: object) -> bool:
-        """Compare by UUID value.
+        """Compare by serialised value.
 
         Args:
             other: The other object to compare.
 
         Returns:
-            True if both IDs hold the same UUID.
+            True if both IDs serialise to the same string.
         """
         if not isinstance(other, AggregateId):
             return NotImplemented
-        return self.__dict__["_value"] == other.__dict__["_value"]
+        return str(self) == str(other)
 
     def __hash__(self) -> int:
-        """Hash by UUID value.
+        """Hash by serialised value.
 
         Returns:
-            Hash of the underlying UUID.
+            Hash of the string representation.
         """
-        return hash(self.__dict__["_value"])
-
-    def __str__(self) -> str:
-        """Return the UUID as a string.
-
-        Returns:
-            Canonical UUID string representation.
-        """
-        return str(self.__dict__["_value"])
+        return hash(str(self))
 
     def __repr__(self) -> str:
         """Return detailed representation.
@@ -86,7 +71,7 @@ class AggregateId:
         Returns:
             Detailed representation of the aggregate ID.
         """
-        return f"AggregateId({self.__dict__['_value']!r})"
+        return f"{self.__class__.__name__}({str(self)!r})"
 
 
 @markers.aggregate

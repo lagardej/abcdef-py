@@ -168,7 +168,7 @@ class TestEventSourcedRepositoryGetById:
         )
 
         # Two pre-state events (already captured in state) then two delta events
-        key = str(agg_id.value)
+        key = str(agg_id)
         event_store._store[key] = [
             DummyEvent(amount=5),  # version 1 - already in state record
             DummyEvent(amount=5),  # version 2 - already in state record

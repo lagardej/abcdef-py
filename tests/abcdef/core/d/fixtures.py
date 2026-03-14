@@ -21,15 +21,15 @@ class DummyRepository(Repository[AggregateId, DummyAggregate]):
 
     def save(self, aggregate: DummyAggregate) -> None:
         """Save a dummy aggregate."""
-        self._store[str(aggregate.id.value)] = aggregate
+        self._store[str(aggregate.id)] = aggregate
 
     def get_by_id(self, aggregate_id: AggregateId) -> DummyAggregate | None:
         """Load a dummy aggregate by ID."""
-        return self._store.get(str(aggregate_id.value))
+        return self._store.get(str(aggregate_id))
 
     def delete(self, aggregate_id: AggregateId) -> None:
         """Delete a dummy aggregate."""
-        self._store.pop(str(aggregate_id.value), None)
+        self._store.pop(str(aggregate_id), None)
 
     def find_all(self) -> list[DummyAggregate]:
         """Load all dummy aggregates."""

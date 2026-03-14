@@ -26,7 +26,7 @@ class InMemoryRepository[TId: AggregateId, TAggregate: AggregateRoot](
         Args:
             aggregate: The aggregate to persist.
         """
-        self._store[str(aggregate.id.value)] = aggregate
+        self._store[str(aggregate.id)] = aggregate
 
     def get_by_id(self, aggregate_id: TId) -> TAggregate | None:
         """Load an aggregate by its ID.
@@ -37,7 +37,7 @@ class InMemoryRepository[TId: AggregateId, TAggregate: AggregateRoot](
         Returns:
             The aggregate if found, None otherwise.
         """
-        return self._store.get(str(aggregate_id.value))
+        return self._store.get(str(aggregate_id))
 
     def delete(self, aggregate_id: TId) -> None:
         """Delete an aggregate by its ID.
@@ -47,7 +47,7 @@ class InMemoryRepository[TId: AggregateId, TAggregate: AggregateRoot](
         Args:
             aggregate_id: The ID of the aggregate to delete.
         """
-        self._store.pop(str(aggregate_id.value), None)
+        self._store.pop(str(aggregate_id), None)
 
     def find_all(self) -> list[TAggregate]:
         """Return all aggregates in the repository.

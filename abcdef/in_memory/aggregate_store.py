@@ -30,7 +30,7 @@ class InMemoryAggregateStore[TId: AggregateId, TEntity: AggregateRoot](
         Args:
             snapshot: The state record to persist.
         """
-        self._store[str(snapshot.aggregate_id.value)] = snapshot
+        self._store[str(snapshot.aggregate_id)] = snapshot
 
     def get_latest_snapshot(self, aggregate_id: TId) -> Snapshot[Any] | None:
         """Retrieve the latest state record for an aggregate.
@@ -41,7 +41,7 @@ class InMemoryAggregateStore[TId: AggregateId, TEntity: AggregateRoot](
         Returns:
             The latest state record if present, None otherwise.
         """
-        return self._store.get(str(aggregate_id.value))
+        return self._store.get(str(aggregate_id))
 
     def delete_snapshots(self, aggregate_id: TId) -> None:
         """Delete all state records for an aggregate.
@@ -49,4 +49,4 @@ class InMemoryAggregateStore[TId: AggregateId, TEntity: AggregateRoot](
         Args:
             aggregate_id: The ID of the aggregate whose state records should be removed.
         """
-        self._store.pop(str(aggregate_id.value), None)
+        self._store.pop(str(aggregate_id), None)

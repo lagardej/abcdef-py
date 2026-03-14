@@ -28,7 +28,7 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
             aggregate_id: The ID of the aggregate emitting events.
             events: List of domain events to store.
         """
-        key = str(aggregate_id.value)
+        key = str(aggregate_id)
         if key not in self._store:
             self._store[key] = []
         self._store[key].extend(events)
@@ -45,7 +45,7 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
         Returns:
             A copy of the matching events in chronological order.
         """
-        events = self._store.get(str(aggregate_id.value), [])
+        events = self._store.get(str(aggregate_id), [])
         if from_version is not None:
             return events[from_version:].copy()
         return events.copy()
