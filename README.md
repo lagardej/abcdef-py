@@ -25,3 +25,51 @@ Beyond the tool itself, TIC is a **learning project for AI-assisted development:
 - The AI agent generates implementations, refactors, and documentation.
 
 ---
+
+## Development
+
+Common tasks are available as Make targets. Run `make` or `make help` for the full list.
+
+```
+make check-format  check formatting without modifying files
+make check-types   run pyright type checker
+make lint          run ruff linter without modifying files
+make test          run pytest with coverage
+
+make fix           auto-fix lint violations then format
+make format        auto-format source files
+
+make ci            run check-format, lint, check-types, test
+make mutate        run mutation tests (pytest-gremlins)
+
+make install       install git hooks
+```
+
+### Verbosity
+
+`test`, `ci`, and `mutate` support a `V` variable controlling output detail:
+
+| `V` | Level   | Behaviour                                 |
+|-----|---------|-------------------------------------------|
+| `0` | quiet   | dots and failures only                    |
+| `1` | default | file-level progress (default if omitted)  |
+| `2` | verbose | per-test names, full tracebacks           |
+
+```
+make test V=0
+make ci V=2
+```
+
+`check-format`, `check-types`, `lint`, `fix`, and `format` are unaffected — they already only print what is relevant.
+
+### Logs
+
+`test`, `ci`, and `mutate` tee output to timestamped log files under `logs/`:
+
+```
+logs/test-20260314-074744.log
+logs/ci-20260314-074814.log
+logs/mutate-20260314-075001.log
+```
+
+`logs/test.log`, `logs/ci.log`, and `logs/mutate.log` are symlinks that always point to the latest run.
