@@ -27,12 +27,12 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
   combinators (`and`, `or`, `not`), and enough structure to warrant a dedicated package rather than a stub in
   `core/`. Model after the Java reference implementation.
 
-- **`ValueObject` immutability is documented but not enforced** — The docstring says "use frozen dataclasses or
-  similar" but nothing prevents mutation. Either drop the suggestion and document the limitation honestly, or
-  provide a `FrozenValueObject` that enforces immutability via `__setattr__` protection, as `AggregateId` does.
-
 - **`AggregateId.__repr__` is not tested** — All other `AggregateId` behaviours are covered. Add a test for
   `__repr__`.
+
+- **`AggregateId` immutability is not enforced** — `AggregateId` is an identity type and must not be
+  mutated after construction, but nothing currently prevents it. Add `__setattr__` and `__delattr__`
+  protection to `AggregateId`, consistent with the immutability enforced on `ValueObject`.
 
 - **Document `_abstract_event` convention in `architecture.md`** — The `_abstract_event = True` flag on `DomainEvent`
   is an internal convention for exempting intermediate base classes from the `event_type` enforcement in

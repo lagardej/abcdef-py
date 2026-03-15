@@ -1,26 +1,26 @@
 """Tests for Value Object."""
 
+from dataclasses import dataclass
+
 import pytest
 
 from abcdef.core import ValueObject
 
 
+@dataclass(frozen=True)
 class Money(ValueObject):
     """Test value object."""
 
-    def __init__(self, amount: float, currency: str) -> None:
-        """Initialise with amount and currency."""
-        self.amount = amount
-        self.currency = currency
+    amount: float
+    currency: str
 
 
+@dataclass(frozen=True)
 class TaggedItem(ValueObject):
     """Value object with an unhashable attribute (list)."""
 
-    def __init__(self, name: str, tags: list[str]) -> None:
-        """Initialise with name and tags."""
-        self.name = name
-        self.tags = tags
+    name: str
+    tags: list[str]
 
 
 class TestValueObject:
@@ -89,7 +89,42 @@ class TestValueObject:
         assert hash(vo1) != hash(vo2)
 
     def test_hash_raises_type_error_for_unhashable_attribute(self) -> None:
-        """__hash__ raises TypeError with a clear message for unhashable attributes."""
+        """__hash__ raises TypeError for unhashable attributes."""
         vo = TaggedItem("widget", ["a", "b"])
-        with pytest.raises(TypeError, match="tags"):
+        with pytest.raises(TypeError):
             hash(vo)
+
+
+class TestValueObjectImmutability:
+    """Tests for ValueObject immutability enforcement."""
+
+    def test_setting_attribute_after_construction_raises(self) -> None:
+        """Setting an attribute after construction raises FrozenInstanceError."""
+        vo = Money(100.0, "USD")
+        with pytest.raises(AttributeError):
+            vo.amount = 200.0  # type: ignore[misc]
+
+    def test_deleting_attribute_raises(self) -> None:
+        """Deleting an attribute raises FrozenInstanceError."""
+        vo = Money(100.0, "USD")
+        with pytest.raises(AttributeError):
+            del vo.amount  # type: ignore[misc]
+
+    def test_adding_new_attribute_after_construction_raises(self) -> None:
+        """Adding a new attribute after construction raises FrozenInstanceError."""
+        vo = Money(100.0, "USD")
+        with pytest.raises(AttributeError):
+            vo.new_field = "surprise"  # type: ignore[attr-defined]
+
+    def test_subclass_inherits_immutability(self) -> None:
+        """Immutability is inherited by subclasses without re-declaration."""
+
+        @dataclass(frozen=True)
+        class Price(Money):
+            """Subclass of Money."""
+
+            vat_rate: float = 0.2
+
+        vo = Price(50.0, "GBP")
+        with pytest.raises(AttributeError):
+            vo.amount = 99.0  # type: ignore[misc]

@@ -1,57 +1,29 @@
 """Value Object abstraction."""
 
+from dataclasses import dataclass
+
 from . import markers
 
 
 @markers.value_object
+@dataclass(frozen=True)
 class ValueObject:
     """Base class for Value Objects.
 
     A Value Object is:
-    - Immutable (once created, it cannot be changed)
+    - Immutable: attribute assignment and deletion are forbidden
+      after construction; any attempt raises ``AttributeError``.
     - Defined by its attributes (compared by value, not identity)
-    - Has no concept of identity (two value objects with same attributes are equal)
+    - Has no concept of identity (two value objects with the same
+      attributes are equal)
     - Often used to encapsulate domain concepts with rules
 
-    Subclasses should be implemented as immutable (use frozen dataclasses or similar).
+    Immutability is enforced by the frozen dataclass machinery.
+    Subclasses must be declared as ``@dataclass(frozen=True)``;
+    Python requires all dataclass subclasses of a frozen dataclass
+    to also be frozen.
 
-    All attribute values must be hashable. Attributes of unhashable types (e.g. list,
-    dict, set) will cause ``__hash__`` to raise ``TypeError`` naming the offending
-    attribute.
+    All attribute values must be hashable. Attributes of unhashable
+    types (e.g. list, dict, set) will cause ``__hash__`` to raise
+    ``TypeError``.
     """
-
-    def __eq__(self, other: object) -> bool:
-        """Compare by value.
-
-        Args:
-            other: The other object to compare.
-
-        Returns:
-            True if both objects have the same attributes.
-        """
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return self.__dict__ == other.__dict__
-
-    def __hash__(self) -> int:
-        """Hash by value.
-
-        All attribute values must be hashable. Raises ``TypeError`` naming the
-        offending attribute if an unhashable value is encountered.
-
-        Returns:
-            Hash of the object attributes.
-
-        Raises:
-            TypeError: If any attribute value is not hashable.
-        """
-        items: list[tuple[str, object]] = sorted(self.__dict__.items())
-        for key, value in items:
-            try:
-                hash(value)
-            except TypeError:
-                raise TypeError(
-                    f"{self.__class__.__name__}.{key} is not hashable. "
-                    f"ValueObject attributes must be hashable types."
-                ) from None
-        return hash(tuple(items))
