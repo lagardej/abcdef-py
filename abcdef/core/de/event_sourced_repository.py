@@ -136,14 +136,22 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         )
 
     def find_all(self) -> list[TEntity]:
-        """Find all aggregates requires projections or snapshots.
+        """Not supported on event-sourced repositories.
 
-        Returns:
-            List of all reconstructed aggregates.
+        ``find_all()`` requires iterating all aggregates, which is not possible
+        directly from an append-only event store without rebuilding every aggregate
+        from its full event history. This is impractical at scale and is deliberately
+        not implemented here.
+
+        To query all aggregates, use a projection: subscribe to domain events and
+        maintain a read model that can be queried efficiently.
+
+        Raises:
+            NotImplementedError: Always. This method is intentionally unsupported.
         """
         raise NotImplementedError(
-            "find_all() requires projections or rebuilding from all events. "
-            "Implement in a subclass or use a projection system."
+            "find_all() is not supported on event-sourced repositories. "
+            "Use a projection to maintain a queryable read model."
         )
 
     def build_from_events(

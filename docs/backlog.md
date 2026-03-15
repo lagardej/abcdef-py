@@ -12,11 +12,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-- **`EventSourcedRepository.find_all()` contract is unclear** — It raises `NotImplementedError` with a message
-  suggesting projections. But subclasses inheriting from `Repository` expect to override it. Either formally remove
-  it from the `EventSourcedRepository` contract (document it as unsupported) or clarify the intended override
-  pattern.
-
 - **`EventSourcedRepository` does not publish events post-commit** — After `save()`, committed events are discarded
   and never published to an `EventBus`. Projectors have no way to react in real time. Wire the repository to publish
   events after appending them to the event store.
