@@ -1,0 +1,128 @@
+"""Tests for the Event hierarchy: Event and DomainEvent."""
+
+from __future__ import annotations
+
+import datetime
+
+import pytest
+
+from abcdef.core.de import DomainEvent, Event
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+_TS = datetime.datetime(2024, 1, 1, 12, 0, 0, tzinfo=datetime.UTC)
+
+
+class ConcreteEvent(Event):
+    """Minimal concrete Event for testing."""
+
+    event_type = "concrete_event"
+
+    def __init__(self) -> None:
+        """Initialise."""
+        super().__init__(occurred_at=_TS)
+
+
+class ConcreteDomainEvent(DomainEvent):
+    """Minimal concrete DomainEvent for testing."""
+
+    event_type = "concrete_domain_event"
+
+    def __init__(self, aggregate_id: str) -> None:
+        """Initialise."""
+        super().__init__(occurred_at=_TS, aggregate_id=aggregate_id)
+
+
+# ---------------------------------------------------------------------------
+# Event
+# ---------------------------------------------------------------------------
+
+
+class TestEvent:
+    """Tests for the Event base class."""
+
+    def test_occurred_at_is_stored(self) -> None:
+        """occurred_at is accessible on the instance."""
+        assert ConcreteEvent().occurred_at == _TS
+
+    def test_event_type_classvar_is_accessible(self) -> None:
+        """event_type is readable from both the class and an instance."""
+        assert ConcreteEvent.event_type == "concrete_event"
+        assert ConcreteEvent().event_type == "concrete_event"
+
+    def test_missing_event_type_raises_on_class_definition(self) -> None:
+        """Defining a concrete subclass without event_type raises TypeError."""
+        with pytest.raises(TypeError, match="event_type"):
+
+            class BadEvent(Event):
+                def __init__(self) -> None:
+                    super().__init__(occurred_at=_TS)
+
+    def test_empty_event_type_raises_on_class_definition(self) -> None:
+        """Defining a concrete subclass with event_type = '' raises TypeError."""
+        with pytest.raises(TypeError, match="event_type"):
+
+            class EmptyTypeEvent(Event):
+                event_type = ""
+
+                def __init__(self) -> None:
+                    super().__init__(occurred_at=_TS)
+
+    def test_abstract_event_flag_exempts_intermediate_base(self) -> None:
+        """A subclass with _abstract_event = True is exempt from the check."""
+
+        class IntermediateBase(Event):
+            _abstract_event = True
+
+        assert IntermediateBase  # no TypeError raised
+
+    def test_concrete_subclass_of_intermediate_must_define_event_type(self) -> None:
+        """A concrete subclass of an intermediate base must define event_type."""
+
+        class IntermediateBase(Event):
+            _abstract_event = True
+
+        with pytest.raises(TypeError, match="event_type"):
+
+            class ConcreteWithoutType(IntermediateBase):
+                def __init__(self) -> None:
+                    super().__init__(occurred_at=_TS)
+
+    def test_event_type_not_inherited_without_override(self) -> None:
+        """A subclass cannot inherit event_type to satisfy the check."""
+        with pytest.raises(TypeError, match="event_type"):
+
+            class InheritedTypeEvent(ConcreteEvent):
+                def __init__(self) -> None:
+                    super().__init__()
+
+
+# ---------------------------------------------------------------------------
+# DomainEvent
+# ---------------------------------------------------------------------------
+
+
+class TestDomainEvent:
+    """Tests for DomainEvent."""
+
+    def test_is_event(self) -> None:
+        """DomainEvent is a subtype of Event."""
+        assert isinstance(ConcreteDomainEvent("x"), Event)
+
+    def test_aggregate_id_is_stored(self) -> None:
+        """aggregate_id is accessible on the instance."""
+        assert ConcreteDomainEvent(aggregate_id="agg-42").aggregate_id == "agg-42"
+
+    def test_occurred_at_is_stored(self) -> None:
+        """occurred_at is inherited and accessible."""
+        assert ConcreteDomainEvent(aggregate_id="x").occurred_at == _TS
+
+    def test_missing_event_type_raises(self) -> None:
+        """Concrete DomainEvent subclass without event_type raises TypeError."""
+        with pytest.raises(TypeError, match="event_type"):
+
+            class BadDomainEvent(DomainEvent):
+                def __init__(self) -> None:
+                    super().__init__(occurred_at=_TS, aggregate_id="x")

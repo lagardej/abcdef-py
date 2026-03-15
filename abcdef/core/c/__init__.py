@@ -1,4 +1,4 @@
-"""c — CQRS building blocks.
+"""c -- CQRS building blocks.
 
 Base classes, marker interfaces, and bus abstractions for
 Command/Query Responsibility Segregation.
@@ -17,6 +17,7 @@ from .markers import (
     query,
     query_handler,
 )
+from .message import Message
 from .message_bus import CommandBus, EventBus, MessageBus, QueryBus
 from .query import Query, QueryHandler, TQuery, TQueryResult
 from .registry import CommandRegistry, QueryRegistry
@@ -29,6 +30,7 @@ __all__ = [
     "Document",
     "DocumentStore",
     "EventBus",
+    "Message",
     "MessageBus",
     "Query",
     "QueryBus",

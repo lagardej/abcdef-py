@@ -12,10 +12,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-- **`Event` has no base fields** — The `Event` marker class carries no `aggregate_id`, no `occurred_at` timestamp,
-  and no `event_type` discriminator. Projections consuming `get_all_events()` have no guaranteed fields to work with.
-  Define a minimal set of base fields on `Event`.
-
 - **No `DomainService` base class** — The `domain_service` marker exists but has no corresponding base class. All
   other markers have base classes (`Command`, `Query`, `Result`, `Document`, `AggregateRoot`, `ValueObject`, `Event`).
   Add a `DomainService` base class in `core/d/`.
@@ -36,6 +32,11 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Improvements
 
+- **Introduce `EventEmittingAggregate` in `d/`** — Base class for aggregates that emit domain events without event
+  sourcing. `EventSourcedAggregate` in `de/` would extend it. This cleanly separates "aggregate that raises events
+  for the bus" from "aggregate whose state is sourced from events". `DomainEvent` would move to `d/` as the event
+  type emitted by such aggregates. Deliberately deferred until a concrete use case exists.
+
 - **`build_from_events()` and `_create_from_state()` should be `@abstractmethod`** — Both raise `NotImplementedError`
   in `EventSourcedRepository` but are not declared abstract. A subclass that forgets to implement them is only caught
   at runtime, not at instantiation. Declare them abstract.
@@ -45,8 +46,8 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
   predictable and serialisation-friendly.
 
 - **ES aggregate events are untyped** — `EventSourcedAggregate._emit_event(event: object)` accepts `object`, while
-  `Event` is a typed marker. The two event concepts are decoupled. `_emit_event` should accept `Event`, and
-  event-sourced aggregate events should extend `Event`, converging the two concepts.
+  `DomainEvent` is now a typed base. Tighten `_emit_event` to accept `DomainEvent`, and update the `de/` test
+  fixtures accordingly.
 
 - **`ValueObject` immutability is documented but not enforced** — The docstring says "use frozen dataclasses or
   similar" but nothing prevents mutation. Either drop the suggestion and document the limitation honestly, or
@@ -55,13 +56,13 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 - **`AggregateId.__repr__` is not tested** — All other `AggregateId` behaviours are covered. Add a test for
   `__repr__`.
 
-- **Marker attribute naming is implicit** — CQRS markers set `__cqrs_type__`, DDD markers set `__ddd_type__`, but
-  the `event` marker in `cde/` sets `__cqrs_type__` rather than a `__cde_type__`. This is not wrong but looks
-  accidental. Document the decision explicitly in `architecture.md`.
-
 - **`get_all_events()` ordering guarantee is undocumented** — `InMemoryEventStore` preserves insertion order across
   aggregates, which is correct for in-memory use. A persistent backend may not guarantee this. Document the expected
   ordering contract in the `EventStore` ABC so implementations know what to honour.
 
 - **`in_memory/` tests have no shared `fixtures.py`** — `de/` and `c/` test directories use `fixtures.py` for
   shared setup. `in_memory/` tests inline their fixture setup. Extract a `fixtures.py` for consistency.
+
+- **Document `_abstract_event` convention in `architecture.md`** — The `_abstract_event = True` flag on `DomainEvent`
+  is an internal convention for exempting intermediate base classes from the `event_type` enforcement in
+  `Event.__init_subclass__`. Document it alongside the marker attribute naming decisions.

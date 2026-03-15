@@ -5,13 +5,14 @@ from typing import TypeVar
 
 from ..result import Result
 from . import markers
+from .message import Message
 
 TCommand = TypeVar("TCommand", bound="Command")
 TResult = TypeVar("TResult", bound=Result)
 
 
 @markers.command
-class Command:
+class Command(Message):
     """Marker interface for commands.
 
     A Command represents an intent to perform an action that mutates state.

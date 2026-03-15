@@ -3,8 +3,7 @@
 Covers CQRS, DDD, and Event Sourcing. Sub-packages follow the ABCDEF Venn diagram:
   c/   -- CQRS only
   d/   -- DDD only
-  de/  -- DDD + Event Sourcing
-  cde/ -- CQRS + DDD + Event Sourcing
+  de/  -- DDD + Event Sourcing (includes Event hierarchy)
 """
 
 from .c import (
@@ -15,6 +14,7 @@ from .c import (
     Document,
     DocumentStore,
     EventBus,
+    Message,
     MessageBus,
     Query,
     QueryBus,
@@ -35,8 +35,6 @@ from .c.markers import (
     query,
     query_handler,
 )
-from .cde import Event
-from .cde.markers import event
 from .d import (
     AggregateId,
     AggregateRoot,
@@ -56,6 +54,8 @@ from .de import (
     AggregateRecord,
     AggregateState,
     AggregateStore,
+    DomainEvent,
+    Event,
     EventSourcedAggregate,
     EventSourcedRepository,
     EventStore,
@@ -76,11 +76,13 @@ __all__ = [
     "CommandRegistry",
     "Document",
     "DocumentStore",
+    "DomainEvent",
     "Event",
     "EventBus",
     "EventSourcedAggregate",
     "EventSourcedRepository",
     "EventStore",
+    "Message",
     "MessageBus",
     "Query",
     "QueryBus",
@@ -101,7 +103,6 @@ __all__ = [
     "document",
     "document_store",
     "domain_service",
-    "event",
     "event_store",
     "factory",
     "identifier",

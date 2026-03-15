@@ -1,5 +1,7 @@
 """Shared fixtures for in_memory/ tests."""
 
+import datetime
+
 from abcdef.core import AggregateId, AggregateRoot, Event
 
 
@@ -12,19 +14,28 @@ class DummyAggregate(AggregateRoot):
         self.value = value
 
 
+_TS = datetime.datetime(2024, 1, 1, tzinfo=datetime.UTC)
+
+
 class OrderPlaced(Event):
     """Dummy event representing an order being placed."""
 
+    event_type = "order_placed"
+
     def __init__(self, order_id: str) -> None:
         """Initialise with an order_id."""
+        super().__init__(occurred_at=_TS)
         self.order_id = order_id
 
 
 class OrderCancelled(Event):
     """Dummy event representing an order being cancelled."""
 
+    event_type = "order_cancelled"
+
     def __init__(self, order_id: str) -> None:
         """Initialise with an order_id."""
+        super().__init__(occurred_at=_TS)
         self.order_id = order_id
 
 

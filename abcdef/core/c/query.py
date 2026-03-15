@@ -5,13 +5,14 @@ from typing import TypeVar
 
 from ..result import Result
 from . import markers
+from .message import Message
 
 TQuery = TypeVar("TQuery", bound="Query")
 TQueryResult = TypeVar("TQueryResult", bound=Result)
 
 
 @markers.query
-class Query:
+class Query(Message):
     """Marker interface for queries.
 
     A Query represents a request to retrieve data without mutating state.
