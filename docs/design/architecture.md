@@ -131,7 +131,7 @@ TIC enforces strict separation between write-side (command) and read-side (query
 **Strict rules:**
 
 * Domain always internal (no exports)
-* Events exported at root (`events.py`)
+* Events exported at module root
 * Cross-module boundaries: events or SPIs only
 * No shared mutable state
 
@@ -255,8 +255,52 @@ The event store is the system of records. All state changes are captured as immu
 
 **Event design (abstract):**
 
-* All events in one file per module (`events.py`).
-* Events are dataclasses with no behaviour.
+* Events are plain classes with no behaviour (not dataclasses).
+
+### Event Immutability
+
+`Event` enforces immutability via `__setattr__` and `__delattr__` overrides,
+using the same pattern as `AggregateId`. Any attempt to assign or delete an
+attribute after construction raises `AttributeError`.
+
+Because `Event` is not a dataclass, subclasses must initialise their own
+attributes using `object.__setattr__(self, name, value)` in `__init__` —
+normal assignment (`self.x = y`) is blocked by the override.
+
+```python
+class ThingHappened(DomainEvent):
+    event_type = "thing_happened"
+
+    def __init__(self, value: str, *, occurred_at: datetime, aggregate_id: str) -> None:
+        super().__init__(occurred_at=occurred_at, aggregate_id=aggregate_id)
+        object.__setattr__(self, "value", value)  # required
+```
+
+Plain-class subclasses that use `self.x = y` in `__init__` will raise
+`AttributeError` at construction time — the convention must be followed
+manually.
+
+### Abstract Event Classes (`_abstract_event`)
+
+`Event.__init_subclass__` enforces that every concrete subclass declares a
+non-empty `event_type` directly in its own class body. Intermediate base
+classes in the hierarchy (e.g. `DomainEvent`) need to opt out of this check
+because they are not themselves concrete events.
+
+They do so by setting `_abstract_event = True` directly in their class body:
+
+```python
+class DomainEvent(Event):
+    _abstract_event = True  # exempt from event_type enforcement
+```
+
+The flag is checked via `cls.__dict__.get("_abstract_event")`, so it must
+appear directly on the class — inheriting it from a parent has no effect.
+Concrete leaf classes must never set it; they must declare `event_type`.
+
+The underscore prefix marks this as an internal framework convention. It is
+not part of the public API and should not appear on application-level event
+classes.
 
 **Aggregate rehydration:**
 
@@ -275,13 +319,12 @@ Events are published to a message bus, allowing modules to react without direct 
 
 *One concept per file.* This is a hard constraint.
 
-Physical location follows clear patterns. Aggregates and value objects always live in `domain` and are never exported. Events live at the module root in `events.py`. Application handlers follow their layer structure. Sub-packages are allowed if they reflect structural needs (e.g., `interface/cli` for CLI commands, `interface/web` for web routes), but all public exports must be declared in `__init__.py`.
+Physical location follows clear patterns. Aggregates and value objects always live in `domain` and are never exported. Application handlers follow their layer structure. Sub-packages are allowed if they reflect structural needs (e.g., `interface/cli` for CLI commands, `interface/web` for web routes), but all public exports must be declared in `__init__.py`.
 
 | Concept | File Pattern |
 |---|---|
 | Aggregate | `domain/<aggregate>.py` |
 | Aggregate ABC | `domain/<aggregate>_repository.py` |
-| Events (all) | `events.py` (root of module) |
 | Use case command + handler | `application/<use_case>.py` |
 | Concrete ABC implementation | `infrastructure/<tech>_<concept>.py` |
 | Query handler | `application/<query>.py` |
