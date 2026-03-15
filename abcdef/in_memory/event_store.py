@@ -2,7 +2,8 @@
 
 from collections.abc import Sequence
 
-from abcdef.core import AggregateId, AggregateRoot, DomainEvent, EventStore
+from abcdef.core import AggregateId, AggregateRoot, EventStore
+from abcdef.core.de import EventSourcedDomainEvent
 
 
 class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
@@ -20,10 +21,12 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
 
     def __init__(self) -> None:
         """Initialise the event store with empty storage."""
-        self._store: dict[str, list[DomainEvent]] = {}
-        self._all: list[DomainEvent] = []
+        self._store: dict[str, list[EventSourcedDomainEvent]] = {}
+        self._all: list[EventSourcedDomainEvent] = []
 
-    def append_events(self, aggregate_id: TId, events: Sequence[DomainEvent]) -> None:
+    def append_events(
+        self, aggregate_id: TId, events: Sequence[EventSourcedDomainEvent]
+    ) -> None:
         """Append events for an aggregate to the store.
 
         Args:
@@ -38,7 +41,7 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
 
     def get_events(
         self, aggregate_id: TId, from_version: int | None = None
-    ) -> list[DomainEvent]:
+    ) -> list[EventSourcedDomainEvent]:
         """Retrieve events for an aggregate.
 
         Args:
@@ -54,7 +57,7 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
             return events[from_version:].copy()
         return events.copy()
 
-    def get_all_events(self) -> list[DomainEvent]:
+    def get_all_events(self) -> list[EventSourcedDomainEvent]:
         """Retrieve all events across all aggregates in append order.
 
         Returns:

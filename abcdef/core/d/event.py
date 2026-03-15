@@ -13,22 +13,24 @@ if TYPE_CHECKING:
 class Event(Message):
     """Base class for all domain events.
 
-    An Event is an immutable record of something that happened in the domain.
-    It extends Message because events are dispatched on an EventBus.
+    An Event is an immutable record of something that happened in the
+    domain. It extends Message because events are dispatched on an
+    EventBus.
 
     Subclasses MUST declare a non-empty ``event_type`` class variable.
-    This decouples the event's stable identity (used in the event store and
-    projections) from the Python class name, which may be refactored freely.
+    This decouples the event's stable identity (used in the event store
+    and projections) from the Python class name, which may be refactored
+    freely.
 
-    The ``event_type`` must be declared directly on the concrete class -- it
-    cannot be satisfied by inheriting it from a parent class.
+    The ``event_type`` must be declared directly on the concrete class
+    -- it cannot be satisfied by inheriting it from a parent class.
 
-    Intermediate base classes in the hierarchy may opt out of the check by
-    setting ``_abstract_event = True`` directly in their class body.
+    Intermediate base classes in the hierarchy may opt out of the check
+    by setting ``_abstract_event = True`` directly in their class body.
 
     Args:
-        occurred_at: When the event occurred. Must be supplied by the caller;
-            the class never reads the system clock.
+        occurred_at: When the event occurred. Must be supplied by the
+            caller; the class never reads the system clock.
     """
 
     event_type: str = ""
@@ -42,8 +44,8 @@ class Event(Message):
             **kwargs: Passed through to super().__init_subclass__.
 
         Raises:
-            TypeError: If a concrete subclass does not declare a non-empty
-                ``event_type`` directly in its own class body.
+            TypeError: If a concrete subclass does not declare a
+                non-empty ``event_type`` directly in its own class body.
         """
         super().__init_subclass__(**kwargs)
         if cls.__dict__.get("_abstract_event"):

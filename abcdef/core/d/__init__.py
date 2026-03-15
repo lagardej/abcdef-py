@@ -1,10 +1,13 @@
 """d — DDD building blocks.
 
 Base classes and abstractions for Domain-Driven Design concepts:
-aggregates, value objects, and repositories.
+aggregates, value objects, repositories, and domain events.
 """
 
 from .aggregate import AggregateId, AggregateRoot
+from .domain_event import DomainEvent, DomainEventRegistry
+from .event import Event
+from .event_emitting_aggregate import EventEmittingAggregate
 from .markers import (
     aggregate,
     domain_service,
@@ -19,6 +22,10 @@ from .value_object import ValueObject
 __all__ = [
     "AggregateId",
     "AggregateRoot",
+    "DomainEvent",
+    "DomainEventRegistry",
+    "Event",
+    "EventEmittingAggregate",
     "Repository",
     "ValueObject",
     "aggregate",

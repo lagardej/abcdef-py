@@ -3,6 +3,7 @@
 import pytest
 
 from abcdef.core import AggregateRegistry, AggregateState, EventSourcedAggregate
+from abcdef.core.de import EventSourcedDomainEvent
 from tests.abcdef.conftest import make_id
 from tests.abcdef.core.de.fixtures import (
     DummyAggregate,
@@ -158,7 +159,7 @@ class TestEventSourcedAggregateType:
         with pytest.raises(TypeError, match="aggregate_type"):
 
             class NoType(EventSourcedAggregate):  # type: ignore[type-arg]
-                def _apply_event(self, event: object) -> None:
+                def _apply_event(self, event: EventSourcedDomainEvent) -> None:
                     pass
 
                 def create_state(self) -> object:
@@ -175,7 +176,7 @@ class TestEventSourcedAggregateType:
                 _abstract_aggregate = True
                 aggregate_type = "base_for_inheritance_test"
 
-                def _apply_event(self, event: object) -> None:
+                def _apply_event(self, event: EventSourcedDomainEvent) -> None:
                     pass
 
                 def create_state(self) -> object:
@@ -193,7 +194,7 @@ class TestEventSourcedAggregateType:
         class Intermediate(EventSourcedAggregate):  # type: ignore[type-arg]
             _abstract_aggregate = True
 
-            def _apply_event(self, event: object) -> None:
+            def _apply_event(self, event: EventSourcedDomainEvent) -> None:
                 pass
 
             def create_state(self) -> object:

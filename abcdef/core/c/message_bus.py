@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-from ..de.event import Event
+from ..d.event import Event
 
 _TSpecificEvent = TypeVar("_TSpecificEvent", bound=Event)
 

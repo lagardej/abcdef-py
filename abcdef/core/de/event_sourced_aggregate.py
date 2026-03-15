@@ -4,8 +4,9 @@ from abc import abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from ..d import AggregateId, AggregateRoot
-from .domain_event import DomainEvent
+from ..d import AggregateId
+from ..d.event_emitting_aggregate import EventEmittingAggregate
+from .event_sourced_domain_event import EventSourcedDomainEvent
 
 
 class AggregateRegistry:
@@ -66,7 +67,8 @@ class AggregateState:
     (not dataclasses) will not have immutability enforced at runtime.
 
     Frozen dataclasses provide:
-    - Immutability: assignment raises ``AttributeError`` after construction.
+    - Immutability: assignment raises ``AttributeError`` after
+      construction.
     - Value equality: ``__eq__`` compares fields by value.
     - Hashability: ``__hash__`` is derived from field values.
     - Readability: ``__repr__`` includes the class name and all fields.
@@ -75,14 +77,15 @@ class AggregateState:
     pass
 
 
-class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
+class EventSourcedAggregate[TState: AggregateState](EventEmittingAggregate):
     """Aggregate optimised for event sourcing with version tracking.
 
-    Extends AggregateRoot to add event sourcing concerns:
-    - Recording domain events for persistence (append-only)
+    Extends EventEmittingAggregate to add event sourcing concerns:
+    - Applying events to state immediately on emit (event application
+      pattern)
     - Version tracking for optimistic locking and snapshot delta
       calculations
-    - Event application pattern: emit event -> apply event to state
+    - Replaying historical events to reconstruct state
     - Generic state type for type-safe snapshots
 
     The version increments with each event, enabling:
@@ -110,8 +113,9 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
         """Enforce aggregate_type declaration on all concrete subclasses.
 
         Raises:
-            TypeError: If a concrete subclass does not declare a non-empty
-                ``aggregate_type`` directly in its own class body.
+            TypeError: If a concrete subclass does not declare a
+                non-empty ``aggregate_type`` directly in its own class
+                body.
         """
         super().__init_subclass__(**kwargs)
         if cls.__dict__.get("_abstract_aggregate"):
@@ -130,7 +134,6 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
             aggregate_id: The unique identity of this aggregate.
         """
         super().__init__(aggregate_id)
-        self._events: list[DomainEvent] = []
         self._version = 0
         self._base_version = 0
 
@@ -188,24 +191,30 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
         """
         return self._base_version
 
-    def _get_uncommitted_events(self) -> list[DomainEvent]:
+    def _get_uncommitted_events(self) -> list[EventSourcedDomainEvent]:  # type: ignore[override]
         """Return all events recorded but not yet persisted.
 
-        Called by the repository during save. Not part of the domain API.
+        Narrows the return type from DomainEvent (declared on
+        EventEmittingAggregate) to EventSourcedDomainEvent.
 
         Returns:
-            List of uncommitted domain events.
+            List of uncommitted event-sourced domain events.
         """
-        return self._events.copy()
+        return self._pending_events.copy()  # type: ignore[return-value]
 
-    def _mark_events_as_committed(self) -> None:
-        """Mark all recorded events as committed (persisted).
+    def _emit_event(self, event: EventSourcedDomainEvent) -> None:  # type: ignore[override]
+        """Record an event, apply it to state, and increment version.
 
-        Called by the repository after appending events to the event
-        store. Version remains unchanged -- the current version IS the
-        committed version.
+        Overrides EventEmittingAggregate._emit_event to add:
+        1. Immediate application of the event to state
+        2. Version increment
+
+        Args:
+            event: The event-sourced domain event to record and apply.
         """
-        self._events.clear()
+        super()._emit_event(event)
+        self._apply_event(event)
+        self._version += 1
 
     def _mark_state_saved(self) -> None:
         """Update the base version to the current version after a state save.
@@ -216,21 +225,7 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
         """
         self._base_version = self._version
 
-    def _emit_event(self, event: DomainEvent) -> None:
-        """Record an event, apply it to state, and increment version.
-
-        1. Record the event (for persistence)
-        2. Apply the event to the aggregate's state immediately
-        3. Increment the version
-
-        Args:
-            event: The domain event to record and apply.
-        """
-        self._events.append(event)
-        self._apply_event(event)
-        self._version += 1
-
-    def _load_from_history(self, events: Sequence[DomainEvent]) -> None:
+    def _load_from_history(self, events: Sequence[EventSourcedDomainEvent]) -> None:
         """Reconstruct aggregate state by replaying historical events.
 
         Called by the repository when rebuilding an aggregate from stored
@@ -246,7 +241,7 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
             self._version += 1
 
     @abstractmethod
-    def _apply_event(self, event: DomainEvent) -> None:
+    def _apply_event(self, event: EventSourcedDomainEvent) -> None:
         """Apply a single event to the aggregate's internal state.
 
         Subclasses MUST implement this to define how each event type

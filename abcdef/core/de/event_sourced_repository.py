@@ -11,7 +11,7 @@ from .event_sourced_aggregate import AggregateRegistry, EventSourcedAggregate
 
 if TYPE_CHECKING:
     from ..c.message_bus import EventBus
-    from .event import Event
+    from .event_sourced_domain_event import EventSourcedDomainEvent
     from .event_store import EventStore
 
 
@@ -73,7 +73,7 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         self,
         event_store: EventStore[TId, TEntity],
         aggregate_store: AggregateStore[TId, TEntity],
-        event_bus: EventBus[Event],
+        event_bus: EventBus[EventSourcedDomainEvent],
         aggregate_registry: AggregateRegistry,
         snapshot_threshold: int = 10,
     ) -> None:

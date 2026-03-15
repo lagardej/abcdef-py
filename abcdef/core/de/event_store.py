@@ -5,7 +5,7 @@ from collections.abc import Sequence
 
 from ..d import AggregateId, AggregateRoot
 from . import markers as de_markers
-from .domain_event import DomainEvent
+from .event_sourced_domain_event import EventSourcedDomainEvent
 
 
 @de_markers.event_store
@@ -15,21 +15,27 @@ class EventStore[TId: AggregateId, TEntity: AggregateRoot](ABC):
     An EventStore is the single source of truth in event sourcing.
     It stores all domain events in append-only fashion (immutable).
 
-    Aggregates are reconstructed by replaying events from the event store.
+    Aggregates are reconstructed by replaying events from the event
+    store.
 
     Responsibilities:
     - Store events immutably (append-only)
     - Retrieve event history for an aggregate
     - Support event snapshots for performance optimisation
 
-    Ordering contract: implementations must preserve append order per aggregate.
-    get_events() returns events in chronological (append) order. get_all_events()
-    returns events across all aggregates in global append order. Persistent
-    backends must honour this contract explicitly.
+    Ordering contract: implementations must preserve append order per
+    aggregate. get_events() returns events in chronological (append)
+    order. get_all_events() returns events across all aggregates in
+    global append order. Persistent backends must honour this contract
+    explicitly.
     """
 
     @abstractmethod
-    def append_events(self, aggregate_id: TId, events: Sequence[DomainEvent]) -> None:
+    def append_events(
+        self,
+        aggregate_id: TId,
+        events: Sequence[EventSourcedDomainEvent],
+    ) -> None:
         """Append events for an aggregate to the store.
 
         Events are immutable once stored. This method should be atomic.
@@ -43,13 +49,13 @@ class EventStore[TId: AggregateId, TEntity: AggregateRoot](ABC):
     @abstractmethod
     def get_events(
         self, aggregate_id: TId, from_version: int | None = None
-    ) -> list[DomainEvent]:
+    ) -> list[EventSourcedDomainEvent]:
         """Retrieve events for an aggregate.
 
         Args:
             aggregate_id: The ID of the aggregate.
-            from_version: If provided, only events at this version index and
-                later are returned. Equivalent to skipping the first
+            from_version: If provided, only events at this version index
+                and later are returned. Equivalent to skipping the first
                 ``from_version`` events. If None, all events are returned.
 
         Returns:
@@ -58,7 +64,7 @@ class EventStore[TId: AggregateId, TEntity: AggregateRoot](ABC):
         pass
 
     @abstractmethod
-    def get_all_events(self) -> list[DomainEvent]:
+    def get_all_events(self) -> list[EventSourcedDomainEvent]:
         """Retrieve all events from the store (for projections).
 
         Returns events across all aggregates in global append order.

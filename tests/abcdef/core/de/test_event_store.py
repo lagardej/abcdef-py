@@ -2,15 +2,16 @@
 
 import datetime
 
-from abcdef.core import DomainEvent, EventStore
+from abcdef.core import EventStore
+from abcdef.core.de import EventSourcedDomainEvent
 from abcdef.in_memory import InMemoryEventStore
 from tests.abcdef.conftest import make_id
 
 _TS = datetime.datetime(2024, 1, 1, tzinfo=datetime.UTC)
 
 
-class DummyEvent(DomainEvent):
-    """Minimal DomainEvent for event store testing."""
+class DummyEvent(EventSourcedDomainEvent):
+    """Minimal EventSourcedDomainEvent for event store testing."""
 
     event_type = "dummy_event"
     value: str
@@ -26,7 +27,7 @@ def _evt(value: str) -> DummyEvent:
     return DummyEvent(value=value)
 
 
-def _val(event: DomainEvent) -> str:
+def _val(event: EventSourcedDomainEvent) -> str:
     """Extract value from a DummyEvent, narrowing the type."""
     assert isinstance(event, DummyEvent)
     return event.value

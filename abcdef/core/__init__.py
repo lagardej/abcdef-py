@@ -1,9 +1,10 @@
 """Core package -- abstract base classes and marker interfaces.
 
-Covers CQRS, DDD, and Event Sourcing. Sub-packages follow the ABCDEF Venn diagram:
+Covers CQRS, DDD, and Event Sourcing. Sub-packages follow the ABCDEF
+Venn diagram:
   c/   -- CQRS only
-  d/   -- DDD only
-  de/  -- DDD + Event Sourcing (includes Event hierarchy)
+  d/   -- DDD only (includes Event, DomainEvent, EventEmittingAggregate)
+  de/  -- DDD + Event Sourcing
 """
 
 from .c import (
@@ -38,6 +39,10 @@ from .c.markers import (
 from .d import (
     AggregateId,
     AggregateRoot,
+    DomainEvent,
+    DomainEventRegistry,
+    Event,
+    EventEmittingAggregate,
     Repository,
     ValueObject,
 )
@@ -54,10 +59,9 @@ from .de import (
     AggregateRegistry,
     AggregateState,
     AggregateStore,
-    DomainEvent,
-    DomainEventRegistry,
-    Event,
     EventSourcedAggregate,
+    EventSourcedDomainEvent,
+    EventSourcedDomainEventRegistry,
     EventSourcedRepository,
     EventStore,
     VersionConflictError,
@@ -82,7 +86,10 @@ __all__ = [
     "DomainEventRegistry",
     "Event",
     "EventBus",
+    "EventEmittingAggregate",
     "EventSourcedAggregate",
+    "EventSourcedDomainEvent",
+    "EventSourcedDomainEventRegistry",
     "EventSourcedRepository",
     "EventStore",
     "Message",

@@ -7,15 +7,14 @@ from abcdef.core import (
     AggregateId,
     AggregateRegistry,
     AggregateState,
-    DomainEvent,
     EventSourcedAggregate,
 )
-from abcdef.core.de import EventSourcedRepository
+from abcdef.core.de import EventSourcedDomainEvent, EventSourcedRepository
 from abcdef.in_memory import (
     InMemoryAggregateStore,
-    InMemoryEventBus,
     InMemoryEventStore,
 )
+from abcdef.in_memory.event_bus import InMemoryEventBus
 
 _TS = datetime.datetime(2024, 1, 1, tzinfo=datetime.UTC)
 _DEFAULT_AGG_ID = "test-aggregate"
@@ -25,7 +24,7 @@ _DEFAULT_AGG_ID = "test-aggregate"
 # ---------------------------------------------------------------------------
 
 
-class DummyIncrementedEvent(DomainEvent):
+class DummyIncrementedEvent(EventSourcedDomainEvent):
     """Dummy increment event."""
 
     event_type = "dummy_incremented"
@@ -37,7 +36,7 @@ class DummyIncrementedEvent(DomainEvent):
         object.__setattr__(self, "amount", amount)
 
 
-class DummyDecrementedEvent(DomainEvent):
+class DummyDecrementedEvent(EventSourcedDomainEvent):
     """Dummy decrement event."""
 
     event_type = "dummy_decremented"
@@ -49,7 +48,7 @@ class DummyDecrementedEvent(DomainEvent):
         object.__setattr__(self, "amount", amount)
 
 
-class DummyEvent(DomainEvent):
+class DummyEvent(EventSourcedDomainEvent):
     """Generic dummy event used in repository tests."""
 
     event_type = "dummy_event"
@@ -96,7 +95,7 @@ class DummyAggregate(EventSourcedAggregate[DummyState]):
         """Emit a DummyDecrementedEvent."""
         self._emit_event(DummyDecrementedEvent(amount, aggregate_id=str(self.id)))
 
-    def _apply_event(self, event: DomainEvent) -> None:
+    def _apply_event(self, event: EventSourcedDomainEvent) -> None:
         """Apply events to state."""
         if isinstance(event, DummyIncrementedEvent):
             self.count += event.amount
@@ -142,7 +141,7 @@ def make_repo(
     """
     event_store = InMemoryEventStore()
     aggregate_store = InMemoryAggregateStore()
-    event_bus = InMemoryEventBus()
+    event_bus: InMemoryEventBus[EventSourcedDomainEvent] = InMemoryEventBus()
     registry = AggregateRegistry()
     registry.register(DummyAggregate.aggregate_type, DummyAggregate)
     repo = DummyRepository(
