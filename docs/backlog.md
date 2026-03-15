@@ -12,13 +12,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-- **No `DomainService` base class** — The `domain_service` marker exists but has no corresponding base class. All
-  other markers have base classes (`Command`, `Query`, `Result`, `Document`, `AggregateRoot`, `ValueObject`, `Event`).
-  Add a `DomainService` base class in `core/d/`.
-
-- **No `Specification` base class** — Same as above. The `specification` marker exists with no base class.
-  Add a `Specification` base class in `core/d/`.
-
 - **`EventSourcedRepository.find_all()` contract is unclear** — It raises `NotImplementedError` with a message
   suggesting projections. But subclasses inheriting from `Repository` expect to override it. Either formally remove
   it from the `EventSourcedRepository` contract (document it as unsupported) or clarify the intended override
@@ -36,6 +29,10 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
   sourcing. `EventSourcedAggregate` in `de/` would extend it. This cleanly separates "aggregate that raises events
   for the bus" from "aggregate whose state is sourced from events". `DomainEvent` would move to `d/` as the event
   type emitted by such aggregates. Deliberately deferred until a concrete use case exists.
+
+- **`Specification` as its own module** — The specification pattern has a real interface (`is_satisfied_by`),
+  combinators (`and`, `or`, `not`), and enough structure to warrant a dedicated package rather than a stub in
+  `core/`. Model after the Java reference implementation.
 
 - **`build_from_events()` and `_create_from_state()` should be `@abstractmethod`** — Both raise `NotImplementedError`
   in `EventSourcedRepository` but are not declared abstract. A subclass that forgets to implement them is only caught
