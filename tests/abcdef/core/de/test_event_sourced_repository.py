@@ -2,7 +2,7 @@
 
 import pytest
 
-from abcdef.core import Snapshot
+from abcdef.core import AggregateRecord
 from tests.abcdef.conftest import make_id
 from tests.abcdef.core.de.fixtures import (
     DummyAggregate,
@@ -44,33 +44,30 @@ class TestEventSourcedRepositorySave:
 
     def test_save_with_no_events_is_a_no_op(self) -> None:
         """Saving an aggregate with no uncommitted events does nothing."""
-        repo, event_store, _ = _make_repo()
+        repo, event_store, aggregate_store = _make_repo()
         agg_id = make_id()
         agg = DummyAggregate(agg_id)
 
         repo.save(agg)
 
         assert event_store.get_events(agg_id) == []
+        assert aggregate_store.get(agg_id) is None
 
-    def test_save_creates_state_record_at_threshold(self) -> None:
-        """A state record is created when event delta reaches the threshold."""
-        repo, _, aggregate_store = _make_repo(threshold=3)
+    def test_save_always_writes_aggregate_record(self) -> None:
+        """An aggregate record is written on every save, regardless of threshold."""
+        repo, _, aggregate_store = _make_repo(threshold=10)
         agg_id = make_id()
         agg = DummyAggregate(agg_id)
+        agg.increment(1)
 
-        agg.increment(1)
-        agg.increment(1)
-        agg.increment(1)
         repo.save(agg)
 
-        snapshot = aggregate_store.get_latest_snapshot(agg_id)
-        assert snapshot is not None
-        assert snapshot.event_version == 3
-        assert isinstance(snapshot.state, DummyState)
-        assert snapshot.state.count == 3
+        record = aggregate_store.get(agg_id)
+        assert record is not None
+        assert record.event_version == 1
 
-    def test_save_does_not_create_state_record_below_threshold(self) -> None:
-        """No state record is created when event delta is below the threshold."""
+    def test_save_record_has_no_state_below_threshold(self) -> None:
+        """Record written below threshold carries no state."""
         repo, _, aggregate_store = _make_repo(threshold=5)
         agg_id = make_id()
         agg = DummyAggregate(agg_id)
@@ -79,7 +76,26 @@ class TestEventSourcedRepositorySave:
 
         repo.save(agg)
 
-        assert aggregate_store.get_latest_snapshot(agg_id) is None
+        record = aggregate_store.get(agg_id)
+        assert record is not None
+        assert record.state is None
+
+    def test_save_record_has_state_at_threshold(self) -> None:
+        """Record written at threshold carries a state snapshot."""
+        repo, _, aggregate_store = _make_repo(threshold=3)
+        agg_id = make_id()
+        agg = DummyAggregate(agg_id)
+        agg.increment(1)
+        agg.increment(1)
+        agg.increment(1)
+
+        repo.save(agg)
+
+        record = aggregate_store.get(agg_id)
+        assert record is not None
+        assert record.event_version == 3
+        assert isinstance(record.state, DummyState)
+        assert record.state.count == 3
 
     def test_save_uses_aggregate_delta_not_total_event_count(self) -> None:
         """State threshold is based on events since last state save, not total."""
@@ -87,23 +103,24 @@ class TestEventSourcedRepositorySave:
         agg_id = make_id()
         agg = DummyAggregate(agg_id)
 
-        # First batch: 3 events -> state saved, base_version advances to 3
+        # First batch: 3 events -> state written, base_version advances to 3
         agg.increment(1)
         agg.increment(1)
         agg.increment(1)
         repo.save(agg)
-        assert aggregate_store.get_latest_snapshot(agg_id) is not None
+        assert aggregate_store.get(agg_id) is not None
         assert agg.base_version == 3
 
-        # Second batch: 2 events -> delta is 2, below threshold -> no new state save
+        # Second batch: 2 events -> delta is 2, below threshold -> no state
         agg.increment(1)
         agg.increment(1)
         repo.save(agg)
-        snapshot = aggregate_store.get_latest_snapshot(agg_id)
-        assert snapshot is not None
-        assert snapshot.event_version == 3  # still the first state record
+        record = aggregate_store.get(agg_id)
+        assert record is not None
+        assert record.event_version == 5  # updated to current version
+        assert record.state is None  # no state below threshold
 
-    def test_save_updates_base_version_after_state_save(self) -> None:
+    def test_save_updates_base_version_after_state_written(self) -> None:
         """base_version is updated to current version after state is persisted."""
         repo, _, _ = _make_repo(threshold=2)
         agg_id = make_id()
@@ -115,8 +132,8 @@ class TestEventSourcedRepositorySave:
 
         assert agg.base_version == 2
 
-    def test_save_state_version_matches_aggregate_version(self) -> None:
-        """State record event_version equals the aggregate's version at save time."""
+    def test_save_record_version_matches_aggregate_version(self) -> None:
+        """Record event_version equals the aggregate's version at save time."""
         repo, _, aggregate_store = _make_repo(threshold=2)
         agg_id = make_id()
         agg = DummyAggregate(agg_id)
@@ -125,9 +142,9 @@ class TestEventSourcedRepositorySave:
 
         repo.save(agg)
 
-        snapshot = aggregate_store.get_latest_snapshot(agg_id)
-        assert snapshot is not None
-        assert snapshot.event_version == agg.version
+        record = aggregate_store.get(agg_id)
+        assert record is not None
+        assert record.event_version == agg.version
 
 
 class TestEventSourcedRepositoryGetById:
@@ -153,25 +170,24 @@ class TestEventSourcedRepositoryGetById:
         assert restored is not None
         assert restored.count == 7
 
-    def test_get_by_id_uses_state_record_and_delta(self) -> None:
-        """When a state record exists, only events after it are replayed."""
+    def test_get_by_id_uses_state_and_delta_when_state_present(self) -> None:
+        """When a record with state exists, only events after it are replayed."""
         repo, event_store, aggregate_store = _make_repo(threshold=10)
         agg_id = make_id()
 
-        # Inject a state record at version 2 with count=10
-        aggregate_store.save_snapshot(
-            Snapshot(
+        # Inject a record with state at version 2
+        aggregate_store.save(
+            AggregateRecord(
                 aggregate_id=agg_id,
                 event_version=2,
                 state=DummyState(count=10),
             )
         )
 
-        # Two pre-state events (already captured in state) then two delta events
         key = str(agg_id)
         event_store._store[key] = [
-            DummyEvent(amount=5),  # version 1 - already in state record
-            DummyEvent(amount=5),  # version 2 - already in state record
+            DummyEvent(amount=5),  # version 1 - captured in state
+            DummyEvent(amount=5),  # version 2 - captured in state
             DummyEvent(amount=1),  # delta - replayed
             DummyEvent(amount=2),  # delta - replayed
         ]
@@ -179,8 +195,27 @@ class TestEventSourcedRepositoryGetById:
         restored = repo.get_by_id(agg_id)
 
         assert restored is not None
-        assert restored.count == 13  # snapshot(10) + delta(1+2)
+        assert restored.count == 13  # state(10) + delta(1+2)
         assert restored.id == agg_id
+
+    def test_get_by_id_replays_all_events_when_record_has_no_state(self) -> None:
+        """When a record exists but has no state, all events are replayed."""
+        repo, event_store, aggregate_store = _make_repo(threshold=10)
+        agg_id = make_id()
+
+        # Record present but no state (below threshold)
+        aggregate_store.save(AggregateRecord(aggregate_id=agg_id, event_version=2))
+
+        key = str(agg_id)
+        event_store._store[key] = [
+            DummyEvent(amount=5),
+            DummyEvent(amount=5),
+        ]
+
+        restored = repo.get_by_id(agg_id)
+
+        assert restored is not None
+        assert restored.count == 10
 
 
 class TestEventSourcedRepositoryNotImplemented:

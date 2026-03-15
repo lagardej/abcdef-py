@@ -12,21 +12,12 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-- **`Snapshot` must become a proper aggregate record** — `Snapshot` currently requires `state`, meaning no record
-  exists for aggregates that have not yet reached the snapshot threshold. This makes `AggregateStore` an incomplete
-  registry: it only knows about some aggregates. `Snapshot` should be refactored into a full aggregate record where
-  `state` is optional. `AggregateStore` must be written on every save, not only at the threshold. The snapshot
-  threshold logic then controls whether `state` is populated, not whether the record is written at all. This is a
-  prerequisite for correct optimistic concurrency. Rename `Snapshot` to `AggregateRecord` (and update all
-  references) to reflect the broader role.
-
 - **Optimistic concurrency / version conflict detection** — Two concurrent saves for the same aggregate will silently
   overwrite each other. The `AggregateStore` is the correct owner of this check: it is the registry of aggregate
   identity and current version, and optimistic locking belongs there — not in the event store, which is a pure append
-  log. After the `AggregateRecord` prerequisite above is complete, add an `expected_version` parameter to
-  `AggregateStore.save` and raise `VersionConflictError` on mismatch. The repository passes the aggregate's
-  pre-commit version as `expected_version`. This is the most critical missing correctness guarantee in the event
-  sourcing implementation.
+  log. Add an `expected_version` parameter to `AggregateStore.save` and raise `VersionConflictError` on mismatch.
+  The repository passes the aggregate's pre-commit version as `expected_version`. This is the most critical missing
+  correctness guarantee in the event sourcing implementation.
 
 - **`Event` has no base fields** — The `Event` marker class carries no `aggregate_id`, no `occurred_at` timestamp,
   and no `event_type` discriminator. Projections consuming `get_all_events()` have no guaranteed fields to work with.

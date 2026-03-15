@@ -53,18 +53,19 @@ from .d.markers import (
     value_object,
 )
 from .de import (
+    AggregateRecord,
     AggregateState,
     AggregateStore,
     EventSourcedAggregate,
     EventSourcedRepository,
     EventStore,
-    Snapshot,
     event_store,
 )
 from .markers import _get_marker
 
 __all__ = [
     "AggregateId",
+    "AggregateRecord",
     "AggregateRoot",
     "AggregateState",
     "AggregateStore",
@@ -86,7 +87,6 @@ __all__ = [
     "QueryRegistry",
     "Repository",
     "Result",
-    "Snapshot",
     "TCommand",
     "TQuery",
     "TQueryResult",
