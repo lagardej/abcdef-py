@@ -190,7 +190,7 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         )
 
         events = self._event_store.get_events(
-            aggregate_id, from_version=snapshot_version
+            aggregate_id, after_version=snapshot_version
         )
 
         if snapshot_version is None and not events:

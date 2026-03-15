@@ -4,22 +4,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ---
 
-## Bugs
-
-**B2 — `EventStore.get_events()` — `from_version` semantics are ambiguous**
-
-`from_version` is used as a list slice index (exclusive offset from the start of
-the event list) but is named and described as if it were a version number. The
-in-memory implementation happens to align because version starts at 0 and each
-event increments it by 1, so version == event count == list index. A persistent
-backend implementing `WHERE version >= from_version` would be off by one. The
-abstract and concrete docstrings also describe the parameter differently.
-
-Fix: rename to `after_version` or `from_event_index`, update both docstrings with
-a concrete example, and state the inclusive/exclusive boundary explicitly.
-
----
-
 ## Tasks
 
 **T1 — Add a `Projector` ABC to `abcdef/core/c/`**

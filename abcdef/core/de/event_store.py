@@ -48,15 +48,21 @@ class EventStore[TId: AggregateId, TEntity: AggregateRoot](ABC):
 
     @abstractmethod
     def get_events(
-        self, aggregate_id: TId, from_version: int | None = None
+        self, aggregate_id: TId, after_version: int | None = None
     ) -> list[EventSourcedDomainEvent]:
         """Retrieve events for an aggregate.
 
         Args:
             aggregate_id: The ID of the aggregate.
-            from_version: If provided, only events at this version index
-                and later are returned. Equivalent to skipping the first
-                ``from_version`` events. If None, all events are returned.
+            after_version: If provided, only events from this position
+                onwards are returned. The value is treated as an
+                exclusive lower bound: ``after_version=N`` skips the
+                first N events and returns the rest, i.e. the event
+                at list index N is the first one included.
+                Example: 3 events stored (indices 0, 1, 2);
+                ``after_version=2`` returns only the third event.
+                ``after_version=0`` returns all events.
+                If None, all events are returned.
 
         Returns:
             List of events in chronological order.

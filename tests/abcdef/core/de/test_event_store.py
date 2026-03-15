@@ -118,37 +118,46 @@ class TestEventStore:
 
         assert len(store.get_events(agg_id)) == 1
 
-    def test_get_events_from_version_returns_events_from_that_index(self) -> None:
-        """from_version skips events before the given version."""
+    def test_get_events_after_version_returns_events_after_that_version(self) -> None:
+        """after_version=2 skips the first 2 events (versions 0 and 1).
+
+        With 3 events stored (versions 0, 1, 2), after_version=2 returns
+        only the third event (version 2, i.e. the event whose position
+        in the list is index 2).
+        """
         store = InMemoryEventStore()
         agg_id = make_id()
         store.append_events(agg_id, [_evt("a"), _evt("b"), _evt("c")])
 
-        result = store.get_events(agg_id, from_version=2)
+        result = store.get_events(agg_id, after_version=2)
 
         assert len(result) == 1
         assert _val(result[0]) == "c"
 
-    def test_get_events_from_version_zero_returns_all(self) -> None:
-        """from_version=0 returns all events."""
+    def test_get_events_after_version_zero_returns_all(self) -> None:
+        """after_version=0 returns all events (no events are skipped)."""
         store = InMemoryEventStore()
         agg_id = make_id()
         store.append_events(agg_id, [_evt("a"), _evt("b")])
 
-        assert len(store.get_events(agg_id, from_version=0)) == 2
+        assert len(store.get_events(agg_id, after_version=0)) == 2
 
-    def test_get_events_from_version_equal_to_length_returns_empty(self) -> None:
-        """from_version equal to total event count returns empty list."""
+    def test_get_events_after_version_equal_to_event_count_returns_empty(self) -> None:
+        """after_version equal to total event count returns empty list.
+
+        With 2 events stored, after_version=2 means "after all stored
+        events", so the result is empty.
+        """
         store = InMemoryEventStore()
         agg_id = make_id()
         store.append_events(agg_id, [_evt("a"), _evt("b")])
 
-        assert store.get_events(agg_id, from_version=2) == []
+        assert store.get_events(agg_id, after_version=2) == []
 
-    def test_get_events_from_version_none_returns_all(self) -> None:
-        """from_version=None behaves identically to omitting the parameter."""
+    def test_get_events_after_version_none_returns_all(self) -> None:
+        """after_version=None behaves identically to omitting the parameter."""
         store = InMemoryEventStore()
         agg_id = make_id()
         store.append_events(agg_id, [_evt("a"), _evt("b")])
 
-        assert store.get_events(agg_id, from_version=None) == store.get_events(agg_id)
+        assert store.get_events(agg_id, after_version=None) == store.get_events(agg_id)

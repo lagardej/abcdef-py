@@ -40,21 +40,23 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
         self._all.extend(events)
 
     def get_events(
-        self, aggregate_id: TId, from_version: int | None = None
+        self, aggregate_id: TId, after_version: int | None = None
     ) -> list[EventSourcedDomainEvent]:
         """Retrieve events for an aggregate.
 
         Args:
             aggregate_id: The ID of the aggregate.
-            from_version: If provided, only events at this version index and
-                later are returned. If None, all events are returned.
+            after_version: If provided, only events from this position
+                onwards are returned. ``after_version=N`` skips the
+                first N events (exclusive lower bound). If None, all
+                events are returned.
 
         Returns:
             A copy of the matching events in chronological order.
         """
         events = self._store.get(str(aggregate_id), [])
-        if from_version is not None:
-            return events[from_version:].copy()
+        if after_version is not None:
+            return events[after_version:].copy()
         return events.copy()
 
     def get_all_events(self) -> list[EventSourcedDomainEvent]:
