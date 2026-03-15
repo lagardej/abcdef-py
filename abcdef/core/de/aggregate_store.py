@@ -45,6 +45,9 @@ class AggregateRecord[TState: AggregateState]:
 
     Attributes:
         aggregate_id: Identity of the aggregate this record belongs to.
+        aggregate_type: Stable string identifier of the aggregate class.
+            Decouples the record from the Python class name so the FQCN can
+            be refactored freely without invalidating persisted records.
         event_version: The aggregate's version at the time this record was written.
         state: The aggregate state at ``event_version``, or ``None`` if no
             snapshot was taken at this version.
@@ -52,6 +55,7 @@ class AggregateRecord[TState: AggregateState]:
     """
 
     aggregate_id: AggregateId
+    aggregate_type: str
     event_version: int
     state: TState | None = field(default=None)
     timestamp: float | None = field(default=None)
