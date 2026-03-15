@@ -65,6 +65,34 @@ class AggregateId(ABC):
         """
         return hash(str(self))
 
+    def __setattr__(self, name: str, value: object) -> None:
+        """Prevent mutation after construction.
+
+        Subclasses must use ``object.__setattr__(self, name, value)``
+        in their ``__init__`` to initialise attributes.
+
+        Args:
+            name: Attribute name.
+            value: Value to assign.
+
+        Raises:
+            AttributeError: Always. AggregateId is immutable.
+        """
+        raise AttributeError(f"AggregateId is immutable: cannot set attribute {name!r}")
+
+    def __delattr__(self, name: str) -> None:
+        """Prevent deletion of attributes.
+
+        Args:
+            name: Attribute name.
+
+        Raises:
+            AttributeError: Always. AggregateId is immutable.
+        """
+        raise AttributeError(
+            f"AggregateId is immutable: cannot delete attribute {name!r}"
+        )
+
     def __repr__(self) -> str:
         """Return detailed representation.
 

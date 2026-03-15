@@ -1,8 +1,41 @@
 """Tests for Aggregate Root and Aggregate ID."""
 
+import pytest
+
 from abcdef.core import AggregateId
 from tests.abcdef.conftest import StrAggregateId, make_id
 from tests.abcdef.core.d.fixtures import DummyAggregate
+
+
+class TestAggregateIdRepr:
+    """Tests for AggregateId.__repr__."""
+
+    def test_repr_format(self) -> None:
+        """__repr__ returns ClassName('value') format."""
+        agg_id = StrAggregateId("abc")
+        assert repr(agg_id) == "StrAggregateId('abc')"
+
+
+class TestAggregateIdImmutability:
+    """Tests for AggregateId immutability enforcement."""
+
+    def test_setting_attribute_after_construction_raises(self) -> None:
+        """Setting an attribute after construction raises AttributeError."""
+        agg_id = StrAggregateId("abc")
+        with pytest.raises(AttributeError):
+            agg_id._value = "mutated"  # type: ignore[misc]
+
+    def test_adding_new_attribute_after_construction_raises(self) -> None:
+        """Adding a new attribute after construction raises AttributeError."""
+        agg_id = StrAggregateId("abc")
+        with pytest.raises(AttributeError):
+            agg_id.new_field = "surprise"  # type: ignore[attr-defined]
+
+    def test_deleting_attribute_raises(self) -> None:
+        """Deleting an attribute raises AttributeError."""
+        agg_id = StrAggregateId("abc")
+        with pytest.raises(AttributeError):
+            del agg_id._value  # type: ignore[misc]
 
 
 class TestAggregateIdSerialisation:

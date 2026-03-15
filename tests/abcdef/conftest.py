@@ -13,9 +13,11 @@ class StrAggregateId(AggregateId):
     depending on any production implementation.
     """
 
+    _value: str
+
     def __init__(self, value: str) -> None:
         """Initialise with a plain string."""
-        self._value = value
+        object.__setattr__(self, "_value", value)
 
     def __str__(self) -> str:
         """Return the backing string."""
