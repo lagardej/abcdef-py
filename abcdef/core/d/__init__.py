@@ -11,7 +11,6 @@ from .markers import (
     factory,
     identifier,
     repository,
-    specification,
     value_object,
 )
 from .repository import Repository
@@ -27,6 +26,5 @@ __all__ = [
     "factory",
     "identifier",
     "repository",
-    "specification",
     "value_object",
 ]

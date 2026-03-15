@@ -78,24 +78,6 @@ def domain_service[T](cls: T) -> T:
     return cls
 
 
-def specification[T](cls: T) -> T:
-    """Mark a class as a Specification.
-
-    A Specification encapsulates complex business rules that can be
-    reused across multiple contexts. Often used for querying.
-
-    Marker is inherited by subclasses.
-
-    Args:
-        cls: The class to mark as a specification.
-
-    Returns:
-        The class with __ddd_type__ = "specification" metadata.
-    """
-    cls.__ddd_type__ = "specification"  # type: ignore[attr-defined]
-    return cls
-
-
 def factory[T](cls: T) -> T:
     """Mark a class as a Factory.
 

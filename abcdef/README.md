@@ -12,6 +12,7 @@ abcdef/
 │   ├── de/            # DDD + ES — event-sourced aggregates, stores, repositories
 │   ├── cde/           # CQRS + DDD + ES — Event base class
 │   └── markers.py     # Shared marker inspection utility (_get_marker)
+├── specification/     # Specification pattern — Specification ABC and combinators
 └── in_memory/         # In-memory implementations for testing and development
 ```
 
@@ -26,6 +27,7 @@ DDD (`d/`), both plus Event Sourcing (`de/`, `cde/`):
 | `d/` | DDD | `AggregateRoot`, `AggregateId`, `ValueObject`, `Repository` |
 | `de/` | DDD + ES | `EventSourcedAggregate`, `EventStore`, `AggregateStore`, `EventSourcedRepository`, `Snapshot` |
 | `cde/` | CQRS + DDD + ES | `Event` |
+| `specification/` | DDD | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker |
 
 - **Command** — Intent to mutate state; handled by exactly one `CommandHandler`
 - **Query** — Request to read state; handled by exactly one `QueryHandler`
@@ -41,6 +43,7 @@ DDD (`d/`), both plus Event Sourcing (`de/`, `cde/`):
 - **Document** — Denormalised, query-optimised read model built from domain events
 - **DocumentStore** — Query-side persistence; counterpart to `Repository` on the write side
 - **Projector** — Subscribes to domain events and updates Documents in a DocumentStore
+- **Specification** — Reusable business rule predicate; composable via `&`, `|`, and `~`
 
 ## Architecture Markers
 
@@ -49,11 +52,11 @@ Each paradigm package exposes decorators for runtime annotation:
 | Marker | Package | Attribute set |
 |--------|---------|---------------|
 | `@command`, `@query`, `@command_handler`, `@query_handler`, `@document`, `@document_store`, `@projector` | `c/` | `__cqrs_type__` |
-| `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@specification`, `@factory`, `@identifier` | `d/` | `__ddd_type__` |
+| `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@factory`, `@identifier` | `d/` | `__ddd_type__` |
+| `@specification` | `specification/` | `__ddd_type__` |
 | `@event` | `cde/` | `__cqrs_type__` |
 
 `_get_marker(cls, attr)` (from `core/markers.py`) inspects a class or its parents for a marker attribute.
-All markers are re-exported from `abcdef.core` for convenience.
 
 ## Event Sourcing
 

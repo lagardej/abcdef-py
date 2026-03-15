@@ -47,7 +47,6 @@ from .d.markers import (
     factory,
     identifier,
     repository,
-    specification,
     value_object,
 )
 from .de import (
@@ -114,6 +113,5 @@ __all__ = [
     "query",
     "query_handler",
     "repository",
-    "specification",
     "value_object",
 ]

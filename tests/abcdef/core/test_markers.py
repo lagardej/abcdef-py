@@ -15,7 +15,6 @@ from abcdef.core import (
     query,
     query_handler,
     repository,
-    specification,
     value_object,
 )
 
@@ -233,18 +232,6 @@ class TestDddMarkers:
         cls = type("Svc", (), {})
         domain_service(cls)
         assert cls.__ddd_type__ == "domain_service"  # type: ignore[attr-defined]
-
-    def test_specification_returns_class_unchanged(self) -> None:
-        """@specification returns the decorated class itself."""
-        cls = type("Spec", (), {})
-        result = specification(cls)
-        assert result is cls
-
-    def test_specification_sets_ddd_type(self) -> None:
-        """@specification sets __ddd_type__ to 'specification'."""
-        cls = type("Spec", (), {})
-        specification(cls)
-        assert cls.__ddd_type__ == "specification"  # type: ignore[attr-defined]
 
     def test_factory_returns_class_unchanged(self) -> None:
         """@factory returns the decorated class itself."""
