@@ -1,6 +1,7 @@
 """Shared fixtures for de/ tests."""
 
 import datetime
+from dataclasses import dataclass
 
 from abcdef.core import (
     AggregateId,
@@ -62,12 +63,11 @@ class DummyEvent(DomainEvent):
 # ---------------------------------------------------------------------------
 
 
+@dataclass(frozen=True)
 class DummyState(AggregateState):
     """Dummy aggregate state."""
 
-    def __init__(self, count: int) -> None:
-        """Initialise with a count."""
-        self.count = count
+    count: int
 
 
 # ---------------------------------------------------------------------------

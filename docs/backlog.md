@@ -27,10 +27,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
   combinators (`and`, `or`, `not`), and enough structure to warrant a dedicated package rather than a stub in
   `core/`. Model after the Java reference implementation.
 
-- **`AggregateState` has no enforced structure** — It is a bare marker class. Subclasses carry all state as plain
-  attributes with no enforced structure. A frozen dataclass base or convention would make state classes more
-  predictable and serialisation-friendly.
-
 - **`ValueObject` immutability is documented but not enforced** — The docstring says "use frozen dataclasses or
   similar" but nothing prevents mutation. Either drop the suggestion and document the limitation honestly, or
   provide a `FrozenValueObject` that enforces immutability via `__setattr__` protection, as `AggregateId` does.

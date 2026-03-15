@@ -2,6 +2,7 @@
 
 from abc import abstractmethod
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 from ..d import AggregateId, AggregateRoot
 from .domain_event import DomainEvent
@@ -52,15 +53,23 @@ class AggregateRegistry:
         return self._registry[aggregate_type]
 
 
+@dataclass(frozen=True)
 class AggregateState:
-    """Marker interface for aggregate state representations.
+    """Immutable base for aggregate state snapshots.
 
-    An AggregateState is a representation of an aggregate's state at a
-    point in time. Used to create state records for performance
-    optimisation in event sourcing.
+    Aggregate state is a point-in-time record of an aggregate's data,
+    used for performance optimisation in event sourcing (snapshots).
 
-    Concrete aggregate types define their own state classes that extend
-    this.
+    All subclasses must be frozen dataclasses. Declare them with
+    ``@dataclass(frozen=True)`` or rely on inheritance from this base,
+    which is itself a frozen dataclass. Subclasses that are plain classes
+    (not dataclasses) will not have immutability enforced at runtime.
+
+    Frozen dataclasses provide:
+    - Immutability: assignment raises ``AttributeError`` after construction.
+    - Value equality: ``__eq__`` compares fields by value.
+    - Hashability: ``__hash__`` is derived from field values.
+    - Readability: ``__repr__`` includes the class name and all fields.
     """
 
     pass

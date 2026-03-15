@@ -344,6 +344,13 @@ Validate early and raise descriptive errors.
 
 Domain entities and events are immutable where practical.
 
+`AggregateState` is a frozen dataclass. All concrete state classes must be
+declared as `@dataclass(frozen=True)`. This enforces immutability at
+construction time, provides value-based `__eq__` and `__hash__`, and makes
+`__repr__` readable without boilerplate. Plain-class subclasses (not
+decorated with `@dataclass`) will compile but will not have immutability
+enforced at runtime — the convention must be followed manually.
+
 ### No Surprises
 
 If code looks like it does X, it does X. No side effects, no hidden state mutations.
@@ -367,4 +374,3 @@ Keep related code together. Separate only when there is a genuine reason.
 | *DDD* | Domain-Driven Design. Organise code around domain language and boundaries. |
 | *CQRS* | Command Query Responsibility Segregation. Separate write (commands) from read (queries). |
 | *Event Sourcing* | Store changes as events; derive state by replaying. Events are the system of record. |
-

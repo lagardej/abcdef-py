@@ -2,13 +2,50 @@
 
 import pytest
 
-from abcdef.core import AggregateRegistry, EventSourcedAggregate
+from abcdef.core import AggregateRegistry, AggregateState, EventSourcedAggregate
 from tests.abcdef.conftest import make_id
 from tests.abcdef.core.de.fixtures import (
     DummyAggregate,
     DummyIncrementedEvent,
     DummyState,
 )
+
+
+class TestAggregateState:
+    """Tests for AggregateState base class."""
+
+    def test_is_frozen_dataclass(self) -> None:
+        """AggregateState subclass instances are immutable."""
+        state = DummyState(count=10)
+        with pytest.raises(AttributeError):
+            state.count = 99  # type: ignore[misc]
+
+    def test_equality_by_value(self) -> None:
+        """Two instances with identical fields are equal."""
+        assert DummyState(count=5) == DummyState(count=5)
+
+    def test_inequality_by_value(self) -> None:
+        """Two instances with different fields are not equal."""
+        assert DummyState(count=5) != DummyState(count=6)
+
+    def test_repr_contains_field_values(self) -> None:
+        """repr() includes the class name and field values."""
+        state = DummyState(count=42)
+        assert "DummyState" in repr(state)
+        assert "42" in repr(state)
+
+    def test_is_aggregate_state_instance(self) -> None:
+        """DummyState is an instance of AggregateState."""
+        assert isinstance(DummyState(count=0), AggregateState)
+
+    def test_hashable(self) -> None:
+        """Frozen dataclass state instances are hashable."""
+        state = DummyState(count=7)
+        assert isinstance(hash(state), int)
+
+    def test_hash_consistent_with_equality(self) -> None:
+        """Equal state instances have the same hash."""
+        assert hash(DummyState(count=3)) == hash(DummyState(count=3))
 
 
 class TestEventSourcedAggregate:
