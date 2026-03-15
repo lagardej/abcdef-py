@@ -46,7 +46,7 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     Optimistic concurrency is enforced via the aggregate store: the
     pre-commit version is passed as ``expected_version`` on every save.
     If another writer has already committed, ``VersionConflictError`` is
-    raised.
+    raised before any writes occur.
     """
 
     aggregate_type: str = ""
@@ -97,21 +97,25 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     def save(self, aggregate: TEntity) -> None:
         """Save an aggregate by persisting its uncommitted events.
 
-        Strategy:
-        1. Append events to the event store
-        2. Write an aggregate record with the pre-commit version as
-           expected_version, enforcing optimistic concurrency
-        3. Populate state on the record only if the delta reached the
-           threshold
-        4. Publish all committed events to the event bus
+        All steps execute as a single logical transaction in this order:
 
-        Events are published only after the aggregate store write
-        succeeds, ensuring no partial publishes on a failed commit.
+        1. Check concurrency: write the aggregate record with
+           ``expected_version`` set to the pre-emit version. If another
+           writer has already committed, ``VersionConflictError`` is
+           raised here and nothing else happens.
+        2. Update the aggregate record: write the new version and the
+           state snapshot if the delta has reached the threshold. On a
+           successful write, advance ``base_version`` on the aggregate
+           if a snapshot was persisted.
+        3. Append events to the event store.
+        4. Mark events as committed on the aggregate.
+        5. Publish all committed events to the event bus.
 
         Raises:
             VersionConflictError: If another writer committed a record
-                for this aggregate since it was last loaded. The caller
-                must reload and retry.
+                for this aggregate since it was last loaded. No writes
+                occur. The caller must discard the aggregate, reload,
+                and re-apply the business intent.
 
         Args:
             aggregate: The aggregate to persist.
@@ -122,11 +126,10 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
 
         aggregate_id: TId = aggregate.id  # type: ignore[assignment]
         expected_version = aggregate.version - len(events)
-
-        self._event_store.append_events(aggregate_id, events)
-        aggregate._mark_events_as_committed()
-
         delta = aggregate.version - aggregate.base_version
+
+        # Step 1 + 2: concurrency check and record write (atomic).
+        # VersionConflictError raised here aborts before any other write.
         if delta >= self._snapshot_threshold:
             state = aggregate.create_state()
             record: AggregateRecord = AggregateRecord(
@@ -135,16 +138,26 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
                 event_version=aggregate.version,
                 state=state,
             )
-            aggregate._mark_state_saved()
         else:
             record = AggregateRecord(
                 aggregate_id=aggregate.id,
                 aggregate_type=aggregate.aggregate_type,
                 event_version=aggregate.version,
             )
-
         self._aggregate_store.save(record, expected_version=expected_version)
 
+        # Step 2 (cont.): advance base_version now that the snapshot is
+        # safely persisted.
+        if delta >= self._snapshot_threshold:
+            aggregate._mark_state_saved()
+
+        # Step 3: append events to the event store.
+        self._event_store.append_events(aggregate_id, events)
+
+        # Step 4: mark events as committed on the aggregate.
+        aggregate._mark_events_as_committed()
+
+        # Step 5: publish committed events to the bus.
         for event in events:
             self._event_bus.publish(event)
 

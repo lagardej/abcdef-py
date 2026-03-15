@@ -179,6 +179,50 @@ class TestEventSourcedRepositorySave:
         with pytest.raises(VersionConflictError):
             repo.save(agg_b)
 
+    def test_save_conflict_does_not_write_events(self) -> None:
+        """On VersionConflictError, no events are written to the event store.
+
+        The concurrency check is the first write; a conflict aborts
+        before the event store append.
+        """
+        repo, event_store, _, _ = _make_repo()
+        agg_id = make_id()
+
+        agg_first = DummyAggregate(agg_id)
+        agg_first.increment(1)
+        repo.save(agg_first)
+
+        agg_stale = DummyAggregate(agg_id)
+        agg_stale.increment(99)
+
+        with pytest.raises(VersionConflictError):
+            repo.save(agg_stale)
+
+        # Only the one event from agg_first must be in the store.
+        stored = event_store.get_events(agg_id)
+        assert len(stored) == 1
+        assert stored[0].amount == 1  # type: ignore[attr-defined]
+
+    def test_save_conflict_does_not_publish_events(self) -> None:
+        """On VersionConflictError, no events are published to the bus."""
+        repo, _, _, bus = _make_repo()
+        agg_id = make_id()
+
+        agg_first = DummyAggregate(agg_id)
+        agg_first.increment(1)
+        repo.save(agg_first)
+
+        agg_stale = DummyAggregate(agg_id)
+        agg_stale.increment(99)
+
+        published: list[EventSourcedDomainEvent] = []
+        bus.subscribe(DummyIncrementedEvent, published.append)
+
+        with pytest.raises(VersionConflictError):
+            repo.save(agg_stale)
+
+        assert published == []
+
 
 class TestEventSourcedRepositoryEventBus:
     """Tests for event publishing after save."""

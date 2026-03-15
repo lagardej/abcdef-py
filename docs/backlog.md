@@ -6,18 +6,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Bugs
 
-**B1 — `EventSourcedRepository.save()` atomicity violation**
-
-`_mark_events_as_committed()` is called before `aggregate_store.save()`. If
-`aggregate_store.save()` raises `VersionConflictError`, the aggregate's pending
-events have already been cleared and the events are already written to the event
-store. The aggregate is now corrupt: the event store has the events, the
-aggregate store record was never written, and the aggregate object has no
-uncommitted events to retry with.
-
-Fix: move `_mark_events_as_committed()` and bus publish to after
-`aggregate_store.save()` succeeds.
-
 **B2 — `EventStore.get_events()` — `from_version` semantics are ambiguous**
 
 `from_version` is used as a list slice index (exclusive offset from the start of
