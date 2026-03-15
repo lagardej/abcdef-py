@@ -7,14 +7,60 @@ from ..d import AggregateId, AggregateRoot
 from .domain_event import DomainEvent
 
 
+class AggregateRegistry:
+    """Registry of EventSourcedAggregate subclasses keyed by aggregate_type.
+
+    A plain, injectable class with no global state. Callers create an
+    instance and register aggregate classes into it explicitly. Pass the
+    registry to EventSourcedRepository at construction time.
+    """
+
+    def __init__(self) -> None:
+        """Initialise with an empty registry."""
+        self._registry: dict[str, type[EventSourcedAggregate]] = {}
+
+    def register(self, aggregate_type: str, cls: "type[EventSourcedAggregate]") -> None:
+        """Register a concrete aggregate class under its aggregate_type.
+
+        Args:
+            aggregate_type: The stable string identifier for the class.
+            cls: The concrete EventSourcedAggregate subclass to register.
+
+        Raises:
+            TypeError: If the aggregate_type is already registered.
+        """
+        if aggregate_type in self._registry:
+            raise TypeError(
+                f"aggregate_type '{aggregate_type}' is already registered "
+                f"by {self._registry[aggregate_type].__qualname__}. "
+                f"Each aggregate_type must be unique."
+            )
+        self._registry[aggregate_type] = cls
+
+    def get(self, aggregate_type: str) -> "type[EventSourcedAggregate]":
+        """Look up a registered aggregate subclass by aggregate_type.
+
+        Args:
+            aggregate_type: The stable string identifier for the class.
+
+        Returns:
+            The concrete subclass registered under that name.
+
+        Raises:
+            KeyError: If no class is registered for the given aggregate_type.
+        """
+        return self._registry[aggregate_type]
+
+
 class AggregateState:
     """Marker interface for aggregate state representations.
 
-    An AggregateState is a representation of an aggregate's state at a point
-    in time. Used to create state records for performance optimisation in
-    event sourcing.
+    An AggregateState is a representation of an aggregate's state at a
+    point in time. Used to create state records for performance
+    optimisation in event sourcing.
 
-    Concrete aggregate types define their own state classes that extend this.
+    Concrete aggregate types define their own state classes that extend
+    this.
     """
 
     pass
@@ -25,8 +71,9 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
 
     Extends AggregateRoot to add event sourcing concerns:
     - Recording domain events for persistence (append-only)
-    - Version tracking for optimistic locking and snapshot delta calculations
-    - Event application pattern: emit event -> apply event to state immediately
+    - Version tracking for optimistic locking and snapshot delta
+      calculations
+    - Event application pattern: emit event -> apply event to state
     - Generic state type for type-safe snapshots
 
     The version increments with each event, enabling:
@@ -34,11 +81,38 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
     - Snapshot delta calculations
     - Event replay validation
 
-    Subclasses must implement:
+    Subclasses MUST declare a non-empty ``aggregate_type`` class variable
+    directly on the class. This decouples the stable stored identity from
+    the Python class name, which may be refactored freely.
+
+    Intermediate base classes may opt out of the check by setting
+    ``_abstract_aggregate = True`` directly in their class body.
+
+    Subclasses must also implement:
     - _apply_event() -- apply emitted events to the aggregate's state
     - create_state() -- create a state snapshot at the current moment
     - load_from_state() -- restore state from a persisted state record
     """
+
+    aggregate_type: str = ""
+    _abstract_aggregate: bool = False
+
+    def __init_subclass__(cls, **kwargs: object) -> None:
+        """Enforce aggregate_type declaration on all concrete subclasses.
+
+        Raises:
+            TypeError: If a concrete subclass does not declare a non-empty
+                ``aggregate_type`` directly in its own class body.
+        """
+        super().__init_subclass__(**kwargs)
+        if cls.__dict__.get("_abstract_aggregate"):
+            return
+        if "aggregate_type" not in cls.__dict__ or not cls.__dict__["aggregate_type"]:
+            raise TypeError(
+                f"{cls.__qualname__} must declare a non-empty "
+                f"'aggregate_type' class variable. "
+                f"It cannot be inherited from a parent class."
+            )
 
     def __init__(self, aggregate_id: AggregateId) -> None:
         """Initialise a new event-sourced aggregate with no history.
@@ -60,9 +134,9 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
     ) -> "EventSourcedAggregate[TState]":
         """Reconstruct an aggregate from a persisted state record.
 
-        Creates the aggregate, restores state via load_from_state, and sets
-        both version and base_version to the given version so that the
-        state threshold is calculated as a delta from this point.
+        Creates the aggregate, restores state via load_from_state, and
+        sets both version and base_version to the given version so that
+        the state threshold is calculated as a delta from this point.
 
         Args:
             aggregate_id: The identity of the aggregate.
@@ -93,11 +167,12 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
 
     @property
     def base_version(self) -> int:
-        """Version at which this aggregate was last loaded or its state persisted.
+        """Version at which this aggregate was last loaded or state persisted.
 
-        Used by the repository to calculate the delta since the last state save:
-        ``version - base_version >= threshold`` triggers a new state save.
-        Updated by _mark_state_saved() after a state record is persisted.
+        Used by the repository to calculate the delta since the last
+        state save: ``version - base_version >= threshold`` triggers a
+        new state save. Updated by _mark_state_saved() after a state
+        record is persisted.
 
         Returns:
             The base version number.
@@ -117,17 +192,18 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
     def _mark_events_as_committed(self) -> None:
         """Mark all recorded events as committed (persisted).
 
-        Called by the repository after appending events to the event store.
-        Version remains unchanged -- the current version IS the committed version.
+        Called by the repository after appending events to the event
+        store. Version remains unchanged -- the current version IS the
+        committed version.
         """
         self._events.clear()
 
     def _mark_state_saved(self) -> None:
         """Update the base version to the current version after a state save.
 
-        Called by the repository after successfully persisting a state record.
-        Resets the delta counter so the next state threshold is calculated
-        from this point forward.
+        Called by the repository after successfully persisting a state
+        record. Resets the delta counter so the next state threshold is
+        calculated from this point forward.
         """
         self._base_version = self._version
 
@@ -146,11 +222,12 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
         self._version += 1
 
     def _load_from_history(self, events: Sequence[DomainEvent]) -> None:
-        """Reconstruct aggregate state by replaying a sequence of historical events.
+        """Reconstruct aggregate state by replaying historical events.
 
-        Called by the repository when rebuilding an aggregate from stored events.
-        Does NOT record events as uncommitted -- historical events are already
-        committed. Subclasses never need to call or override this.
+        Called by the repository when rebuilding an aggregate from stored
+        events. Does NOT record events as uncommitted -- historical events
+        are already committed. Subclasses never need to call or override
+        this.
 
         Args:
             events: Historical domain events in chronological order.
@@ -163,9 +240,10 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
     def _apply_event(self, event: DomainEvent) -> None:
         """Apply a single event to the aggregate's internal state.
 
-        Subclasses MUST implement this to define how each event type changes state.
-        Called by _emit_event (new events) and _load_from_history (historical events).
-        Never called directly by application or repository code.
+        Subclasses MUST implement this to define how each event type
+        changes state. Called by _emit_event (new events) and
+        _load_from_history (historical events). Never called directly by
+        application or repository code.
 
         Args:
             event: The domain event to apply.
@@ -176,8 +254,9 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
     def create_state(self) -> TState:
         """Capture the aggregate's current state for persistence.
 
-        Paired with load_from_state: create_state serialises, load_from_state
-        deserialises. The repository calls this when persisting a state record.
+        Paired with load_from_state: create_state serialises,
+        load_from_state deserialises. The repository calls this when
+        persisting a state record.
 
         Returns:
             The aggregate's current state.

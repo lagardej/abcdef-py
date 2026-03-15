@@ -52,9 +52,11 @@ from .d.markers import (
 )
 from .de import (
     AggregateRecord,
+    AggregateRegistry,
     AggregateState,
     AggregateStore,
     DomainEvent,
+    DomainEventRegistry,
     Event,
     EventSourcedAggregate,
     EventSourcedRepository,
@@ -67,6 +69,7 @@ from .markers import _get_marker
 __all__ = [
     "AggregateId",
     "AggregateRecord",
+    "AggregateRegistry",
     "AggregateRoot",
     "AggregateState",
     "AggregateStore",
@@ -77,6 +80,7 @@ __all__ = [
     "Document",
     "DocumentStore",
     "DomainEvent",
+    "DomainEventRegistry",
     "Event",
     "EventBus",
     "EventSourcedAggregate",

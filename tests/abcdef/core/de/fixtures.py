@@ -2,7 +2,13 @@
 
 import datetime
 
-from abcdef.core import AggregateId, AggregateState, DomainEvent, EventSourcedAggregate
+from abcdef.core import (
+    AggregateId,
+    AggregateRegistry,
+    AggregateState,
+    DomainEvent,
+    EventSourcedAggregate,
+)
 from abcdef.core.de import EventSourcedRepository
 from abcdef.in_memory import (
     InMemoryAggregateStore,
@@ -72,6 +78,8 @@ class DummyState(AggregateState):
 class DummyAggregate(EventSourcedAggregate[DummyState]):
     """Dummy event-sourced aggregate supporting increment and decrement."""
 
+    aggregate_type = "dummy_aggregate"
+
     def __init__(self, aggregate_id: AggregateId, count: int = 0) -> None:
         """Initialise with an aggregate_id and optional count."""
         super().__init__(aggregate_id)
@@ -111,22 +119,7 @@ class DummyAggregate(EventSourcedAggregate[DummyState]):
 class DummyRepository(EventSourcedRepository[AggregateId, DummyAggregate]):
     """Concrete repository for de/ tests."""
 
-    def build_from_events(
-        self, aggregate_id: AggregateId, events: list[DomainEvent]
-    ) -> DummyAggregate:
-        """Reconstruct a DummyAggregate from its full event history."""
-        agg = DummyAggregate(aggregate_id)
-        agg._load_from_history(events)
-        return agg
-
-    def _create_from_state(
-        self, aggregate_id: AggregateId, state: object, version: int
-    ) -> DummyAggregate:
-        """Reconstruct a DummyAggregate from a state record."""
-        assert isinstance(state, DummyState)
-        agg = DummyAggregate.from_state(aggregate_id, state, version)
-        assert isinstance(agg, DummyAggregate)
-        return agg
+    aggregate_type = "dummy_aggregate"
 
 
 # ---------------------------------------------------------------------------
@@ -139,14 +132,21 @@ def make_repo(
 ) -> tuple[
     DummyRepository, InMemoryEventStore, InMemoryAggregateStore, InMemoryEventBus
 ]:
-    """Create a DummyRepository with in-memory stores and an event bus."""
+    """Create a DummyRepository with in-memory stores and an event bus.
+
+    Constructs a fresh AggregateRegistry populated with DummyAggregate
+    and passes it to the repository.
+    """
     event_store = InMemoryEventStore()
     aggregate_store = InMemoryAggregateStore()
     event_bus = InMemoryEventBus()
+    registry = AggregateRegistry()
+    registry.register(DummyAggregate.aggregate_type, DummyAggregate)
     repo = DummyRepository(
         event_store,
         aggregate_store,
         event_bus,
+        registry,
         snapshot_threshold=threshold,
     )
     return repo, event_store, aggregate_store, event_bus

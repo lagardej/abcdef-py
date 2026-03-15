@@ -16,7 +16,9 @@ class TestAggregateRecord:
         """AggregateRecord stores aggregate_id, event_version, and optional state."""
         agg_id = make_id()
         state = DummyState(count=42)
-        record = AggregateRecord(aggregate_id=agg_id, event_version=5, state=state)
+        record = AggregateRecord(
+            aggregate_id=agg_id, aggregate_type="dummy", event_version=5, state=state
+        )
 
         assert record.aggregate_id == agg_id
         assert record.event_version == 5
@@ -27,7 +29,9 @@ class TestAggregateRecord:
     def test_record_without_state(self) -> None:
         """AggregateRecord can be created without state (version tracking only)."""
         agg_id = make_id()
-        record = AggregateRecord(aggregate_id=agg_id, event_version=3)
+        record = AggregateRecord(
+            aggregate_id=agg_id, aggregate_type="dummy", event_version=3
+        )
 
         assert record.aggregate_id == agg_id
         assert record.event_version == 3
@@ -37,6 +41,7 @@ class TestAggregateRecord:
         """AggregateRecord accepts an optional timestamp."""
         record = AggregateRecord(
             aggregate_id=make_id(),
+            aggregate_type="dummy",
             event_version=3,
             timestamp=1_700_000_000.0,
         )
@@ -51,7 +56,10 @@ class TestAggregateStore:
         store = InMemoryAggregateStore()
         agg_id = make_id()
         record = AggregateRecord(
-            aggregate_id=agg_id, event_version=10, state=DummyState(count=5)
+            aggregate_id=agg_id,
+            aggregate_type="dummy",
+            event_version=10,
+            state=DummyState(count=5),
         )
 
         store.save(record)
@@ -68,7 +76,11 @@ class TestAggregateStore:
         store = InMemoryAggregateStore()
         agg_id = make_id()
 
-        store.save(AggregateRecord(aggregate_id=agg_id, event_version=2))
+        store.save(
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=2
+            )
+        )
         result = store.get(agg_id)
 
         assert result is not None
@@ -88,12 +100,18 @@ class TestAggregateStore:
 
         store.save(
             AggregateRecord(
-                aggregate_id=agg_id, event_version=5, state=DummyState(count=3)
+                aggregate_id=agg_id,
+                aggregate_type="dummy",
+                event_version=5,
+                state=DummyState(count=3),
             )
         )
         store.save(
             AggregateRecord(
-                aggregate_id=agg_id, event_version=10, state=DummyState(count=8)
+                aggregate_id=agg_id,
+                aggregate_type="dummy",
+                event_version=10,
+                state=DummyState(count=8),
             )
         )
 
@@ -108,7 +126,11 @@ class TestAggregateStore:
         """Deleting a record removes it from the store."""
         store = InMemoryAggregateStore()
         agg_id = make_id()
-        store.save(AggregateRecord(aggregate_id=agg_id, event_version=5))
+        store.save(
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=5
+            )
+        )
 
         store.delete(agg_id)
 
@@ -127,12 +149,18 @@ class TestAggregateStore:
 
         store.save(
             AggregateRecord(
-                aggregate_id=id_a, event_version=5, state=DummyState(count=1)
+                aggregate_id=id_a,
+                aggregate_type="dummy",
+                event_version=5,
+                state=DummyState(count=1),
             )
         )
         store.save(
             AggregateRecord(
-                aggregate_id=id_b, event_version=3, state=DummyState(count=99)
+                aggregate_id=id_b,
+                aggregate_type="dummy",
+                event_version=3,
+                state=DummyState(count=99),
             )
         )
 
@@ -155,11 +183,17 @@ class TestVersionConflict:
         """Saving with the correct expected_version does not raise."""
         store = InMemoryAggregateStore()
         agg_id = make_id()
-        store.save(AggregateRecord(aggregate_id=agg_id, event_version=1))
+        store.save(
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=1
+            )
+        )
 
         # Store is at version 1; saving with expected_version=1 should succeed.
         store.save(
-            AggregateRecord(aggregate_id=agg_id, event_version=2),
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=2
+            ),
             expected_version=1,
         )
 
@@ -171,12 +205,18 @@ class TestVersionConflict:
         """Saving with a stale expected_version raises VersionConflictError."""
         store = InMemoryAggregateStore()
         agg_id = make_id()
-        store.save(AggregateRecord(aggregate_id=agg_id, event_version=3))
+        store.save(
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=3
+            )
+        )
 
         # Store is at version 3, but caller expects version 1.
         with pytest.raises(VersionConflictError) as exc_info:
             store.save(
-                AggregateRecord(aggregate_id=agg_id, event_version=4),
+                AggregateRecord(
+                    aggregate_id=agg_id, aggregate_type="dummy", event_version=4
+                ),
                 expected_version=1,
             )
 
@@ -187,11 +227,17 @@ class TestVersionConflict:
         """expected_version=None bypasses the conflict check."""
         store = InMemoryAggregateStore()
         agg_id = make_id()
-        store.save(AggregateRecord(aggregate_id=agg_id, event_version=5))
+        store.save(
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=5
+            )
+        )
 
         # Should not raise regardless of stored version.
         store.save(
-            AggregateRecord(aggregate_id=agg_id, event_version=6),
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=6
+            ),
             expected_version=None,
         )
 
@@ -205,7 +251,9 @@ class TestVersionConflict:
         agg_id = make_id()
 
         store.save(
-            AggregateRecord(aggregate_id=agg_id, event_version=1),
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=1
+            ),
             expected_version=0,
         )
 
@@ -218,7 +266,9 @@ class TestVersionConflict:
 
         with pytest.raises(VersionConflictError) as exc_info:
             store.save(
-                AggregateRecord(aggregate_id=agg_id, event_version=1),
+                AggregateRecord(
+                    aggregate_id=agg_id, aggregate_type="dummy", event_version=1
+                ),
                 expected_version=3,
             )
 
@@ -229,11 +279,17 @@ class TestVersionConflict:
         """On conflict, the existing record is left unchanged."""
         store = InMemoryAggregateStore()
         agg_id = make_id()
-        store.save(AggregateRecord(aggregate_id=agg_id, event_version=2))
+        store.save(
+            AggregateRecord(
+                aggregate_id=agg_id, aggregate_type="dummy", event_version=2
+            )
+        )
 
         with pytest.raises(VersionConflictError):
             store.save(
-                AggregateRecord(aggregate_id=agg_id, event_version=99),
+                AggregateRecord(
+                    aggregate_id=agg_id, aggregate_type="dummy", event_version=99
+                ),
                 expected_version=0,
             )
 

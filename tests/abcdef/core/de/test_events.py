@@ -6,7 +6,7 @@ import datetime
 
 import pytest
 
-from abcdef.core.de import DomainEvent, Event
+from abcdef.core.de import DomainEvent, DomainEventRegistry, Event
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -126,3 +126,39 @@ class TestDomainEvent:
             class BadDomainEvent(DomainEvent):
                 def __init__(self) -> None:
                     super().__init__(occurred_at=_TS, aggregate_id="x")
+
+
+# ---------------------------------------------------------------------------
+# DomainEventRegistry
+# ---------------------------------------------------------------------------
+
+
+class TestDomainEventRegistry:
+    """Tests for DomainEventRegistry."""
+
+    def test_register_and_get(self) -> None:
+        """A registered class is retrievable by event_type."""
+        registry = DomainEventRegistry()
+        registry.register(ConcreteDomainEvent.event_type, ConcreteDomainEvent)
+        assert registry.get(ConcreteDomainEvent.event_type) is ConcreteDomainEvent
+
+    def test_get_unknown_event_type_raises(self) -> None:
+        """Looking up an unregistered event_type raises KeyError."""
+        registry = DomainEventRegistry()
+        with pytest.raises(KeyError):
+            registry.get("no_such_event_type")
+
+    def test_duplicate_event_type_raises(self) -> None:
+        """Registering the same event_type twice raises TypeError."""
+        registry = DomainEventRegistry()
+        registry.register(ConcreteDomainEvent.event_type, ConcreteDomainEvent)
+        with pytest.raises(TypeError, match="already registered"):
+            registry.register(ConcreteDomainEvent.event_type, ConcreteDomainEvent)
+
+    def test_each_instance_is_independent(self) -> None:
+        """Two registry instances do not share state."""
+        r1 = DomainEventRegistry()
+        r2 = DomainEventRegistry()
+        r1.register(ConcreteDomainEvent.event_type, ConcreteDomainEvent)
+        with pytest.raises(KeyError):
+            r2.get(ConcreteDomainEvent.event_type)

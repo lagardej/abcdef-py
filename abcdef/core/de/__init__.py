@@ -6,18 +6,24 @@ and the event hierarchy (Event, DomainEvent).
 """
 
 from .aggregate_store import AggregateRecord, AggregateStore, VersionConflictError
-from .domain_event import DomainEvent
+from .domain_event import DomainEvent, DomainEventRegistry
 from .event import Event
-from .event_sourced_aggregate import AggregateState, EventSourcedAggregate
+from .event_sourced_aggregate import (
+    AggregateRegistry,
+    AggregateState,
+    EventSourcedAggregate,
+)
 from .event_sourced_repository import EventSourcedRepository
 from .event_store import EventStore
 from .markers import event_store
 
 __all__ = [
     "AggregateRecord",
+    "AggregateRegistry",
     "AggregateState",
     "AggregateStore",
     "DomainEvent",
+    "DomainEventRegistry",
     "Event",
     "EventSourcedAggregate",
     "EventSourcedRepository",

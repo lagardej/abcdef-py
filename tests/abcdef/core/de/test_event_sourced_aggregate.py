@@ -2,7 +2,7 @@
 
 import pytest
 
-from abcdef.core import EventSourcedAggregate
+from abcdef.core import AggregateRegistry, EventSourcedAggregate
 from tests.abcdef.conftest import make_id
 from tests.abcdef.core.de.fixtures import (
     DummyAggregate,
@@ -80,6 +80,92 @@ class TestEventSourcedAggregate:
         """EventSourcedAggregate cannot be instantiated without _apply_event."""
         with pytest.raises(TypeError):
             EventSourcedAggregate(make_id())  # type: ignore[abstract]
+
+
+class TestAggregateRegistry:
+    """Tests for AggregateRegistry."""
+
+    def test_register_and_get(self) -> None:
+        """A registered class is retrievable by aggregate_type."""
+        registry = AggregateRegistry()
+        registry.register(DummyAggregate.aggregate_type, DummyAggregate)
+        assert registry.get(DummyAggregate.aggregate_type) is DummyAggregate
+
+    def test_get_unknown_raises(self) -> None:
+        """Looking up an unregistered aggregate_type raises KeyError."""
+        registry = AggregateRegistry()
+        with pytest.raises(KeyError):
+            registry.get("no_such_type")
+
+    def test_duplicate_registration_raises(self) -> None:
+        """Registering the same aggregate_type twice raises TypeError."""
+        registry = AggregateRegistry()
+        registry.register(DummyAggregate.aggregate_type, DummyAggregate)
+        with pytest.raises(TypeError, match="already registered"):
+            registry.register(DummyAggregate.aggregate_type, DummyAggregate)
+
+    def test_each_instance_is_independent(self) -> None:
+        """Two registry instances do not share state."""
+        r1 = AggregateRegistry()
+        r2 = AggregateRegistry()
+        r1.register(DummyAggregate.aggregate_type, DummyAggregate)
+        with pytest.raises(KeyError):
+            r2.get(DummyAggregate.aggregate_type)
+
+
+class TestEventSourcedAggregateType:
+    """Tests for aggregate_type enforcement on EventSourcedAggregate subclasses."""
+
+    def test_concrete_subclass_without_aggregate_type_raises(self) -> None:
+        """Defining a concrete subclass without aggregate_type raises TypeError."""
+        with pytest.raises(TypeError, match="aggregate_type"):
+
+            class NoType(EventSourcedAggregate):  # type: ignore[type-arg]
+                def _apply_event(self, event: object) -> None:
+                    pass
+
+                def create_state(self) -> object:
+                    return object()
+
+                def load_from_state(self, state: object) -> None:
+                    pass
+
+    def test_concrete_subclass_with_inherited_aggregate_type_raises(self) -> None:
+        """aggregate_type must be declared on the class itself, not inherited."""
+        with pytest.raises(TypeError, match="aggregate_type"):
+
+            class Base(EventSourcedAggregate):  # type: ignore[type-arg]
+                _abstract_aggregate = True
+                aggregate_type = "base_for_inheritance_test"
+
+                def _apply_event(self, event: object) -> None:
+                    pass
+
+                def create_state(self) -> object:
+                    return object()
+
+                def load_from_state(self, state: object) -> None:
+                    pass
+
+            class Child(Base):  # type: ignore[type-arg]
+                pass  # inherits aggregate_type from Base -- must raise
+
+    def test_abstract_aggregate_flag_skips_enforcement(self) -> None:
+        """Intermediate classes with _abstract_aggregate = True are exempt."""
+
+        class Intermediate(EventSourcedAggregate):  # type: ignore[type-arg]
+            _abstract_aggregate = True
+
+            def _apply_event(self, event: object) -> None:
+                pass
+
+            def create_state(self) -> object:
+                return object()
+
+            def load_from_state(self, state: object) -> None:
+                pass
+
+        # No TypeError raised -- class definition succeeds.
 
 
 class TestEventSourcedAggregateLoadFromHistory:
