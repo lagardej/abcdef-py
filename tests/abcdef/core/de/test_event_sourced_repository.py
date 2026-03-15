@@ -3,6 +3,7 @@
 import pytest
 
 from abcdef.core import AggregateRecord
+from abcdef.core.de.aggregate_store import VersionConflictError
 from tests.abcdef.conftest import make_id
 from tests.abcdef.core.de.fixtures import (
     DummyAggregate,
@@ -145,6 +146,30 @@ class TestEventSourcedRepositorySave:
         record = aggregate_store.get(agg_id)
         assert record is not None
         assert record.event_version == agg.version
+
+    def test_save_raises_on_concurrent_write(self) -> None:
+        """save() raises VersionConflictError when another writer has already committed.
+
+        Simulates two writers loading the same aggregate at version 0, both emitting
+        events. The first save succeeds and advances the record to version 1. The
+        second save carries expected_version=0, which no longer matches, and must raise.
+        """
+        repo, _, _ = _make_repo()
+        agg_id = make_id()
+
+        # Writer A: load at version 0, emit, save -- advances record to version 1.
+        agg_a = DummyAggregate(agg_id)
+        agg_a.increment(1)
+        repo.save(agg_a)
+
+        # Writer B: also started from version 0, emits a different event.
+        agg_b = DummyAggregate(agg_id)
+        agg_b.increment(99)
+
+        # agg_b.version == 1, len(uncommitted) == 1 -> expected_version == 0
+        # Record is already at version 1, so this must raise.
+        with pytest.raises(VersionConflictError):
+            repo.save(agg_b)
 
 
 class TestEventSourcedRepositoryGetById:

@@ -4,7 +4,7 @@ Contains concepts that belong to both DDD and Event Sourcing:
 event-sourced aggregates, repositories, event stores, and aggregate records.
 """
 
-from .aggregate_store import AggregateRecord, AggregateStore
+from .aggregate_store import AggregateRecord, AggregateStore, VersionConflictError
 from .event_sourced_aggregate import AggregateState, EventSourcedAggregate
 from .event_sourced_repository import EventSourcedRepository
 from .event_store import EventStore
@@ -17,5 +17,6 @@ __all__ = [
     "EventSourcedAggregate",
     "EventSourcedRepository",
     "EventStore",
+    "VersionConflictError",
     "event_store",
 ]

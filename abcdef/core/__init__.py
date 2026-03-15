@@ -59,6 +59,7 @@ from .de import (
     EventSourcedAggregate,
     EventSourcedRepository,
     EventStore,
+    VersionConflictError,
     event_store,
 )
 from .markers import _get_marker
@@ -92,6 +93,7 @@ __all__ = [
     "TQueryResult",
     "TResult",
     "ValueObject",
+    "VersionConflictError",
     "_get_marker",
     "aggregate",
     "command",

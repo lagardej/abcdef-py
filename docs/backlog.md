@@ -12,13 +12,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-- **Optimistic concurrency / version conflict detection** — Two concurrent saves for the same aggregate will silently
-  overwrite each other. The `AggregateStore` is the correct owner of this check: it is the registry of aggregate
-  identity and current version, and optimistic locking belongs there — not in the event store, which is a pure append
-  log. Add an `expected_version` parameter to `AggregateStore.save` and raise `VersionConflictError` on mismatch.
-  The repository passes the aggregate's pre-commit version as `expected_version`. This is the most critical missing
-  correctness guarantee in the event sourcing implementation.
-
 - **`Event` has no base fields** — The `Event` marker class carries no `aggregate_id`, no `occurred_at` timestamp,
   and no `event_type` discriminator. Projections consuming `get_all_events()` have no guaranteed fields to work with.
   Define a minimal set of base fields on `Event`.

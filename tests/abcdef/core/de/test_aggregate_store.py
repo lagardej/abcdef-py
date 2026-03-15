@@ -1,6 +1,9 @@
 """Tests for AggregateStore and AggregateRecord."""
 
+import pytest
+
 from abcdef.core import AggregateRecord
+from abcdef.core.de.aggregate_store import VersionConflictError
 from abcdef.in_memory import InMemoryAggregateStore
 from tests.abcdef.conftest import make_id
 from tests.abcdef.core.de.fixtures import DummyState
@@ -143,3 +146,97 @@ class TestAggregateStore:
         assert isinstance(record_b.state, DummyState)
         assert record_a.state.count == 1
         assert record_b.state.count == 99
+
+
+class TestVersionConflict:
+    """Tests for optimistic concurrency via expected_version."""
+
+    def test_save_with_correct_expected_version_succeeds(self) -> None:
+        """Saving with the correct expected_version does not raise."""
+        store = InMemoryAggregateStore()
+        agg_id = make_id()
+        store.save(AggregateRecord(aggregate_id=agg_id, event_version=1))
+
+        # Store is at version 1; saving with expected_version=1 should succeed.
+        store.save(
+            AggregateRecord(aggregate_id=agg_id, event_version=2),
+            expected_version=1,
+        )
+
+        result = store.get(agg_id)
+        assert result is not None
+        assert result.event_version == 2
+
+    def test_save_with_stale_expected_version_raises(self) -> None:
+        """Saving with a stale expected_version raises VersionConflictError."""
+        store = InMemoryAggregateStore()
+        agg_id = make_id()
+        store.save(AggregateRecord(aggregate_id=agg_id, event_version=3))
+
+        # Store is at version 3, but caller expects version 1.
+        with pytest.raises(VersionConflictError) as exc_info:
+            store.save(
+                AggregateRecord(aggregate_id=agg_id, event_version=4),
+                expected_version=1,
+            )
+
+        assert exc_info.value.expected == 1
+        assert exc_info.value.actual == 3
+
+    def test_save_with_none_expected_version_skips_check(self) -> None:
+        """expected_version=None bypasses the conflict check."""
+        store = InMemoryAggregateStore()
+        agg_id = make_id()
+        store.save(AggregateRecord(aggregate_id=agg_id, event_version=5))
+
+        # Should not raise regardless of stored version.
+        store.save(
+            AggregateRecord(aggregate_id=agg_id, event_version=6),
+            expected_version=None,
+        )
+
+        result = store.get(agg_id)
+        assert result is not None
+        assert result.event_version == 6
+
+    def test_save_new_aggregate_with_expected_version_zero_succeeds(self) -> None:
+        """expected_version=0 succeeds when no record exists yet."""
+        store = InMemoryAggregateStore()
+        agg_id = make_id()
+
+        store.save(
+            AggregateRecord(aggregate_id=agg_id, event_version=1),
+            expected_version=0,
+        )
+
+        assert store.get(agg_id) is not None
+
+    def test_save_new_aggregate_with_wrong_expected_version_raises(self) -> None:
+        """expected_version > 0 raises when no record exists yet."""
+        store = InMemoryAggregateStore()
+        agg_id = make_id()
+
+        with pytest.raises(VersionConflictError) as exc_info:
+            store.save(
+                AggregateRecord(aggregate_id=agg_id, event_version=1),
+                expected_version=3,
+            )
+
+        assert exc_info.value.expected == 3
+        assert exc_info.value.actual == 0
+
+    def test_conflict_does_not_overwrite_existing_record(self) -> None:
+        """On conflict, the existing record is left unchanged."""
+        store = InMemoryAggregateStore()
+        agg_id = make_id()
+        store.save(AggregateRecord(aggregate_id=agg_id, event_version=2))
+
+        with pytest.raises(VersionConflictError):
+            store.save(
+                AggregateRecord(aggregate_id=agg_id, event_version=99),
+                expected_version=0,
+            )
+
+        result = store.get(agg_id)
+        assert result is not None
+        assert result.event_version == 2

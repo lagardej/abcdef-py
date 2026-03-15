@@ -22,6 +22,10 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     The event store handles appending events (HOW to persist events).
     The aggregate store handles version records (HOW to track versions and state).
     This repository handles WHEN/WHETHER to populate state and replay logic.
+
+    Optimistic concurrency is enforced via the aggregate store: the pre-commit
+    version is passed as ``expected_version`` on every save. If another writer
+    has already committed, ``VersionConflictError`` is raised.
     """
 
     def __init__(
@@ -46,8 +50,13 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
 
         Strategy:
         1. Append events to the event store
-        2. Always write an aggregate record to track the current version
+        2. Write an aggregate record with the pre-commit version as
+           expected_version, enforcing optimistic concurrency
         3. Populate state on the record only if the delta reached the threshold
+
+        Raises:
+            VersionConflictError: If another writer committed a record for this
+                aggregate since it was last loaded. The caller must reload and retry.
 
         Args:
             aggregate: The aggregate to persist.
@@ -57,6 +66,8 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
             return
 
         aggregate_id: TId = aggregate.id  # type: ignore[assignment]
+        expected_version = aggregate.version - len(events)
+
         self._event_store.append_events(aggregate_id, events)
         aggregate._mark_events_as_committed()
 
@@ -75,7 +86,7 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
                 event_version=aggregate.version,
             )
 
-        self._aggregate_store.save(record)
+        self._aggregate_store.save(record, expected_version=expected_version)
 
     def get_by_id(self, aggregate_id: TId) -> TEntity | None:
         """Load an aggregate, using a state snapshot if available.
