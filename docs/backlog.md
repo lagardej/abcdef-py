@@ -42,20 +42,12 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
   attributes with no enforced structure. A frozen dataclass base or convention would make state classes more
   predictable and serialisation-friendly.
 
-- **ES aggregate events are untyped** — `EventSourcedAggregate._emit_event(event: object)` accepts `object`, while
-  `DomainEvent` is now a typed base. Tighten `_emit_event` to accept `DomainEvent`, and update the `de/` test
-  fixtures accordingly.
-
 - **`ValueObject` immutability is documented but not enforced** — The docstring says "use frozen dataclasses or
   similar" but nothing prevents mutation. Either drop the suggestion and document the limitation honestly, or
   provide a `FrozenValueObject` that enforces immutability via `__setattr__` protection, as `AggregateId` does.
 
 - **`AggregateId.__repr__` is not tested** — All other `AggregateId` behaviours are covered. Add a test for
   `__repr__`.
-
-- **`get_all_events()` ordering guarantee is undocumented** — `InMemoryEventStore` preserves insertion order across
-  aggregates, which is correct for in-memory use. A persistent backend may not guarantee this. Document the expected
-  ordering contract in the `EventStore` ABC so implementations know what to honour.
 
 - **`in_memory/` tests have no shared `fixtures.py`** — `de/` and `c/` test directories use `fixtures.py` for
   shared setup. `in_memory/` tests inline their fixture setup. Extract a `fixtures.py` for consistency.

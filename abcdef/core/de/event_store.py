@@ -1,9 +1,11 @@
 """Event Store abstraction for event sourcing."""
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 
 from ..d import AggregateId, AggregateRoot
 from . import markers as de_markers
+from .domain_event import DomainEvent
 
 
 @de_markers.event_store
@@ -19,22 +21,29 @@ class EventStore[TId: AggregateId, TEntity: AggregateRoot](ABC):
     - Store events immutably (append-only)
     - Retrieve event history for an aggregate
     - Support event snapshots for performance optimisation
+
+    Ordering contract: implementations must preserve append order per aggregate.
+    get_events() returns events in chronological (append) order. get_all_events()
+    returns events across all aggregates in global append order. Persistent
+    backends must honour this contract explicitly.
     """
 
     @abstractmethod
-    def append_events(self, aggregate_id: TId, events: list) -> None:
+    def append_events(self, aggregate_id: TId, events: Sequence[DomainEvent]) -> None:
         """Append events for an aggregate to the store.
 
         Events are immutable once stored. This method should be atomic.
 
         Args:
             aggregate_id: The ID of the aggregate emitting events.
-            events: List of domain events to store.
+            events: Sequence of domain events to store.
         """
         pass
 
     @abstractmethod
-    def get_events(self, aggregate_id: TId, from_version: int | None = None) -> list:
+    def get_events(
+        self, aggregate_id: TId, from_version: int | None = None
+    ) -> list[DomainEvent]:
         """Retrieve events for an aggregate.
 
         Args:
@@ -49,8 +58,10 @@ class EventStore[TId: AggregateId, TEntity: AggregateRoot](ABC):
         pass
 
     @abstractmethod
-    def get_all_events(self) -> list:
+    def get_all_events(self) -> list[DomainEvent]:
         """Retrieve all events from the store (for projections).
+
+        Returns events across all aggregates in global append order.
 
         Returns:
             List of all events in chronological order.

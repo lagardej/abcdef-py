@@ -3,6 +3,7 @@
 from ..d import AggregateId
 from ..d.repository import Repository
 from .aggregate_store import AggregateRecord, AggregateStore
+from .domain_event import DomainEvent
 from .event_sourced_aggregate import EventSourcedAggregate
 from .event_store import EventStore
 
@@ -145,7 +146,9 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
             "Implement in a subclass or use a projection system."
         )
 
-    def build_from_events(self, aggregate_id: TId, events: list) -> TEntity:
+    def build_from_events(
+        self, aggregate_id: TId, events: list[DomainEvent]
+    ) -> TEntity:
         """Reconstruct an aggregate from its full event history.
 
         Subclasses MUST implement this. The typical implementation creates a

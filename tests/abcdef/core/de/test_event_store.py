@@ -1,16 +1,34 @@
 """Tests for EventStore abstraction via an in-memory implementation."""
 
-from abcdef.core import EventStore
+import datetime
+
+from abcdef.core import DomainEvent, EventStore
 from abcdef.in_memory import InMemoryEventStore
 from tests.abcdef.conftest import make_id
 
+_TS = datetime.datetime(2024, 1, 1, tzinfo=datetime.UTC)
 
-class DummyEvent:
-    """Dummy event for testing."""
 
-    def __init__(self, value: str) -> None:
-        """Initialise with a value."""
+class DummyEvent(DomainEvent):
+    """Minimal DomainEvent for event store testing."""
+
+    event_type = "dummy_event"
+
+    def __init__(self, value: str, aggregate_id: str = "agg-1") -> None:
+        """Initialise with a value and optional aggregate_id."""
+        super().__init__(occurred_at=_TS, aggregate_id=aggregate_id)
         self.value = value
+
+
+def _evt(value: str) -> DummyEvent:
+    """Create a DummyEvent for convenience."""
+    return DummyEvent(value=value)
+
+
+def _val(event: DomainEvent) -> str:
+    """Extract value from a DummyEvent, narrowing the type."""
+    assert isinstance(event, DummyEvent)
+    return event.value
 
 
 class TestEventStoreMarker:
@@ -32,14 +50,14 @@ class TestEventStore:
         """Events appended for an aggregate can be retrieved."""
         store = InMemoryEventStore()
         agg_id = make_id()
-        events = [DummyEvent("a"), DummyEvent("b")]
+        events = [_evt("a"), _evt("b")]
 
         store.append_events(agg_id, events)
         result = store.get_events(agg_id)
 
         assert len(result) == 2
-        assert result[0].value == "a"
-        assert result[1].value == "b"
+        assert _val(result[0]) == "a"
+        assert _val(result[1]) == "b"
 
     def test_get_events_unknown_aggregate_returns_empty(self) -> None:
         """Retrieving events for an unknown aggregate returns an empty list."""
@@ -52,13 +70,13 @@ class TestEventStore:
         store = InMemoryEventStore()
         agg_id = make_id()
 
-        store.append_events(agg_id, [DummyEvent("first")])
-        store.append_events(agg_id, [DummyEvent("second")])
+        store.append_events(agg_id, [_evt("first")])
+        store.append_events(agg_id, [_evt("second")])
         result = store.get_events(agg_id)
 
         assert len(result) == 2
-        assert result[0].value == "first"
-        assert result[1].value == "second"
+        assert _val(result[0]) == "first"
+        assert _val(result[1]) == "second"
 
     def test_events_isolated_per_aggregate(self) -> None:
         """Events for different aggregates do not bleed into each other."""
@@ -66,22 +84,21 @@ class TestEventStore:
         id_a = make_id()
         id_b = make_id()
 
-        store.append_events(id_a, [DummyEvent("for-a")])
-        store.append_events(id_b, [DummyEvent("for-b")])
+        store.append_events(id_a, [_evt("for-a")])
+        store.append_events(id_b, [_evt("for-b")])
 
         assert len(store.get_events(id_a)) == 1
-        assert store.get_events(id_a)[0].value == "for-a"
+        assert _val(store.get_events(id_a)[0]) == "for-a"
         assert len(store.get_events(id_b)) == 1
-        assert store.get_events(id_b)[0].value == "for-b"
+        assert _val(store.get_events(id_b)[0]) == "for-b"
 
     def test_get_all_events_returns_everything(self) -> None:
         """get_all_events returns events across all aggregates in append order."""
         store = InMemoryEventStore()
-        store.append_events(make_id(), [DummyEvent("first")])
-        store.append_events(make_id(), [DummyEvent("second")])
+        store.append_events(make_id(), [_evt("first")])
+        store.append_events(make_id(), [_evt("second")])
 
-        all_events = store.get_all_events()
-        assert len(all_events) == 2
+        assert len(store.get_all_events()) == 2
 
     def test_get_all_events_empty(self) -> None:
         """get_all_events returns empty list when no events exist."""
@@ -92,7 +109,7 @@ class TestEventStore:
         """Mutating the returned list does not affect the store."""
         store = InMemoryEventStore()
         agg_id = make_id()
-        store.append_events(agg_id, [DummyEvent("x")])
+        store.append_events(agg_id, [_evt("x")])
 
         result = store.get_events(agg_id)
         result.clear()
@@ -103,37 +120,33 @@ class TestEventStore:
         """from_version skips events before the given version."""
         store = InMemoryEventStore()
         agg_id = make_id()
-        store.append_events(agg_id, [DummyEvent("a"), DummyEvent("b"), DummyEvent("c")])
+        store.append_events(agg_id, [_evt("a"), _evt("b"), _evt("c")])
 
         result = store.get_events(agg_id, from_version=2)
 
         assert len(result) == 1
-        assert result[0].value == "c"
+        assert _val(result[0]) == "c"
 
     def test_get_events_from_version_zero_returns_all(self) -> None:
         """from_version=0 returns all events."""
         store = InMemoryEventStore()
         agg_id = make_id()
-        store.append_events(agg_id, [DummyEvent("a"), DummyEvent("b")])
+        store.append_events(agg_id, [_evt("a"), _evt("b")])
 
-        result = store.get_events(agg_id, from_version=0)
-
-        assert len(result) == 2
+        assert len(store.get_events(agg_id, from_version=0)) == 2
 
     def test_get_events_from_version_equal_to_length_returns_empty(self) -> None:
         """from_version equal to total event count returns empty list."""
         store = InMemoryEventStore()
         agg_id = make_id()
-        store.append_events(agg_id, [DummyEvent("a"), DummyEvent("b")])
+        store.append_events(agg_id, [_evt("a"), _evt("b")])
 
-        result = store.get_events(agg_id, from_version=2)
-
-        assert result == []
+        assert store.get_events(agg_id, from_version=2) == []
 
     def test_get_events_from_version_none_returns_all(self) -> None:
         """from_version=None behaves identically to omitting the parameter."""
         store = InMemoryEventStore()
         agg_id = make_id()
-        store.append_events(agg_id, [DummyEvent("a"), DummyEvent("b")])
+        store.append_events(agg_id, [_evt("a"), _evt("b")])
 
         assert store.get_events(agg_id, from_version=None) == store.get_events(agg_id)

@@ -1,6 +1,8 @@
 """In-memory implementation of EventStore."""
 
-from abcdef.core import AggregateId, AggregateRoot, EventStore
+from collections.abc import Sequence
+
+from abcdef.core import AggregateId, AggregateRoot, DomainEvent, EventStore
 
 
 class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
@@ -9,8 +11,8 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
     """In-memory EventStore implementation.
 
     Stores events in a plain dict keyed by string representation of the
-    aggregate ID's UUID. Suitable for testing and lightweight use cases
-    where persistence is not required.
+    aggregate ID. Suitable for testing and lightweight use cases where
+    persistence is not required.
 
     Append order across all aggregates is preserved in a separate list,
     supporting projections that consume all events in order.
@@ -18,15 +20,15 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
 
     def __init__(self) -> None:
         """Initialise the event store with empty storage."""
-        self._store: dict[str, list] = {}
-        self._all: list = []
+        self._store: dict[str, list[DomainEvent]] = {}
+        self._all: list[DomainEvent] = []
 
-    def append_events(self, aggregate_id: TId, events: list) -> None:
+    def append_events(self, aggregate_id: TId, events: Sequence[DomainEvent]) -> None:
         """Append events for an aggregate to the store.
 
         Args:
             aggregate_id: The ID of the aggregate emitting events.
-            events: List of domain events to store.
+            events: Sequence of domain events to store.
         """
         key = str(aggregate_id)
         if key not in self._store:
@@ -34,7 +36,9 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
         self._store[key].extend(events)
         self._all.extend(events)
 
-    def get_events(self, aggregate_id: TId, from_version: int | None = None) -> list:
+    def get_events(
+        self, aggregate_id: TId, from_version: int | None = None
+    ) -> list[DomainEvent]:
         """Retrieve events for an aggregate.
 
         Args:
@@ -50,7 +54,7 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
             return events[from_version:].copy()
         return events.copy()
 
-    def get_all_events(self) -> list:
+    def get_all_events(self) -> list[DomainEvent]:
         """Retrieve all events across all aggregates in append order.
 
         Returns:

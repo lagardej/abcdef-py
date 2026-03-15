@@ -2,7 +2,7 @@
 
 import pytest
 
-from abcdef.core import AggregateRecord
+from abcdef.core import AggregateRecord, DomainEvent
 from abcdef.core.de.aggregate_store import VersionConflictError
 from tests.abcdef.conftest import make_id
 from tests.abcdef.core.de.fixtures import (
@@ -209,13 +209,13 @@ class TestEventSourcedRepositoryGetById:
             )
         )
 
-        key = str(agg_id)
-        event_store._store[key] = [
+        injected: list[DomainEvent] = [
             DummyEvent(amount=5),  # version 1 - captured in state
             DummyEvent(amount=5),  # version 2 - captured in state
             DummyEvent(amount=1),  # delta - replayed
             DummyEvent(amount=2),  # delta - replayed
         ]
+        event_store._store[str(agg_id)] = injected
 
         restored = repo.get_by_id(agg_id)
 
@@ -231,11 +231,11 @@ class TestEventSourcedRepositoryGetById:
         # Record present but no state (below threshold)
         aggregate_store.save(AggregateRecord(aggregate_id=agg_id, event_version=2))
 
-        key = str(agg_id)
-        event_store._store[key] = [
+        injected: list[DomainEvent] = [
             DummyEvent(amount=5),
             DummyEvent(amount=5),
         ]
+        event_store._store[str(agg_id)] = injected
 
         restored = repo.get_by_id(agg_id)
 

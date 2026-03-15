@@ -4,6 +4,7 @@ from abc import abstractmethod
 from collections.abc import Sequence
 
 from ..d import AggregateId, AggregateRoot
+from .domain_event import DomainEvent
 
 
 class AggregateState:
@@ -46,7 +47,7 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
             aggregate_id: The unique identity of this aggregate.
         """
         super().__init__(aggregate_id)
-        self._events: list[object] = []
+        self._events: list[DomainEvent] = []
         self._version = 0
         self._base_version = 0
 
@@ -103,7 +104,7 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
         """
         return self._base_version
 
-    def _get_uncommitted_events(self) -> list[object]:
+    def _get_uncommitted_events(self) -> list[DomainEvent]:
         """Return all events recorded but not yet persisted.
 
         Called by the repository during save. Not part of the domain API.
@@ -130,7 +131,7 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
         """
         self._base_version = self._version
 
-    def _emit_event(self, event: object) -> None:
+    def _emit_event(self, event: DomainEvent) -> None:
         """Record an event, apply it to state, and increment version.
 
         1. Record the event (for persistence)
@@ -144,7 +145,7 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
         self._apply_event(event)
         self._version += 1
 
-    def _load_from_history(self, events: Sequence[object]) -> None:
+    def _load_from_history(self, events: Sequence[DomainEvent]) -> None:
         """Reconstruct aggregate state by replaying a sequence of historical events.
 
         Called by the repository when rebuilding an aggregate from stored events.
@@ -159,7 +160,7 @@ class EventSourcedAggregate[TState: AggregateState](AggregateRoot):
             self._version += 1
 
     @abstractmethod
-    def _apply_event(self, event: object) -> None:
+    def _apply_event(self, event: DomainEvent) -> None:
         """Apply a single event to the aggregate's internal state.
 
         Subclasses MUST implement this to define how each event type changes state.
