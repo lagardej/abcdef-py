@@ -194,6 +194,15 @@ direction.**
 - Prefer flat over nested
 - Small, single-purpose functions
 
+### Line Length
+
+- Code lines: 88 characters maximum (enforced by ruff)
+- Docstrings and comments: 72 characters maximum (PEP 8 convention)
+  - Not enforced by tooling — ruff cannot apply a separate limit for
+    docstrings and comments. Apply manually.
+  - Wrap long docstring lines by continuing on the next line at the
+    same indentation level as the opening text.
+
 ### Encoding
 
 Always pass `encoding="utf-8"` explicitly when opening files or calling `subprocess.run` with `text=True` — never rely
