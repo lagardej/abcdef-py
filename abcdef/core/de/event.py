@@ -33,6 +33,7 @@ class Event(Message):
 
     event_type: str = ""
     _abstract_event: bool = False
+    occurred_at: datetime.datetime
 
     def __init_subclass__(cls, **kwargs: object) -> None:
         """Enforce event_type declaration on all concrete subclasses.
@@ -54,10 +55,36 @@ class Event(Message):
                 f"It cannot be inherited from a parent class."
             )
 
+    def __setattr__(self, name: str, value: object) -> None:
+        """Prevent mutation after construction.
+
+        Subclasses must use ``object.__setattr__(self, name, value)``
+        in their ``__init__`` to initialise attributes.
+
+        Args:
+            name: Attribute name.
+            value: Value to assign.
+
+        Raises:
+            AttributeError: Always. Event is immutable.
+        """
+        raise AttributeError(f"Event is immutable: cannot set attribute {name!r}")
+
+    def __delattr__(self, name: str) -> None:
+        """Prevent deletion of attributes.
+
+        Args:
+            name: Attribute name.
+
+        Raises:
+            AttributeError: Always. Event is immutable.
+        """
+        raise AttributeError(f"Event is immutable: cannot delete attribute {name!r}")
+
     def __init__(self, *, occurred_at: datetime.datetime) -> None:
         """Initialise the event.
 
         Args:
             occurred_at: The timestamp at which this event occurred.
         """
-        self.occurred_at = occurred_at
+        object.__setattr__(self, "occurred_at", occurred_at)

@@ -13,11 +13,12 @@ class DummyEvent(DomainEvent):
     """Minimal DomainEvent for event store testing."""
 
     event_type = "dummy_event"
+    value: str
 
     def __init__(self, value: str, aggregate_id: str = "agg-1") -> None:
         """Initialise with a value and optional aggregate_id."""
         super().__init__(occurred_at=_TS, aggregate_id=aggregate_id)
-        self.value = value
+        object.__setattr__(self, "value", value)
 
 
 def _evt(value: str) -> DummyEvent:

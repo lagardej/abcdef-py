@@ -21,22 +21,24 @@ class OrderPlaced(Event):
     """Dummy event representing an order being placed."""
 
     event_type = "order_placed"
+    order_id: str
 
     def __init__(self, order_id: str) -> None:
         """Initialise with an order_id."""
         super().__init__(occurred_at=_TS)
-        self.order_id = order_id
+        object.__setattr__(self, "order_id", order_id)
 
 
 class OrderCancelled(Event):
     """Dummy event representing an order being cancelled."""
 
     event_type = "order_cancelled"
+    order_id: str
 
     def __init__(self, order_id: str) -> None:
         """Initialise with an order_id."""
         super().__init__(occurred_at=_TS)
-        self.order_id = order_id
+        object.__setattr__(self, "order_id", order_id)
 
 
 __all__ = [

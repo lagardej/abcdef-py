@@ -29,33 +29,36 @@ class DummyIncrementedEvent(DomainEvent):
     """Dummy increment event."""
 
     event_type = "dummy_incremented"
+    amount: int
 
     def __init__(self, amount: int, aggregate_id: str = _DEFAULT_AGG_ID) -> None:
         """Initialise with an amount and optional aggregate_id."""
         super().__init__(occurred_at=_TS, aggregate_id=aggregate_id)
-        self.amount = amount
+        object.__setattr__(self, "amount", amount)
 
 
 class DummyDecrementedEvent(DomainEvent):
     """Dummy decrement event."""
 
     event_type = "dummy_decremented"
+    amount: int
 
     def __init__(self, amount: int, aggregate_id: str = _DEFAULT_AGG_ID) -> None:
         """Initialise with an amount and optional aggregate_id."""
         super().__init__(occurred_at=_TS, aggregate_id=aggregate_id)
-        self.amount = amount
+        object.__setattr__(self, "amount", amount)
 
 
 class DummyEvent(DomainEvent):
     """Generic dummy event used in repository tests."""
 
     event_type = "dummy_event"
+    amount: int
 
     def __init__(self, amount: int, aggregate_id: str = _DEFAULT_AGG_ID) -> None:
         """Initialise with an amount and optional aggregate_id."""
         super().__init__(occurred_at=_TS, aggregate_id=aggregate_id)
-        self.amount = amount
+        object.__setattr__(self, "amount", amount)
 
 
 # ---------------------------------------------------------------------------

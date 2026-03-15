@@ -27,6 +27,3 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
   combinators (`and`, `or`, `not`), and enough structure to warrant a dedicated package rather than a stub in
   `core/`. Model after the Java reference implementation.
 
-- **Document `_abstract_event` convention in `architecture.md`** — The `_abstract_event = True` flag on `DomainEvent`
-  is an internal convention for exempting intermediate base classes from the `event_type` enforcement in
-  `Event.__init_subclass__`. Document it alongside the marker attribute naming decisions.

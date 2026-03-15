@@ -98,6 +98,24 @@ class TestEvent:
                 def __init__(self) -> None:
                     super().__init__()
 
+    def test_occurred_at_is_immutable(self) -> None:
+        """Assigning to occurred_at after construction raises AttributeError."""
+        event = ConcreteEvent()
+        with pytest.raises(AttributeError):
+            event.occurred_at = _TS  # type: ignore[misc]
+
+    def test_new_attribute_cannot_be_set(self) -> None:
+        """Setting an arbitrary attribute after construction raises AttributeError."""
+        event = ConcreteEvent()
+        with pytest.raises(AttributeError):
+            event.new_field = "x"  # type: ignore[attr-defined]
+
+    def test_attribute_cannot_be_deleted(self) -> None:
+        """Deleting an attribute after construction raises AttributeError."""
+        event = ConcreteEvent()
+        with pytest.raises(AttributeError):
+            del event.occurred_at  # type: ignore[misc]
+
 
 # ---------------------------------------------------------------------------
 # DomainEvent
@@ -126,6 +144,18 @@ class TestDomainEvent:
             class BadDomainEvent(DomainEvent):
                 def __init__(self) -> None:
                     super().__init__(occurred_at=_TS, aggregate_id="x")
+
+    def test_aggregate_id_is_immutable(self) -> None:
+        """Assigning to aggregate_id after construction raises AttributeError."""
+        event = ConcreteDomainEvent(aggregate_id="agg-1")
+        with pytest.raises(AttributeError):
+            event.aggregate_id = "agg-2"  # type: ignore[misc]
+
+    def test_domain_event_attribute_cannot_be_deleted(self) -> None:
+        """Deleting aggregate_id after construction raises AttributeError."""
+        event = ConcreteDomainEvent(aggregate_id="agg-1")
+        with pytest.raises(AttributeError):
+            del event.aggregate_id  # type: ignore[misc]
 
 
 # ---------------------------------------------------------------------------

@@ -72,6 +72,7 @@ class DomainEvent(Event):
     """
 
     _abstract_event = True
+    aggregate_id: str
 
     def __init__(self, *, occurred_at: datetime.datetime, aggregate_id: str) -> None:
         """Initialise the domain event.
@@ -82,4 +83,4 @@ class DomainEvent(Event):
                 raised this event.
         """
         super().__init__(occurred_at=occurred_at)
-        self.aggregate_id = aggregate_id
+        object.__setattr__(self, "aggregate_id", aggregate_id)
