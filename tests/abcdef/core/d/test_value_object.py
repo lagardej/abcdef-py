@@ -1,5 +1,7 @@
 """Tests for Value Object."""
 
+import pytest
+
 from abcdef.core import ValueObject
 
 
@@ -10,6 +12,15 @@ class Money(ValueObject):
         """Initialise with amount and currency."""
         self.amount = amount
         self.currency = currency
+
+
+class TaggedItem(ValueObject):
+    """Value object with an unhashable attribute (list)."""
+
+    def __init__(self, name: str, tags: list[str]) -> None:
+        """Initialise with name and tags."""
+        self.name = name
+        self.tags = tags
 
 
 class TestValueObject:
@@ -76,3 +87,9 @@ class TestValueObject:
         vo1 = Money(100.0, "USD")
         vo2 = Money(200.0, "USD")
         assert hash(vo1) != hash(vo2)
+
+    def test_hash_raises_type_error_for_unhashable_attribute(self) -> None:
+        """__hash__ raises TypeError with a clear message for unhashable attributes."""
+        vo = TaggedItem("widget", ["a", "b"])
+        with pytest.raises(TypeError, match="tags"):
+            hash(vo)

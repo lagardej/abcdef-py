@@ -6,9 +6,7 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Bugs
 
-- **`ValueObject.__hash__` raises on unhashable attributes** — `hash(tuple(sorted(self.__dict__.items())))` will raise
-  `TypeError` if any attribute is unhashable (e.g. a list or dict field). No protection, no documentation of the
-  constraint. Value objects with collection attributes break silently at runtime.
+*(none)*
 
 ---
 

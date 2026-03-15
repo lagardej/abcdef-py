@@ -14,6 +14,10 @@ class ValueObject:
     - Often used to encapsulate domain concepts with rules
 
     Subclasses should be implemented as immutable (use frozen dataclasses or similar).
+
+    All attribute values must be hashable. Attributes of unhashable types (e.g. list,
+    dict, set) will cause ``__hash__`` to raise ``TypeError`` naming the offending
+    attribute.
     """
 
     def __eq__(self, other: object) -> bool:
@@ -32,7 +36,22 @@ class ValueObject:
     def __hash__(self) -> int:
         """Hash by value.
 
+        All attribute values must be hashable. Raises ``TypeError`` naming the
+        offending attribute if an unhashable value is encountered.
+
         Returns:
             Hash of the object attributes.
+
+        Raises:
+            TypeError: If any attribute value is not hashable.
         """
-        return hash(tuple(sorted(self.__dict__.items())))
+        items: list[tuple[str, object]] = sorted(self.__dict__.items())
+        for key, value in items:
+            try:
+                hash(value)
+            except TypeError:
+                raise TypeError(
+                    f"{self.__class__.__name__}.{key} is not hashable. "
+                    f"ValueObject attributes must be hashable types."
+                ) from None
+        return hash(tuple(items))
