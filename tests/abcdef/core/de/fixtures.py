@@ -4,7 +4,11 @@ import datetime
 
 from abcdef.core import AggregateId, AggregateState, DomainEvent, EventSourcedAggregate
 from abcdef.core.de import EventSourcedRepository
-from abcdef.in_memory import InMemoryAggregateStore, InMemoryEventStore
+from abcdef.in_memory import (
+    InMemoryAggregateStore,
+    InMemoryEventBus,
+    InMemoryEventStore,
+)
 
 _TS = datetime.datetime(2024, 1, 1, tzinfo=datetime.UTC)
 _DEFAULT_AGG_ID = "test-aggregate"
@@ -132,16 +136,20 @@ class DummyRepository(EventSourcedRepository[AggregateId, DummyAggregate]):
 
 def make_repo(
     threshold: int = 10,
-) -> tuple[DummyRepository, InMemoryEventStore, InMemoryAggregateStore]:
-    """Create a DummyRepository with in-memory stores."""
+) -> tuple[
+    DummyRepository, InMemoryEventStore, InMemoryAggregateStore, InMemoryEventBus
+]:
+    """Create a DummyRepository with in-memory stores and an event bus."""
     event_store = InMemoryEventStore()
     aggregate_store = InMemoryAggregateStore()
+    event_bus = InMemoryEventBus()
     repo = DummyRepository(
         event_store,
         aggregate_store,
+        event_bus,
         snapshot_threshold=threshold,
     )
-    return repo, event_store, aggregate_store
+    return repo, event_store, aggregate_store, event_bus
 
 
 __all__ = [

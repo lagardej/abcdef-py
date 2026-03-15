@@ -12,9 +12,7 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-- **`EventSourcedRepository` does not publish events post-commit** — After `save()`, committed events are discarded
-  and never published to an `EventBus`. Projectors have no way to react in real time. Wire the repository to publish
-  events after appending them to the event store.
+*(none)*
 
 ---
 

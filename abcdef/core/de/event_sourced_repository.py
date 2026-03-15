@@ -1,11 +1,19 @@
 """Event-sourced repository with state persistence strategy."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ..d import AggregateId
 from ..d.repository import Repository
 from .aggregate_store import AggregateRecord, AggregateStore
-from .domain_event import DomainEvent
 from .event_sourced_aggregate import EventSourcedAggregate
-from .event_store import EventStore
+
+if TYPE_CHECKING:
+    from ..c.message_bus import EventBus
+    from .domain_event import DomainEvent
+    from .event import Event
+    from .event_store import EventStore
 
 
 class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
@@ -19,6 +27,7 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     - Managing state persistence strategy (when to populate state on the record)
     - Orchestrating event replay (full or delta from a state snapshot)
     - Defining how to reconstruct aggregates from events
+    - Publishing committed events to the event bus after each successful save
 
     The event store handles appending events (HOW to persist events).
     The aggregate store handles version records (HOW to track versions and state).
@@ -33,6 +42,7 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         self,
         event_store: EventStore[TId, TEntity],
         aggregate_store: AggregateStore[TId, TEntity],
+        event_bus: EventBus[Event],
         snapshot_threshold: int = 10,
     ) -> None:
         """Initialise the event-sourced repository.
@@ -40,10 +50,12 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         Args:
             event_store: The store for persisting events (append-only).
             aggregate_store: The store for persisting version records.
+            event_bus: The bus to publish committed events to after each save.
             snapshot_threshold: Capture state every N events (default: 10).
         """
         self._event_store = event_store
         self._aggregate_store = aggregate_store
+        self._event_bus = event_bus
         self._snapshot_threshold = snapshot_threshold
 
     def save(self, aggregate: TEntity) -> None:
@@ -54,6 +66,10 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         2. Write an aggregate record with the pre-commit version as
            expected_version, enforcing optimistic concurrency
         3. Populate state on the record only if the delta reached the threshold
+        4. Publish all committed events to the event bus
+
+        Events are published only after the aggregate store write succeeds,
+        ensuring no partial publishes on a failed commit.
 
         Raises:
             VersionConflictError: If another writer committed a record for this
@@ -88,6 +104,9 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
             )
 
         self._aggregate_store.save(record, expected_version=expected_version)
+
+        for event in events:
+            self._event_bus.publish(event)
 
     def get_by_id(self, aggregate_id: TId) -> TEntity | None:
         """Load an aggregate, using a state snapshot if available.
