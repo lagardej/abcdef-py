@@ -18,10 +18,6 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`d/repository.py` — dead `TypeVar` declarations**
-  `TId` and `TAggregate` are defined at module level but never used; `Repository`
-  uses PEP 695 generics directly. Remove them.
-
 - **`in_memory/event_bus.py` — unused `_TEvent` TypeVar**
   `_TEvent = TypeVar("_TEvent", bound=Event)` is defined but never referenced.
   Only `_TSpecificEvent` is used. Remove it.

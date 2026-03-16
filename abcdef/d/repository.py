@@ -1,13 +1,9 @@
 """Repository abstraction for persistence."""
 
 from abc import ABC, abstractmethod
-from typing import TypeVar
 
 from . import markers
 from .aggregate import AggregateId, AggregateRoot
-
-TId = TypeVar("TId", bound=AggregateId)
-TAggregate = TypeVar("TAggregate", bound=AggregateRoot)
 
 
 @markers.repository
