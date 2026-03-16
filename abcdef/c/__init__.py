@@ -4,8 +4,6 @@ Base classes, marker interfaces, and bus abstractions for
 Command/Query Responsibility Segregation.
 """
 
-from abcdef.core.result import Result
-
 from .command import Command, CommandHandler, TCommand, TResult
 from .document import Document
 from .document_store import DocumentStore
@@ -37,7 +35,6 @@ __all__ = [
     "QueryBus",
     "QueryHandler",
     "QueryRegistry",
-    "Result",
     "TCommand",
     "TQuery",
     "TQueryResult",

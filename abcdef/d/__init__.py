@@ -4,8 +4,6 @@ Base classes and abstractions for Domain-Driven Design concepts:
 aggregates, value objects, repositories, and domain events.
 """
 
-from abcdef.core.event import Event
-
 from .aggregate import AggregateId, AggregateRoot
 from .domain_event import DomainEvent, DomainEventRegistry
 from .event_emitting_aggregate import EventEmittingAggregate
@@ -25,7 +23,6 @@ __all__ = [
     "AggregateRoot",
     "DomainEvent",
     "DomainEventRegistry",
-    "Event",
     "EventEmittingAggregate",
     "Repository",
     "ValueObject",

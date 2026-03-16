@@ -30,6 +30,7 @@ TIC adopts the *Spring Modulith* philosophy: modules are first-class design unit
 * **Domain layer:** Always internal. Never exported from `__init__.py`. Domain objects (aggregates, value objects) remain encapsulated within their module.
 * Sub-packages are allowed if structurally necessary (e.g., `interface/cli/`, `interface/web/`) as long as their exports are explicitly declared in `__init__.py`.
 * A module's `__init__.py` declares what other *modules* may import—events for cross-module communication, or ABCs for service provider interfaces.
+* Package facades may only re-export symbols from their own namespace. Do not re-export symbols from sibling packages.
 
 #### 3. Event-Driven Communication
 
@@ -321,16 +322,16 @@ Events are published to a message bus, allowing modules to react without direct 
 
 Physical location follows clear patterns. Aggregates and value objects always live in `domain` and are never exported. Application handlers follow their layer structure. Sub-packages are allowed if they reflect structural needs (e.g., `interface/cli` for CLI commands, `interface/web` for web routes), but all public exports must be declared in `__init__.py`.
 
-| Concept | File Pattern |
-|---|---|
-| Aggregate | `domain/<aggregate>.py` |
-| Aggregate ABC | `domain/<aggregate>_repository.py` |
-| Use case command + handler | `application/<use_case>.py` |
+| Concept                     | File Pattern                         |
+|-----------------------------|--------------------------------------|
+| Aggregate                   | `domain/<aggregate>.py`              |
+| Aggregate ABC               | `domain/<aggregate>_repository.py`   |
+| Use case command + handler  | `application/<use_case>.py`          |
 | Concrete ABC implementation | `infrastructure/<tech>_<concept>.py` |
-| Query handler | `application/<query>.py` |
-| CLI command | `interface/cli/<command>.py` |
-| Web route | `interface/web/<route>.py` |
-| `__init__.py` | Public API contract; re-exports only |
+| Query handler               | `application/<query>.py`             |
+| CLI command                 | `interface/cli/<command>.py`         |
+| Web route                   | `interface/web/<route>.py`           |
+| `__init__.py`               | Public API contract; re-exports only |
 
 ## Defensive Parsing (Abstract)
 
@@ -352,6 +353,8 @@ For each module ABC, provide in-memory fakes for testing.
 * `tests/` mirrors `tic/`.
 * No test code inside module directories.
 * No external I/O in tests; use in-memory databases when needed.
+* Boundary checks should validate both runtime import rules and package facade
+  re-export rules (`__init__.py` imports only from its own namespace).
 
 ## Code Style and Conventions
 
@@ -404,16 +407,16 @@ Keep related code together. Separate only when there is a genuine reason.
 
 ## Glossary
 
-| Term | Meaning |
-|---|---|
-| *Module* | A boundary within which models are consistent. No cross-module imports. |
-| *Aggregate Root* | The entry point to an aggregate. All state changes go through it. |
-| *Event* | An immutable record of something that happened. Source of truth for state changes. |
-| *Projection* | A materialised read model derived from events. Optimised for queries. |
-| *Repository* | Abstracts persistence. Loads/saves aggregates; handles event dispatch. |
-| *Message Bus* | Publish/subscribe for events. Decouples modules. |
-| *Use Case* | An application-layer operation (command or query handler). |
-| *DTO* | Data Transfer Object. Minimal data carrier (no business logic). |
-| *DDD* | Domain-Driven Design. Organise code around domain language and boundaries. |
-| *CQRS* | Command Query Responsibility Segregation. Separate write (commands) from read (queries). |
-| *Event Sourcing* | Store changes as events; derive state by replaying. Events are the system of record. |
+| Term             | Meaning                                                                                  |
+|------------------|------------------------------------------------------------------------------------------|
+| *Aggregate Root* | The entry point to an aggregate. All state changes go through it.                        |
+| *CQRS*           | Command Query Responsibility Segregation. Separate write (commands) from read (queries). |
+| *DDD*            | Domain-Driven Design. Organise code around domain language and boundaries.               |
+| *DTO*            | Data Transfer Object. Minimal data carrier (no business logic).                          |
+| *Event Sourcing* | Store changes as events; derive state by replaying. Events are the system of record.     |
+| *Event*          | An immutable record of something that happened. Source of truth for state changes.       |
+| *Message Bus*    | Publish/subscribe for events. Decouples modules.                                         |
+| *Module*         | A boundary within which models are consistent. No cross-module imports.                  |
+| *Projection*     | A materialised read model derived from events. Optimised for queries.                    |
+| *Repository*     | Abstracts persistence. Loads/saves aggregates; handles event dispatch.                   |
+| *Use Case*       | An application-layer operation (command or query handler).                               |

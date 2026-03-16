@@ -1,15 +1,20 @@
-"""Enforce sub-package import boundary rules for abcdef/core/.
+"""Enforce import boundary rules for `abcdef` packages.
 
-Each sub-package may only import from the packages listed in the allowed
-matrix. Any import that crosses a forbidden boundary will cause a test
-failure, naming the offending file and the disallowed import.
+Each package may only import from the packages listed in the allowed
+matrix. Any import that crosses a forbidden boundary causes a test
+failure naming the offending file and the disallowed import.
 
 Allowed import matrix
 ---------------------
-core root (event, message, result, markers) : other core root modules only
-c/   : core root only
-d/   : core root only
-de/  : core root, d/
+- `core/`: core/ only
+- `c/`: core/ only
+- `d/`: core/ only
+- `de/`: core/, `d/`
+
+Package facade rule
+-------------------
+Each package `__init__.py` may only re-export symbols from its own
+namespace.
 
 Rules
 -----
@@ -17,8 +22,8 @@ Rules
   always allowed and are not checked.
 - Imports guarded by ``if TYPE_CHECKING`` are excluded. They carry no
   runtime dependency and are not subject to boundary checks.
-- ``__init__.py`` files are excluded. They aggregate and re-export
-  across sub-packages by design.
+- Runtime boundary checks exclude ``__init__.py`` files.
+- Package facade checks inspect ``__init__.py`` files separately.
 """
 
 from __future__ import annotations
@@ -32,15 +37,11 @@ from pathlib import Path
 
 _ABCDEF = Path(__file__).parents[2] / "abcdef"
 _CORE = _ABCDEF / "core"
-
-_ROOT = _CORE
-_C = _CORE / "c"
-_D = _CORE / "d"
-_DE = _CORE / "de"
-
-# The core root modules subject to boundary checks. core/__init__.py is
-# excluded -- it is the public facade and imports from all sub-packages.
-_ROOT_MODULES = {"event.py", "message.py", "result.py", "markers.py"}
+_C = _ABCDEF / "c"
+_D = _ABCDEF / "d"
+_DE = _ABCDEF / "de"
+_IN_MEMORY = _ABCDEF / "in_memory"
+_SPECIFICATION = _ABCDEF / "specification"
 
 # ---------------------------------------------------------------------------
 # Allowed import prefixes per sub-package
@@ -50,18 +51,22 @@ _ROOT_MODULES = {"event.py", "message.py", "result.py", "markers.py"}
 # Intra-package imports are always allowed and handled separately.
 # ---------------------------------------------------------------------------
 
-_CORE_ROOT_PREFIXES = {
-    "abcdef.core.event",
-    "abcdef.core.message",
-    "abcdef.core.result",
-    "abcdef.core.markers",
-}
+_CORE_PREFIXES = {"abcdef.core"}
 
 _ALLOWED: dict[Path, set[str]] = {
-    _ROOT: _CORE_ROOT_PREFIXES,  # root modules may import each other
-    _C: _CORE_ROOT_PREFIXES,
-    _D: _CORE_ROOT_PREFIXES,
-    _DE: _CORE_ROOT_PREFIXES | {"abcdef.core.d"},
+    _CORE: _CORE_PREFIXES,
+    _C: _CORE_PREFIXES,
+    _D: _CORE_PREFIXES,
+    _DE: _CORE_PREFIXES | {"abcdef.d"},
+}
+
+_PACKAGE_FACADES = {
+    _CORE,
+    _C,
+    _D,
+    _DE,
+    _IN_MEMORY,
+    _SPECIFICATION,
 }
 
 # ---------------------------------------------------------------------------
@@ -117,7 +122,7 @@ def _abcdef_imports(path: Path) -> list[str]:
     guarded = _guarded_import_ids(tree)
 
     # Derive the absolute package prefix for relative imports.
-    # e.g. abcdef/core/c/command.py -> ('abcdef', 'core', 'c')
+    # e.g. abcdef/c/command.py -> ('abcdef', 'c')
     rel = path.relative_to(_ABCDEF.parent)
     parts = rel.with_suffix("").parts
     package_parts = parts[:-1]
@@ -152,7 +157,7 @@ def _own_prefix(directory: Path) -> str:
         directory: A sub-package directory under abcdef/.
 
     Returns:
-        Dotted module prefix, e.g. ``abcdef.core.c``.
+        Dotted module prefix, e.g. ``abcdef.c``.
     """
     rel = directory.relative_to(_ABCDEF.parent)
     return ".".join(rel.parts)
@@ -165,7 +170,7 @@ def _is_allowed(import_str: str, allowed: set[str], own: str) -> bool:
     always allowed. External imports must match an allowed prefix.
 
     Args:
-        import_str: Absolute module string, e.g. ``abcdef.core.c.markers``.
+        import_str: Absolute module string, e.g. ``abcdef.c.markers``.
         allowed: Set of permitted external module prefixes.
         own: The file's own package prefix (always permitted).
 
@@ -183,7 +188,6 @@ def _is_allowed(import_str: str, allowed: set[str], own: str) -> bool:
 def _violations(
     directory: Path,
     allowed: set[str],
-    include: set[str] | None = None,
 ) -> list[str]:
     """Collect boundary violations for .py files in a directory.
 
@@ -192,8 +196,6 @@ def _violations(
     Args:
         directory: The sub-package directory to check.
         allowed: Permitted external abcdef import prefixes.
-        include: If provided, only check files whose names are in this
-            set. If None, check all non-__init__ .py files.
 
     Returns:
         List of human-readable violation strings.
@@ -203,12 +205,32 @@ def _violations(
     for py_file in sorted(directory.glob("*.py")):
         if py_file.name == "__init__.py":
             continue
-        if include is not None and py_file.name not in include:
-            continue
         for imp in _abcdef_imports(py_file):
             if not _is_allowed(imp, allowed, own):
                 rel = py_file.relative_to(_ABCDEF.parent)
                 found.append(f"{rel}: forbidden import '{imp}'")
+    return found
+
+
+def _facade_violations(directory: Path) -> list[str]:
+    """Collect facade re-export violations for a package `__init__.py`.
+
+    A package facade may only re-export symbols from modules within its
+    own namespace.
+
+    Args:
+        directory: Package directory containing `__init__.py`.
+
+    Returns:
+        List of human-readable violation strings.
+    """
+    init_file = directory / "__init__.py"
+    own = _own_prefix(directory)
+    found: list[str] = []
+    for imp in _abcdef_imports(init_file):
+        if imp != own and not imp.startswith(own + "."):
+            rel = init_file.relative_to(_ABCDEF.parent)
+            found.append(f"{rel}: foreign re-export import '{imp}'")
     return found
 
 
@@ -220,22 +242,30 @@ def _violations(
 class TestImportBoundaries:
     """Enforce the sub-package import boundary rules."""
 
-    def test_core_root_imports_nothing_outside_root(self) -> None:
-        """Core root modules may only import other core root modules."""
-        violations = _violations(_ROOT, allowed=_ALLOWED[_ROOT], include=_ROOT_MODULES)
+    def test_core_imports_only_core(self) -> None:
+        """core/ must only import from core/."""
+        violations = _violations(_CORE, allowed=_ALLOWED[_CORE])
         assert violations == [], "\n" + "\n".join(violations)
 
-    def test_c_imports_only_core_root(self) -> None:
-        """c/ must only import from core root modules."""
+    def test_c_imports_only_core(self) -> None:
+        """c/ must only import from core/."""
         violations = _violations(_C, allowed=_ALLOWED[_C])
         assert violations == [], "\n" + "\n".join(violations)
 
-    def test_d_imports_only_core_root(self) -> None:
-        """d/ must only import from core root modules."""
+    def test_d_imports_only_core(self) -> None:
+        """d/ must only import from core/."""
         violations = _violations(_D, allowed=_ALLOWED[_D])
         assert violations == [], "\n" + "\n".join(violations)
 
-    def test_de_imports_only_core_root_and_d(self) -> None:
-        """de/ must only import from core root and d/."""
+    def test_de_imports_only_core_and_d(self) -> None:
+        """de/ must only import from core/ and d/."""
         violations = _violations(_DE, allowed=_ALLOWED[_DE])
+        assert violations == [], "\n" + "\n".join(violations)
+
+    def test_package_facades_only_re_export_own_namespace(self) -> None:
+        """Each package facade must only re-export its own namespace."""
+        violations: list[str] = []
+        for directory in sorted(_PACKAGE_FACADES):
+            violations.extend(_facade_violations(directory))
+
         assert violations == [], "\n" + "\n".join(violations)

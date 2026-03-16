@@ -6,28 +6,26 @@ Minimal framework providing the plumbing for event-sourced, domain-driven applic
 
 ```
 abcdef/
-├── core/              # Abstract base classes and marker interfaces
-│   ├── c/             # CQRS — commands, queries, handlers, buses, registries
-│   ├── d/             # DDD — aggregates, value objects, repositories
-│   ├── de/            # DDD + ES — event-sourced aggregates, stores, repositories
-│   ├── event.py       # Shared Event base class
-│   └── markers.py     # Shared marker inspection utility (_get_marker)
-├── specification/     # Specification pattern — Specification ABC and combinators
-└── in_memory/         # In-memory implementations for testing and development
+├── core/              # Shared abstractions: Event, Message, Result, markers
+├── c/                 # CQRS — commands, queries, handlers, buses, registries
+├── d/                 # DDD — aggregates, value objects, repositories
+├── de/                # DDD + ES — event-sourced aggregates, stores, repositories
+├── in_memory/         # In-memory implementations for testing and development
+└── specification/     # Specification pattern — Specification ABC and combinators
 ```
 
 ## Core Concepts
 
-Each concept lives in the `core/` sub-package matching its paradigm intersection — CQRS (`c/`),
-DDD (`d/`), and DDD plus Event Sourcing (`de/`). `Event` is shared in `core/event.py`:
+Each concept lives in its package (`c/`, `d/`, `de/`, etc.).
+Shared primitives live in `core/`:
 
-| Package | Paradigms | Contents |
-|---------|-----------|----------|
-| `c/` | CQRS | `Command`, `Query`, handlers, buses, registries, `Result`, `Document`, `DocumentStore` |
-| `d/` | DDD | `AggregateRoot`, `AggregateId`, `ValueObject`, `Repository` |
-| `de/` | DDD + ES | `EventSourcedAggregate`, `EventStore`, `AggregateStore`, `EventSourcedRepository`, `Snapshot` |
-| `core/event.py` | Shared | `Event` |
-| `specification/` | DDD | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker |
+| Package          | Paradigms | Contents                                                                                            |
+|------------------|-----------|-----------------------------------------------------------------------------------------------------|
+| `core/`          | Shared    | `Event`, `Message`, `Result`                                                                        |
+| `c/`             | CQRS      | `Command`, `Query`, handlers, buses, registries, `Document`, `DocumentStore`                        |
+| `d/`             | DDD       | `AggregateRoot`, `AggregateId`, `DomainEvent`, `ValueObject`, `Repository`                          |
+| `de/`            | DDD + ES  | `EventSourcedAggregate`, `AggregateState`, `EventStore`, `AggregateStore`, `EventSourcedRepository` |
+| `specification/` | DDD       | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker                              |
 
 - **Command** — Intent to mutate state; handled by exactly one `CommandHandler`
 - **Query** — Request to read state; handled by exactly one `QueryHandler`
@@ -49,20 +47,29 @@ DDD (`d/`), and DDD plus Event Sourcing (`de/`). `Event` is shared in `core/even
 
 Each paradigm package exposes decorators for runtime annotation:
 
-| Marker | Package | Attribute set |
-|--------|---------|---------------|
-| `@command`, `@query`, `@command_handler`, `@query_handler`, `@document`, `@document_store`, `@projector` | `c/` | `__cqrs_type__` |
-| `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@factory`, `@identifier` | `d/` | `__ddd_type__` |
-| `@specification` | `specification/` | `__ddd_type__` |
+| Marker                                                                                                   | Package          | Attribute set   |
+|----------------------------------------------------------------------------------------------------------|------------------|-----------------|
+| `@command`, `@query`, `@command_handler`, `@query_handler`, `@document`, `@document_store`, `@projector` | `c/`             | `__cqrs_type__` |
+| `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@factory`, `@identifier`               | `d/`             | `__ddd_type__`  |
+| `@specification`                                                                                         | `specification/` | `__ddd_type__`  |
 
 `_get_marker(cls, attr)` (from `core/markers.py`) inspects a class or its parents for a marker attribute.
+
+## Public API Boundaries
+
+- Import each package from its own namespace (`abcdef.core`, `abcdef.c`,
+  `abcdef.d`, `abcdef.de`, `abcdef.in_memory`, `abcdef.specification`).
+- Package `__init__.py` facades only re-export symbols from their own
+  package namespace.
+- Cross-package usage should import from the package that defines the symbol
+  (for example, `Event` from `abcdef.core`, not from `abcdef.d`).
 
 ## Event Sourcing
 
 - Event store is append-only — events are never modified or deleted
 - Aggregates are rebuilt by replaying events from the event store
 - State records capture aggregate state at a version boundary for performance
-- Delta replay: load latest state record, replay only events after its version
+- Delta replay: load the latest state record, replay only events after its version
 - `EventSourcedAggregate` exposes framework-internal methods prefixed with `_`
   (`_get_uncommitted_events`, `_mark_events_as_committed`, `_mark_state_saved`,
   `_load_from_history`) — called by the repository, not by domain code

@@ -6,7 +6,7 @@ import datetime
 
 import pytest
 
-from abcdef.d import Event
+from abcdef.core import Event
 from abcdef.de import EventSourcedDomainEvent, EventSourcedDomainEventRegistry
 
 # ---------------------------------------------------------------------------
