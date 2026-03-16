@@ -351,19 +351,6 @@ class TestEventSourcedRepositoryGetById:
         assert restored.count == 10
 
 
-class TestEventSourcedRepositoryAggregateType:
-    """Tests for aggregate_type enforcement on EventSourcedRepository subclasses."""
-
-    def test_concrete_subclass_without_aggregate_type_raises(self) -> None:
-        """Defining a repository subclass without aggregate_type raises TypeError."""
-        from abcdef.de import EventSourcedRepository
-
-        with pytest.raises(TypeError, match="aggregate_type"):
-
-            class NoTypeRepo(EventSourcedRepository):  # type: ignore[type-arg]
-                pass
-
-
 class TestEventSourcedRepositoryNotImplemented:
     """Tests for operations not supported by pure event sourcing."""
 

@@ -27,10 +27,6 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     - Orchestrating event replay (full or delta from a state snapshot)
     - Publishing committed events to the event bus after each successful save
 
-    Subclasses MUST declare a non-empty ``aggregate_type`` class variable directly on
-    the class. This must match the ``aggregate_type`` declared on the aggregate class
-    managed by this repository.
-
     An ``AggregateRegistry`` must be supplied at construction time. The registry is
     used to resolve aggregate classes by type string during rehydration. It is the
     caller's responsibility to populate the registry with all aggregate classes before
@@ -44,26 +40,6 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     is passed as ``expected_version`` on every save. If another writer has already
     committed, ``VersionConflictError`` is raised before any writes occur.
     """
-
-    aggregate_type: str = ""
-    _abstract_repository: bool = False
-
-    def __init_subclass__(cls, **kwargs: object) -> None:
-        """Enforce aggregate_type declaration on all concrete subclasses.
-
-        Raises:
-            TypeError: If a concrete subclass does not declare a non-empty
-                ``aggregate_type`` directly in its own class body.
-        """
-        super().__init_subclass__(**kwargs)
-        if cls.__dict__.get("_abstract_repository"):
-            return
-        if "aggregate_type" not in cls.__dict__ or not cls.__dict__["aggregate_type"]:
-            raise TypeError(
-                f"{cls.__qualname__} must declare a non-empty "
-                f"'aggregate_type' class variable. "
-                f"It cannot be inherited from a parent class."
-            )
 
     def __init__(
         self,
@@ -163,16 +139,14 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         3. Reconstruct the aggregate from the snapshot (if present) then replay any
            remaining events
 
-        The aggregate class is resolved from the injected registry using the
-        ``aggregate_type`` stored on the record, or from this repository's own
-        ``aggregate_type`` when no record exists and events must be replayed from
-        scratch.
+        A record and its events are always written together. Events without a record
+        is a storage fault and must not occur.
 
         Args:
             aggregate_id: The ID of the aggregate to load.
 
         Returns:
-            The reconstructed aggregate, or None if no events exist.
+            The reconstructed aggregate, or None if neither record nor events exist.
         """
         record = self._aggregate_store.get(aggregate_id)
         snapshot_version: int | None = (
@@ -185,14 +159,18 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
             aggregate_id, after_version=snapshot_version
         )
 
-        if snapshot_version is None and not events:
+        if record is None and not events:
             return None
 
-        agg_type = record.aggregate_type if record is not None else self.aggregate_type
-        cls = self._aggregate_registry.get(agg_type)
+        assert record is not None, (
+            f"Events exist for aggregate {aggregate_id} but no aggregate record was "
+            f"found. This indicates a storage fault -- record and events must always "
+            f"be written together."
+        )
+
+        cls = self._aggregate_registry.get(record.aggregate_type)
 
         if snapshot_version is not None:
-            assert record is not None
             agg = cls.from_state(aggregate_id, record.state, snapshot_version)
         else:
             agg = cls(aggregate_id)

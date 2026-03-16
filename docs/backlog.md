@@ -18,15 +18,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Improvements
 
-**I3 — Remove or rethink `aggregate_type` requirement on `EventSourcedRepository` subclasses**
-
-`self.aggregate_type` is only used as a fallback when no aggregate store record
-exists at all (no record + events present). In normal operation, the type is
-always read from the record. The per-subclass declaration creates a redundant
-coupling with the aggregate class's own `aggregate_type` and is a source of
-divergence bugs. Consider deriving it from the aggregate class directly, or
-removing the subclass requirement and making it a constructor argument.
-
 **I1 — Extract a shared generic `EventRegistry[T]` base class**
 
 `DomainEventRegistry`, `EventSourcedDomainEventRegistry`, and `AggregateRegistry`

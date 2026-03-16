@@ -122,8 +122,6 @@ class DummyAggregate(EventSourcedAggregate[DummyState]):
 class DummyRepository(EventSourcedRepository[AggregateId, DummyAggregate]):
     """Concrete repository for de/ tests."""
 
-    aggregate_type = "dummy_aggregate"
-
 
 # ---------------------------------------------------------------------------
 # Factory helpers
