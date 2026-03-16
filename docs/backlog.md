@@ -18,13 +18,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Improvements
 
-**I2 — `AggregateRoot.__eq__` — replace `isinstance` check with `type()` equality**
-
-The current check `isinstance(other, self.__class__)` is asymmetric: a subclass
-instance passes against its parent, but the parent does not pass against the
-subclass. Replace with `type(self) is type(other)` for consistent, symmetric
-behaviour.
-
 **I3 — Remove or rethink `aggregate_type` requirement on `EventSourcedRepository` subclasses**
 
 `self.aggregate_type` is only used as a fallback when no aggregate store record

@@ -117,7 +117,7 @@ class AggregateRoot(ABC):  # noqa: B024
     - Providing a stable identity across its lifetime
     - Acting as the unit of persistence (loaded and saved as a whole)
 
-    Identity is carried by an AggregateId — an infrastructure-level UUID wrapper.
+    Identity is carried by an AggregateId -- an infrastructure-level UUID wrapper.
     Domain-meaningful identity (e.g. order number, customer code) is expressed via the
     aggregate's own attributes.
     """
@@ -142,15 +142,18 @@ class AggregateRoot(ABC):  # noqa: B024
     def __eq__(self, other: object) -> bool:
         """Compare aggregates by identity.
 
+        Uses exact type comparison to ensure symmetric equality: a subclass
+        instance is never equal to a parent instance, even if their IDs match.
+
         Args:
             other: The other object to compare.
 
         Returns:
-            True if both aggregates have the same ID.
+            True if both aggregates are the same type and have the same ID.
         """
-        if not isinstance(other, self.__class__):
+        if type(other) is not type(self):
             return NotImplemented
-        return self._id == other._id
+        return self._id == other._id  # type: ignore[attr-defined]
 
     def __hash__(self) -> int:
         """Hash by identity.

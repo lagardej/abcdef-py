@@ -41,8 +41,8 @@ class TestAggregateIdImmutability:
 class TestAggregateIdSerialisation:
     """Tests for the AggregateId serialisation contract.
 
-    Uses StrAggregateId — a minimal string-backed concrete implementation
-    defined in conftest — to exercise the abstract contract without coupling
+    Uses StrAggregateId -- a minimal string-backed concrete implementation
+    defined in conftest -- to exercise the abstract contract without coupling
     the tests to any production implementation.
     """
 
@@ -104,6 +104,18 @@ class TestAggregateRoot:
         agg_id = make_id()
         agg = DummyAggregate(agg_id)
         assert agg.__eq__("not an aggregate") is NotImplemented
+
+    def test_subclass_not_equal_to_parent(self) -> None:
+        """A subclass instance is not equal to a parent instance with the same ID."""
+
+        class ChildAggregate(DummyAggregate):
+            """Minimal subclass for testing type-strict equality."""
+
+        agg_id = make_id()
+        parent = DummyAggregate(agg_id)
+        child = ChildAggregate(agg_id)
+        assert parent != child
+        assert child != parent
 
     def test_hashable(self) -> None:
         """Aggregates can be used in sets and dicts."""
