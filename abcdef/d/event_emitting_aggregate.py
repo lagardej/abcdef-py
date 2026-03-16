@@ -9,10 +9,9 @@ from .domain_event import DomainEvent
 class EventEmittingAggregate(AggregateRoot):
     """Aggregate that raises domain events for publication on the bus.
 
-    Extends AggregateRoot to add event-emitting capability without
-    event sourcing. State is not derived from events -- aggregates
-    manage their own state directly. Events are raised to notify other
-    parts of the system that something happened.
+    Extends AggregateRoot to add event-emitting capability without event sourcing.
+    State is not derived from events -- aggregates manage their own state directly.
+    Events are raised to notify other parts of the system that something happened.
 
     Use this as the base when:
     - The aggregate needs to communicate state changes via events
@@ -21,10 +20,9 @@ class EventEmittingAggregate(AggregateRoot):
     For event-sourced aggregates (state derived from events), use
     EventSourcedAggregate in de/ instead, which extends this class.
 
-    Subclasses call _emit_event() to record and raise events.
-    The repository (or equivalent infrastructure) calls
-    _get_uncommitted_events() to retrieve pending events for
-    publication, then _mark_events_as_committed() once they have been
+    Subclasses call _emit_event() to record and raise events. The repository (or
+    equivalent infrastructure) calls _get_uncommitted_events() to retrieve pending
+    events for publication, then _mark_events_as_committed() once they have been
     dispatched.
     """
 
@@ -50,8 +48,7 @@ class EventEmittingAggregate(AggregateRoot):
     def _get_uncommitted_events(self) -> list[DomainEvent]:
         """Return all events recorded but not yet published.
 
-        Called by the repository during save. Not part of the domain
-        API.
+        Called by the repository during save. Not part of the domain API.
 
         Returns:
             List of uncommitted domain events.

@@ -13,17 +13,15 @@ _TSpecificEvent = TypeVar("_TSpecificEvent", bound=Event)
 class InMemoryEventBus[TEvent: Event](EventBus[TEvent]):
     """In-memory EventBus implementation.
 
-    Fans out each published event to all handlers subscribed to that
-    event type. Handlers are invoked synchronously in subscription
-    order.
+    Fans out each published event to all handlers subscribed to that event type.
+    Handlers are invoked synchronously in subscription order.
 
-    Generic over TEvent so the bus can be narrowed to a specific event
-    hierarchy (e.g. ``InMemoryEventBus[EventSourcedDomainEvent]``) at
-    the composition root while remaining usable as
-    ``InMemoryEventBus[Event]`` in general-purpose tests.
+    Generic over TEvent so the bus can be narrowed to a specific event hierarchy (e.g.
+    ``InMemoryEventBus[EventSourcedDomainEvent]``) at the composition root while
+    remaining usable as ``InMemoryEventBus[Event]`` in general-purpose tests.
 
-    Suitable for testing and lightweight use cases where async dispatch,
-    durability, or delivery guarantees are not required.
+    Suitable for testing and lightweight use cases where async dispatch, durability, or
+    delivery guarantees are not required.
     """
 
     def __init__(self) -> None:
@@ -41,8 +39,7 @@ class InMemoryEventBus[TEvent: Event](EventBus[TEvent]):
 
         Args:
             message_type: The event type to subscribe to.
-            handler: The handler to invoke when an event of this type
-                is published.
+            handler: The handler to invoke when an event of this type is published.
         """
         if message_type not in self._handlers:
             self._handlers[message_type] = []

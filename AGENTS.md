@@ -196,12 +196,9 @@ direction.**
 
 ### Line Length
 
-- Code lines: 88 characters maximum (enforced by ruff)
-- Docstrings and comments: 72 characters maximum (PEP 8 convention)
-  - Not enforced by tooling — ruff cannot apply a separate limit for
-    docstrings and comments. Apply manually.
-  - Wrap long docstring lines by continuing on the next line at the
-    same indentation level as the opening text.
+- 88 characters maximum for all content: code, comments, and docstrings
+- Code lines are enforced by ruff; comments and docstrings are not — apply manually
+- Reflow wrapped lines to use the full width rather than breaking earlier than needed
 
 ### Encoding
 

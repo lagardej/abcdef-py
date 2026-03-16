@@ -1,7 +1,7 @@
 """Shared marker inspection utility.
 
-Provides runtime inspection of architecture markers applied by the
-c/, d/, and cde/ marker modules.
+Provides runtime inspection of architecture markers applied by the c/, d/, and cde/
+marker modules.
 """
 
 from typing import cast

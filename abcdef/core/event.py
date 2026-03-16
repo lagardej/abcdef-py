@@ -13,23 +13,22 @@ if TYPE_CHECKING:
 class Event(Message):
     """Base class for all events dispatched on an EventBus.
 
-    An Event is an immutable record of something that happened. It
-    extends Message so it can be published on an EventBus and handled
-    by subscribers.
+    An Event is an immutable record of something that happened. It extends Message so it
+    can be published on an EventBus and handled by subscribers.
 
-    Subclasses MUST declare a non-empty ``event_type`` class variable.
-    This decouples the event's stable identity from the Python class
-    name, which may be refactored freely.
+    Subclasses MUST declare a non-empty ``event_type`` class variable. This decouples
+    the event's stable identity from the Python class name, which may be refactored
+    freely.
 
-    The ``event_type`` must be declared directly on the concrete class
-    -- it cannot be satisfied by inheriting it from a parent class.
+    The ``event_type`` must be declared directly on the concrete class -- it cannot be
+    satisfied by inheriting it from a parent class.
 
-    Intermediate base classes in the hierarchy may opt out of the check
-    by setting ``_abstract_event = True`` directly in their class body.
+    Intermediate base classes in the hierarchy may opt out of the check by setting
+    ``_abstract_event = True`` directly in their class body.
 
     Args:
-        occurred_at: When the event occurred. Must be supplied by the
-            caller; the class never reads the system clock.
+        occurred_at: When the event occurred. Must be supplied by the caller; the class
+            never reads the system clock.
     """
 
     event_type: str = ""
@@ -43,9 +42,8 @@ class Event(Message):
             **kwargs: Passed through to super().__init_subclass__.
 
         Raises:
-            TypeError: If a concrete subclass does not declare a
-                non-empty ``event_type`` directly in its own class
-                body.
+            TypeError: If a concrete subclass does not declare a non-empty
+                ``event_type`` directly in its own class body.
         """
         super().__init_subclass__(**kwargs)
         if cls.__dict__.get("_abstract_event"):
@@ -60,8 +58,8 @@ class Event(Message):
     def __setattr__(self, name: str, value: object) -> None:
         """Prevent mutation after construction.
 
-        Subclasses must use ``object.__setattr__(self, name, value)``
-        in their ``__init__`` to initialise attributes.
+        Subclasses must use ``object.__setattr__(self, name, value)`` in their
+        ``__init__`` to initialise attributes.
 
         Args:
             name: Attribute name.

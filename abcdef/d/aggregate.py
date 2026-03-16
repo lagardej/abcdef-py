@@ -9,13 +9,13 @@ from . import markers
 class AggregateId(ABC):
     """Abstract identity for an aggregate.
 
-    Infrastructure-level identity, not a domain concept. Aggregates identify
-    themselves to the outside world via their own domain attributes; this ID
-    exists solely to satisfy persistence and equality mechanics.
+    Infrastructure-level identity, not a domain concept. Aggregates identify themselves
+    to the outside world via their own domain attributes; this ID exists solely to
+    satisfy persistence and equality mechanics.
 
-    Subclasses define the concrete storage format and construction logic.
-    The serialisation contract is defined by __str__ and from_str, which
-    must round-trip: ``cls.from_str(str(id))`` must equal ``id``.
+    Subclasses define the concrete storage format and construction logic. The
+    serialisation contract is defined by __str__ and from_str, which must round-trip:
+    ``cls.from_str(str(id))`` must equal ``id``.
     """
 
     @abstractmethod
@@ -23,8 +23,7 @@ class AggregateId(ABC):
         """Serialise to a string.
 
         Returns:
-            A stable string representation that can be deserialised
-            by from_str.
+            A stable string representation that can be deserialised by from_str.
         """
         ...
 
@@ -68,8 +67,8 @@ class AggregateId(ABC):
     def __setattr__(self, name: str, value: object) -> None:
         """Prevent mutation after construction.
 
-        Subclasses must use ``object.__setattr__(self, name, value)``
-        in their ``__init__`` to initialise attributes.
+        Subclasses must use ``object.__setattr__(self, name, value)`` in their
+        ``__init__`` to initialise attributes.
 
         Args:
             name: Attribute name.
@@ -109,9 +108,9 @@ class AggregateRoot(ABC):  # noqa: B024
     # Subclasses define their own domain-specific behaviour.
     """Base class for Aggregate Roots.
 
-    An Aggregate Root is a cluster of domain objects treated as a single unit.
-    It is the only entry point for modifications to the cluster, ensuring that
-    all invariants (business rules) within the boundary are enforced.
+    An Aggregate Root is a cluster of domain objects treated as a single unit. It is
+    the only entry point for modifications to the cluster, ensuring that all invariants
+    (business rules) within the boundary are enforced.
 
     Responsibilities:
     - Enforcing invariants within its consistency boundary
@@ -119,8 +118,8 @@ class AggregateRoot(ABC):  # noqa: B024
     - Acting as the unit of persistence (loaded and saved as a whole)
 
     Identity is carried by an AggregateId — an infrastructure-level UUID wrapper.
-    Domain-meaningful identity (e.g. order number, customer code) is expressed
-    via the aggregate's own attributes.
+    Domain-meaningful identity (e.g. order number, customer code) is expressed via the
+    aggregate's own attributes.
     """
 
     def __init__(self, aggregate_id: AggregateId) -> None:

@@ -8,8 +8,8 @@ from abcdef.core.event import Event
 class DomainEventRegistry:
     """Registry of DomainEvent subclasses keyed by event_type.
 
-    A plain, injectable class with no global state. Callers create an
-    instance and register event classes into it explicitly.
+    A plain, injectable class with no global state. Callers create an instance and
+    register event classes into it explicitly.
     """
 
     def __init__(self) -> None:
@@ -52,11 +52,11 @@ class DomainEventRegistry:
 class DomainEvent(Event):
     """An Event raised by a domain aggregate.
 
-    Extends Event to mark events emitted by aggregates that raise events
-    for the bus, regardless of whether they use event sourcing.
+    Extends Event to mark events emitted by aggregates that raise events for the bus,
+    regardless of whether they use event sourcing.
 
-    Concrete subclasses must declare a non-empty ``event_type`` class
-    variable. The event_type check is enforced by Event.__init_subclass__.
+    Concrete subclasses must declare a non-empty ``event_type`` class variable. The
+    event_type check is enforced by Event.__init_subclass__.
     """
 
     _abstract_event = True

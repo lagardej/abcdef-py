@@ -1,7 +1,7 @@
 """specification -- Specification pattern for abcdef.
 
-Provides the Specification ABC, combinators, and the
-@specification architecture marker.
+Provides the Specification ABC, combinators, and the @specification architecture
+marker.
 """
 
 from .specification import Specification, specification

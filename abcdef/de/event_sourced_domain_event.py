@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 class EventSourcedDomainEventRegistry:
     """Registry of EventSourcedDomainEvent subclasses keyed by event_type.
 
-    A plain, injectable class with no global state. Callers create an
-    instance and register event classes into it explicitly.
+    A plain, injectable class with no global state. Callers create an instance and
+    register event classes into it explicitly.
     """
 
     def __init__(self) -> None:
@@ -57,18 +57,18 @@ class EventSourcedDomainEventRegistry:
 class EventSourcedDomainEvent(DomainEvent):
     """A DomainEvent raised by an event-sourced aggregate instance.
 
-    Extends DomainEvent with the identity of the aggregate instance
-    that raised it. ``aggregate_id`` is scoped to a single aggregate
-    type: it identifies *which instance* of that aggregate emitted the
-    event. Uniqueness across different aggregate types is not guaranteed.
+    Extends DomainEvent with the identity of the aggregate instance that raised it.
+    ``aggregate_id`` is scoped to a single aggregate type: it identifies *which
+    instance* of that aggregate emitted the event. Uniqueness across different aggregate
+    types is not guaranteed.
 
-    Concrete subclasses must declare a non-empty ``event_type`` class
-    variable. The event_type check is enforced by Event.__init_subclass__.
+    Concrete subclasses must declare a non-empty ``event_type`` class variable. The
+    event_type check is enforced by Event.__init_subclass__.
 
     Args:
         occurred_at: When the event occurred.
-        aggregate_id: String identity of the aggregate instance that
-            raised this event, within its aggregate type.
+        aggregate_id: String identity of the aggregate instance that raised this event,
+            within its aggregate type.
     """
 
     _abstract_event = True
@@ -79,8 +79,7 @@ class EventSourcedDomainEvent(DomainEvent):
 
         Args:
             occurred_at: The timestamp at which this event occurred.
-            aggregate_id: The identity of the aggregate instance that
-                raised this event.
+            aggregate_id: The identity of the aggregate instance that raised this event.
         """
         super().__init__(occurred_at=occurred_at)
         object.__setattr__(self, "aggregate_id", aggregate_id)

@@ -4,16 +4,15 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ---
 
+## Bugs
+
+(none)
+
+---
+
 ## Tasks
 
-**T4 — Reformat all docstrings and comments to the 72-character line limit**
-
-AGENTS.md specifies 72 characters maximum for docstrings and comments (PEP 8
-convention), distinct from the 88-character limit enforced by ruff for code.
-This limit is not enforced by tooling and has drifted across the codebase.
-Pass over every file in `abcdef/` and `tests/abcdef/` and reformat all
-docstring and comment lines that exceed 72 characters. Wrap continuation
-lines at the same indentation level as the opening text.
+(none)
 
 ---
 

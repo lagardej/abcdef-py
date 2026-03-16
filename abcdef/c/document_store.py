@@ -10,12 +10,12 @@ from .document import Document
 class DocumentStore[TDocument: Document](ABC):
     """Base interface for document stores.
 
-    A DocumentStore persists and retrieves denormalised read models (documents).
-    It is the query-side counterpart to the Repository on the write side.
+    A DocumentStore persists and retrieves denormalised read models (documents). It is
+    the query-side counterpart to the Repository on the write side.
 
-    Documents are keyed by a plain string key. Implementations are free to
-    use any storage backend suited to document-oriented access patterns
-    (in-memory dict, JSON files, MongoDB, etc.).
+    Documents are keyed by a plain string key. Implementations are free to use any
+    storage backend suited to document-oriented access patterns (in-memory dict, JSON
+    files, MongoDB, etc.).
 
     Each DocumentStore is typed to a single document type.
     """

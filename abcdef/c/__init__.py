@@ -1,7 +1,7 @@
 """c -- CQRS building blocks.
 
-Base classes, marker interfaces, and bus abstractions for
-Command/Query Responsibility Segregation.
+Base classes, marker interfaces, and bus abstractions for Command/Query Responsibility
+Segregation.
 """
 
 from .command import Command, CommandHandler, TCommand, TResult

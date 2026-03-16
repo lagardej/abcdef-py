@@ -8,12 +8,12 @@ class InMemoryRepository[TId: AggregateId, TAggregate: AggregateRoot](
 ):
     """In-memory Repository implementation.
 
-    Generic dict-backed repository suitable for testing and lightweight use cases
-    where persistence is not required. Keyed by string representation of the
-    aggregate ID's UUID.
+    Generic dict-backed repository suitable for testing and lightweight use cases where
+    persistence is not required. Keyed by string representation of the aggregate ID's
+    UUID.
 
-    Subclasses are not required — this class is fully concrete and can be
-    instantiated directly or subclassed to add domain-specific query methods.
+    Subclasses are not required — this class is fully concrete and can be instantiated
+    directly or subclassed to add domain-specific query methods.
     """
 
     def __init__(self) -> None:

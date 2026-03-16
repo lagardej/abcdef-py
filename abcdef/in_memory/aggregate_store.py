@@ -11,9 +11,9 @@ class InMemoryAggregateStore[TId: AggregateId, TEntity: AggregateRoot](
 ):
     """In-memory AggregateStore implementation.
 
-    Stores aggregate records in a plain dict keyed by string representation of
-    the aggregate ID's UUID. Only the latest record per aggregate is retained.
-    Suitable for testing and lightweight use cases where persistence is not required.
+    Stores aggregate records in a plain dict keyed by string representation of the
+    aggregate ID's UUID. Only the latest record per aggregate is retained. Suitable for
+    testing and lightweight use cases where persistence is not required.
     """
 
     def __init__(self) -> None:
@@ -27,17 +27,17 @@ class InMemoryAggregateStore[TId: AggregateId, TEntity: AggregateRoot](
     ) -> None:
         """Save (or overwrite) the record for an aggregate.
 
-        If ``expected_version`` is provided, raises ``VersionConflictError``
-        when the stored version does not match. No write occurs on conflict.
+        If ``expected_version`` is provided, raises ``VersionConflictError`` when the
+        stored version does not match. No write occurs on conflict.
 
         Args:
             record: The record to persist.
-            expected_version: Expected current version of the aggregate.
-                Pass ``None`` to skip the conflict check.
+            expected_version: Expected current version of the aggregate. Pass ``None``
+                to skip the conflict check.
 
         Raises:
-            VersionConflictError: If ``expected_version`` does not match the
-                current stored version for the aggregate.
+            VersionConflictError: If ``expected_version`` does not match the current
+                stored version for the aggregate.
         """
         if expected_version is not None:
             current = self._store.get(str(record.aggregate_id))

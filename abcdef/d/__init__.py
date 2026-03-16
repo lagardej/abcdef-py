@@ -1,7 +1,7 @@
 """d -- DDD building blocks.
 
-Base classes and abstractions for Domain-Driven Design concepts:
-aggregates, value objects, repositories, and domain events.
+Base classes and abstractions for Domain-Driven Design concepts: aggregates, value
+objects, repositories, and domain events.
 """
 
 from .aggregate import AggregateId, AggregateRoot

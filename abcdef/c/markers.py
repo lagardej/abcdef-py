@@ -1,16 +1,15 @@
 """CQRS architecture markers.
 
-Decorators that mark classes with CQRS concepts: commands, queries,
-handlers, documents, document stores, and projectors.
-Markers are inherited by subclasses.
+Decorators that mark classes with CQRS concepts: commands, queries, handlers,
+documents, document stores, and projectors. Markers are inherited by subclasses.
 """
 
 
 def command[T](cls: T) -> T:
     """Mark a class as a Command.
 
-    A Command represents an intent to perform an action that mutates state.
-    Commands are processed by CommandHandlers.
+    A Command represents an intent to perform an action that mutates state. Commands
+    are processed by CommandHandlers.
 
     Marker is inherited by subclasses.
 
@@ -27,8 +26,8 @@ def command[T](cls: T) -> T:
 def command_handler[T](cls: T) -> T:
     """Mark a class as a Command Handler.
 
-    A CommandHandler processes a specific Command type and orchestrates
-    changes to aggregates or other domain objects.
+    A CommandHandler processes a specific Command type and orchestrates changes to
+    aggregates or other domain objects.
 
     Marker is inherited by subclasses.
 
@@ -45,8 +44,8 @@ def command_handler[T](cls: T) -> T:
 def query[T](cls: T) -> T:
     """Mark a class as a Query.
 
-    A Query represents a request to retrieve data without mutating state.
-    Queries are processed by QueryHandlers.
+    A Query represents a request to retrieve data without mutating state. Queries are
+    processed by QueryHandlers.
 
     Marker is inherited by subclasses.
 
@@ -63,8 +62,8 @@ def query[T](cls: T) -> T:
 def query_handler[T](cls: T) -> T:
     """Mark a class as a Query Handler.
 
-    A QueryHandler processes a specific Query type and returns a result
-    by reading from document stores.
+    A QueryHandler processes a specific Query type and returns a result by reading from
+    document stores.
 
     Marker is inherited by subclasses.
 
@@ -81,8 +80,8 @@ def query_handler[T](cls: T) -> T:
 def document[T](cls: T) -> T:
     """Mark a class as a Document (query-side read model).
 
-    A Document is a denormalised, query-optimised data container built from
-    domain events. It is the unit of storage in a DocumentStore.
+    A Document is a denormalised, query-optimised data container built from domain
+    events. It is the unit of storage in a DocumentStore.
 
     Marker is inherited by subclasses.
 
@@ -99,8 +98,8 @@ def document[T](cls: T) -> T:
 def document_store[T](cls: T) -> T:
     """Mark a class as a Document Store.
 
-    A DocumentStore persists and retrieves Documents. It is the query-side
-    counterpart to the Repository on the write side.
+    A DocumentStore persists and retrieves Documents. It is the query-side counterpart
+    to the Repository on the write side.
 
     Marker is inherited by subclasses.
 
@@ -117,9 +116,8 @@ def document_store[T](cls: T) -> T:
 def projector[T](cls: T) -> T:
     """Mark a class as a Projector.
 
-    A Projector subscribes to domain events and updates Documents in a
-    DocumentStore. It is the actor that performs the projection — the
-    Document is the result.
+    A Projector subscribes to domain events and updates Documents in a DocumentStore.
+    It is the actor that performs the projection — the Document is the result.
 
     Marker is inherited by subclasses.
 

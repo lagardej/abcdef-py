@@ -27,8 +27,8 @@ class Command(Message):
 class CommandHandler[TCmd: Command, TRes: Result](ABC):
     """Base marker interface for command handlers.
 
-    A CommandHandler processes a specific Command type and orchestrates
-    changes to aggregates or other domain objects.
+    A CommandHandler processes a specific Command type and orchestrates changes to
+    aggregates or other domain objects.
     """
 
     @abstractmethod

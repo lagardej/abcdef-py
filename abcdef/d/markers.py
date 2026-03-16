@@ -1,16 +1,16 @@
 """DDD architecture markers.
 
 Decorators that mark classes with DDD concepts: aggregates, value objects,
-repositories, domain services, specifications, factories, and identifiers.
-Markers are inherited by subclasses.
+repositories, domain services, specifications, factories, and identifiers. Markers are
+inherited by subclasses.
 """
 
 
 def aggregate[T](cls: T) -> T:
     """Mark a class as an Aggregate Root.
 
-    An Aggregate is an entity that maintains invariants, can be loaded and
-    saved as a unit, and emits domain events.
+    An Aggregate is an entity that maintains invariants, can be loaded and saved as a
+    unit, and emits domain events.
 
     Marker is inherited by subclasses.
 
@@ -27,8 +27,8 @@ def aggregate[T](cls: T) -> T:
 def value_object[T](cls: T) -> T:
     """Mark a class as a Value Object.
 
-    A Value Object is an immutable object defined by its attributes,
-    with no identity of its own. It is compared by value, not identity.
+    A Value Object is an immutable object defined by its attributes, with no identity
+    of its own. It is compared by value, not identity.
 
     Marker is inherited by subclasses.
 
@@ -45,8 +45,8 @@ def value_object[T](cls: T) -> T:
 def repository[T](cls: T) -> T:
     """Mark a class as a Repository.
 
-    A Repository abstracts persistence, making aggregates appear to be
-    in memory. It loads and saves aggregates and provides query methods.
+    A Repository abstracts persistence, making aggregates appear to be in memory. It
+    loads and saves aggregates and provides query methods.
 
     Marker is inherited by subclasses.
 
@@ -63,8 +63,8 @@ def repository[T](cls: T) -> T:
 def domain_service[T](cls: T) -> T:
     """Mark a class as a Domain Service.
 
-    A Domain Service encapsulates business logic that doesn't naturally
-    belong to any single Aggregate or Value Object.
+    A Domain Service encapsulates business logic that doesn't naturally belong to any
+    single Aggregate or Value Object.
 
     Marker is inherited by subclasses.
 
@@ -81,8 +81,8 @@ def domain_service[T](cls: T) -> T:
 def factory[T](cls: T) -> T:
     """Mark a class as a Factory.
 
-    A Factory encapsulates complex object creation logic, ensuring that
-    newly created objects maintain invariants.
+    A Factory encapsulates complex object creation logic, ensuring that newly created
+    objects maintain invariants.
 
     Marker is inherited by subclasses.
 

@@ -21,32 +21,28 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     """Repository implementing event sourcing with state persistence optimisation.
 
     Responsibilities:
-    - Persisting aggregates via the event store (events) and aggregate
-      store (version records and optional state snapshots)
-    - Managing state persistence strategy (when to populate state on
-      the record)
+    - Persisting aggregates via the event store (events) and aggregate store (version
+      records and optional state snapshots)
+    - Managing state persistence strategy (when to populate state on the record)
     - Orchestrating event replay (full or delta from a state snapshot)
-    - Publishing committed events to the event bus after each successful
-      save
+    - Publishing committed events to the event bus after each successful save
 
-    Subclasses MUST declare a non-empty ``aggregate_type`` class variable
-    directly on the class. This must match the ``aggregate_type`` declared
-    on the aggregate class managed by this repository.
+    Subclasses MUST declare a non-empty ``aggregate_type`` class variable directly on
+    the class. This must match the ``aggregate_type`` declared on the aggregate class
+    managed by this repository.
 
-    An ``AggregateRegistry`` must be supplied at construction time. The
-    registry is used to resolve aggregate classes by type string during
-    rehydration. It is the caller's responsibility to populate the
-    registry with all aggregate classes before use.
+    An ``AggregateRegistry`` must be supplied at construction time. The registry is
+    used to resolve aggregate classes by type string during rehydration. It is the
+    caller's responsibility to populate the registry with all aggregate classes before
+    use.
 
-    The event store handles appending events (HOW to persist events).
-    The aggregate store handles version records (HOW to track versions
-    and state). This repository handles WHEN/WHETHER to populate state
-    and replay logic.
+    The event store handles appending events (HOW to persist events). The aggregate
+    store handles version records (HOW to track versions and state). This repository
+    handles WHEN/WHETHER to populate state and replay logic.
 
-    Optimistic concurrency is enforced via the aggregate store: the
-    pre-commit version is passed as ``expected_version`` on every save.
-    If another writer has already committed, ``VersionConflictError`` is
-    raised before any writes occur.
+    Optimistic concurrency is enforced via the aggregate store: the pre-commit version
+    is passed as ``expected_version`` on every save. If another writer has already
+    committed, ``VersionConflictError`` is raised before any writes occur.
     """
 
     aggregate_type: str = ""
@@ -82,10 +78,9 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         Args:
             event_store: The store for persisting events (append-only).
             aggregate_store: The store for persisting version records.
-            event_bus: The bus to publish committed events to after each
-                save.
-            aggregate_registry: Registry used to resolve aggregate classes
-                by aggregate_type string during rehydration.
+            event_bus: The bus to publish committed events to after each save.
+            aggregate_registry: Registry used to resolve aggregate classes by
+                aggregate_type string during rehydration.
             snapshot_threshold: Capture state every N events (default: 10).
         """
         self._event_store = event_store
@@ -99,23 +94,20 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
 
         All steps execute as a single logical transaction in this order:
 
-        1. Check concurrency: write the aggregate record with
-           ``expected_version`` set to the pre-emit version. If another
-           writer has already committed, ``VersionConflictError`` is
-           raised here and nothing else happens.
-        2. Update the aggregate record: write the new version and the
-           state snapshot if the delta has reached the threshold. On a
-           successful write, advance ``base_version`` on the aggregate
-           if a snapshot was persisted.
+        1. Check concurrency: write the aggregate record with ``expected_version`` set
+           to the pre-emit version. If another writer has already committed,
+           ``VersionConflictError`` is raised here and nothing else happens.
+        2. Update the aggregate record: write the new version and the state snapshot if
+           the delta has reached the threshold. On a successful write, advance
+           ``base_version`` on the aggregate if a snapshot was persisted.
         3. Append events to the event store.
         4. Mark events as committed on the aggregate.
         5. Publish all committed events to the event bus.
 
         Raises:
-            VersionConflictError: If another writer committed a record
-                for this aggregate since it was last loaded. No writes
-                occur. The caller must discard the aggregate, reload,
-                and re-apply the business intent.
+            VersionConflictError: If another writer committed a record for this
+                aggregate since it was last loaded. No writes occur. The caller must
+                discard the aggregate, reload, and re-apply the business intent.
 
         Args:
             aggregate: The aggregate to persist.
@@ -146,8 +138,8 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
             )
         self._aggregate_store.save(record, expected_version=expected_version)
 
-        # Step 2 (cont.): advance base_version now that the snapshot is
-        # safely persisted.
+        # Step 2 (cont.): advance base_version now that the snapshot is safely
+        # persisted.
         if delta >= self._snapshot_threshold:
             aggregate._mark_state_saved()
 
@@ -166,15 +158,15 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
 
         Strategy:
         1. Check the aggregate store for a record (snapshot + version)
-        2. Fetch events from the event store from the snapshot version
-           (or all events if no snapshot exists)
-        3. Reconstruct the aggregate from the snapshot (if present) then
-           replay any remaining events
+        2. Fetch events from the event store from the snapshot version (or all events
+           if no snapshot exists)
+        3. Reconstruct the aggregate from the snapshot (if present) then replay any
+           remaining events
 
-        The aggregate class is resolved from the injected registry using
-        the ``aggregate_type`` stored on the record, or from this
-        repository's own ``aggregate_type`` when no record exists and
-        events must be replayed from scratch.
+        The aggregate class is resolved from the injected registry using the
+        ``aggregate_type`` stored on the record, or from this repository's own
+        ``aggregate_type`` when no record exists and events must be replayed from
+        scratch.
 
         Args:
             aggregate_id: The ID of the aggregate to load.
@@ -211,9 +203,8 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     def delete(self, aggregate_id: TId) -> None:
         """Delete is not supported in pure event sourcing.
 
-        In event sourcing, deletion is typically handled via a
-        DeletedEvent. Subclasses can override if they need soft-delete
-        support.
+        In event sourcing, deletion is typically handled via a DeletedEvent. Subclasses
+        can override if they need soft-delete support.
 
         Args:
             aggregate_id: The ID of the aggregate to delete.
@@ -225,17 +216,16 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     def find_all(self) -> list[TEntity]:
         """Not supported on event-sourced repositories.
 
-        ``find_all()`` requires iterating all aggregates, which is not
-        possible directly from an append-only event store without
-        rebuilding every aggregate from its full event history. This is
-        impractical at scale and is deliberately not implemented here.
+        ``find_all()`` requires iterating all aggregates, which is not possible
+        directly from an append-only event store without rebuilding every aggregate from
+        its full event history. This is impractical at scale and is deliberately not
+        implemented here.
 
-        To query all aggregates, use a projection: subscribe to domain
-        events and maintain a read model that can be queried efficiently.
+        To query all aggregates, use a projection: subscribe to domain events and
+        maintain a read model that can be queried efficiently.
 
         Raises:
-            NotImplementedError: Always. This method is intentionally
-                unsupported.
+            NotImplementedError: Always. This method is intentionally unsupported.
         """
         raise NotImplementedError(
             "find_all() is not supported on event-sourced repositories. "

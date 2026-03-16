@@ -11,12 +11,11 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
 ):
     """In-memory EventStore implementation.
 
-    Stores events in a plain dict keyed by string representation of the
-    aggregate ID. Suitable for testing and lightweight use cases where
-    persistence is not required.
+    Stores events in a plain dict keyed by string representation of the aggregate ID.
+    Suitable for testing and lightweight use cases where persistence is not required.
 
-    Append order across all aggregates is preserved in a separate list,
-    supporting projections that consume all events in order.
+    Append order across all aggregates is preserved in a separate list, supporting
+    projections that consume all events in order.
     """
 
     def __init__(self) -> None:
@@ -46,10 +45,9 @@ class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](
 
         Args:
             aggregate_id: The ID of the aggregate.
-            after_version: If provided, only events from this position
-                onwards are returned. ``after_version=N`` skips the
-                first N events (exclusive lower bound). If None, all
-                events are returned.
+            after_version: If provided, only events from this position onwards are
+                returned. ``after_version=N`` skips the first N events (exclusive lower
+                bound). If None, all events are returned.
 
         Returns:
             A copy of the matching events in chronological order.

@@ -1,7 +1,7 @@
 """Specification pattern for abcdef.
 
-Provides the Specification ABC and combinators for composing
-business rules without polluting domain or application logic.
+Provides the Specification ABC and combinators for composing business rules without
+polluting domain or application logic.
 """
 
 from __future__ import annotations
@@ -12,16 +12,14 @@ from abc import ABC, abstractmethod
 class Specification[T](ABC):
     """Abstract base for domain specifications.
 
-    A Specification encapsulates a single business rule as a
-    reusable, composable predicate.  Subclasses implement
-    ``is_satisfied_by`` to express the rule.
+    A Specification encapsulates a single business rule as a reusable, composable
+    predicate. Subclasses implement ``is_satisfied_by`` to express the rule.
 
     Combinators:
 
     - ``spec_a & spec_b`` — both must be satisfied
     - ``spec_a | spec_b`` — at least one must be satisfied
-    - ``~spec``           — the inner specification must not
-      be satisfied
+    - ``~spec``           — the inner specification must not be satisfied
 
     Example::
 
@@ -167,9 +165,8 @@ class _NotSpecification[T](Specification[T]):
 def specification[T](cls: T) -> T:
     """Mark a class as a Specification.
 
-    A Specification encapsulates complex business rules that can be
-    reused across multiple contexts.  Marker is inherited by
-    subclasses.
+    A Specification encapsulates complex business rules that can be reused across
+    multiple contexts. Marker is inherited by subclasses.
 
     Args:
         cls: The class to mark as a specification.
