@@ -147,6 +147,11 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
 
         Returns:
             The reconstructed aggregate, or None if neither record nor events exist.
+
+        Raises:
+            RuntimeError: If events exist for the aggregate but no aggregate record is
+                found. This indicates a storage fault -- record and events must always
+                be written together.
         """
         record = self._aggregate_store.get(aggregate_id)
         snapshot_version: int | None = (
@@ -162,11 +167,12 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         if record is None and not events:
             return None
 
-        assert record is not None, (
-            f"Events exist for aggregate {aggregate_id} but no aggregate record was "
-            f"found. This indicates a storage fault -- record and events must always "
-            f"be written together."
-        )
+        if record is None:
+            raise RuntimeError(
+                f"Events exist for aggregate {aggregate_id} but no aggregate record "
+                f"was found. This indicates a storage fault -- record and events must "
+                f"always be written together."
+            )
 
         cls = self._aggregate_registry.get(record.aggregate_type)
 

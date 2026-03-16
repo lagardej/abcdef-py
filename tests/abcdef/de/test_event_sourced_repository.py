@@ -350,6 +350,25 @@ class TestEventSourcedRepositoryGetById:
         assert restored is not None
         assert restored.count == 10
 
+    def test_get_by_id_raises_on_storage_fault(self) -> None:
+        """get_by_id raises RuntimeError when events exist but no record is found.
+
+        This is a storage fault: record and events are always written together.
+        Events without a record indicate the aggregate store and event store have
+        diverged, which must never happen in normal operation.
+
+        Injected directly into the event store to bypass the repository's own
+        save logic, which always writes both atomically.
+        """
+        repo, event_store, _, _ = _make_repo()
+        agg_id = make_id()
+
+        # Inject events with no corresponding aggregate record.
+        event_store._store[str(agg_id)] = [DummyEvent(amount=1)]
+
+        with pytest.raises(RuntimeError, match="storage fault"):
+            repo.get_by_id(agg_id)
+
 
 class TestEventSourcedRepositoryNotImplemented:
     """Tests for operations not supported by pure event sourcing."""

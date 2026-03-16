@@ -6,12 +6,7 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Bugs
 
-- **`de/event_sourced_repository.py` — `assert` used for a storage invariant**
-  `get_by_id` uses `assert record is not None` to guard against events existing
-  without a matching aggregate record. `assert` is silently dropped under
-  `-O` / `PYTHONOPTIMIZE=1`, so this check disappears in optimised builds.
-  Replace with `raise RuntimeError(...)` (or a dedicated `StorageFaultError`)
-  so the invariant is enforced unconditionally.
+(none)
 
 ---
 
