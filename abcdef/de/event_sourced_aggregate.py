@@ -4,54 +4,19 @@ from abc import abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+from ..core.registry import ClassRegistry
 from ..d import AggregateId
 from ..d.event_emitting_aggregate import EventEmittingAggregate
 from .event_sourced_domain_event import EventSourcedDomainEvent
 
 
-class AggregateRegistry:
+class AggregateRegistry(ClassRegistry["type[EventSourcedAggregate]"]):
     """Registry of EventSourcedAggregate subclasses keyed by aggregate_type.
 
     A plain, injectable class with no global state. Callers create an instance and
     register aggregate classes into it explicitly. Pass the registry to
     EventSourcedRepository at construction time.
     """
-
-    def __init__(self) -> None:
-        """Initialise with an empty registry."""
-        self._registry: dict[str, type[EventSourcedAggregate]] = {}
-
-    def register(self, aggregate_type: str, cls: "type[EventSourcedAggregate]") -> None:
-        """Register a concrete aggregate class under its aggregate_type.
-
-        Args:
-            aggregate_type: The stable string identifier for the class.
-            cls: The concrete EventSourcedAggregate subclass to register.
-
-        Raises:
-            TypeError: If the aggregate_type is already registered.
-        """
-        if aggregate_type in self._registry:
-            raise TypeError(
-                f"aggregate_type '{aggregate_type}' is already registered "
-                f"by {self._registry[aggregate_type].__qualname__}. "
-                f"Each aggregate_type must be unique."
-            )
-        self._registry[aggregate_type] = cls
-
-    def get(self, aggregate_type: str) -> "type[EventSourcedAggregate]":
-        """Look up a registered aggregate subclass by aggregate_type.
-
-        Args:
-            aggregate_type: The stable string identifier for the class.
-
-        Returns:
-            The concrete subclass registered under that name.
-
-        Raises:
-            KeyError: If no class is registered for the given aggregate_type.
-        """
-        return self._registry[aggregate_type]
 
 
 @dataclass(frozen=True)

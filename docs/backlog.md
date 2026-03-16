@@ -18,13 +18,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Improvements
 
-**I1 — Extract a shared generic `EventRegistry[T]` base class**
-
-`DomainEventRegistry`, `EventSourcedDomainEventRegistry`, and `AggregateRegistry`
-are structurally identical: each has `register(key, cls)` and `get(key)` with
-the same duplicate-detection logic and error format. Extract a shared generic
-base or ABC to eliminate the duplication and make the contract explicit.
-
 **I5 — Make `EventEmittingAggregate` generic over its event type**
 
 `_pending_events` is typed as `list[DomainEvent]` on `EventEmittingAggregate`,
