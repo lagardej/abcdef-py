@@ -6,11 +6,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-**T1 — Add a `Projector` ABC to `abcdef/core/c/`**
-
-The `@projector` marker exists and the concept is documented in the README, but
-there is no abstract base class. Projectors have no contract to implement against.
-
 **T2 — Fix `abcdef/README.md` — `cde/` directory and `@event` marker do not exist**
 
 The README documents a `cde/` sub-package (CQRS + DDD + ES) and an `@event`
