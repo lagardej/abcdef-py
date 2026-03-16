@@ -103,3 +103,59 @@ class TestInMemoryRepository:
         assert result_b is not None
         assert result_a.value == "alpha"
         assert result_b.value == "beta"
+
+
+class TestInMemoryRepositoryIsolation:
+    """Tests for snapshot isolation in InMemoryRepository."""
+
+    def test_mutation_after_save_does_not_affect_store(self) -> None:
+        """Mutating the original after save does not affect the stored copy."""
+        repo = InMemoryRepository()
+        agg_id = make_id()
+        agg = DummyAggregate(agg_id, "original")
+        repo.save(agg)
+
+        agg.value = "mutated"
+
+        result = repo.get_by_id(agg_id)
+        assert result is not None
+        assert result.value == "original"
+
+    def test_mutation_after_load_does_not_affect_store(self) -> None:
+        """Mutating a loaded aggregate does not affect subsequent loads."""
+        repo = InMemoryRepository()
+        agg_id = make_id()
+        repo.save(DummyAggregate(agg_id, "original"))
+
+        loaded = repo.get_by_id(agg_id)
+        assert loaded is not None
+        loaded.value = "mutated"
+
+        result = repo.get_by_id(agg_id)
+        assert result is not None
+        assert result.value == "original"
+
+    def test_two_loads_return_independent_instances(self) -> None:
+        """Two get_by_id calls return independent copies."""
+        repo = InMemoryRepository()
+        agg_id = make_id()
+        repo.save(DummyAggregate(agg_id, "original"))
+
+        first = repo.get_by_id(agg_id)
+        second = repo.get_by_id(agg_id)
+        assert first is not None
+        assert second is not None
+        assert first is not second
+
+    def test_find_all_returns_independent_copies(self) -> None:
+        """Mutating a find_all result does not affect the store."""
+        repo = InMemoryRepository()
+        agg_id = make_id()
+        repo.save(DummyAggregate(agg_id, "original"))
+
+        results = repo.find_all()
+        results[0].value = "mutated"
+
+        result = repo.get_by_id(agg_id)
+        assert result is not None
+        assert result.value == "original"
