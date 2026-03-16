@@ -153,6 +153,54 @@ class TestEventSourcedRepositorySave:
         assert record is not None
         assert record.event_version == agg.version
 
+    def test_default_snapshot_threshold_is_ten(self) -> None:
+        """The default snapshot_threshold is 10.
+
+        A repository constructed without an explicit snapshot_threshold must
+        write a state snapshot after exactly 10 events. At 9 events no state
+        is written; at 10 events state is present on the record.
+        """
+        repo, _, aggregate_store, _ = _make_repo()  # uses default threshold
+        agg_id = make_id()
+        agg = DummyAggregate(agg_id)
+
+        for _ in range(9):
+            agg.increment(1)
+        repo.save(agg)
+
+        record_before = aggregate_store.get(agg_id)
+        assert record_before is not None
+        assert record_before.state is None  # 9 events -- below default threshold
+
+        agg.increment(1)  # 10th event -- reaches default threshold
+        repo.save(agg)
+
+        record_after = aggregate_store.get(agg_id)
+        assert record_after is not None
+        assert isinstance(record_after.state, DummyState)  # snapshot written
+
+    def test_save_persists_aggregate_type_on_snapshot_record(self) -> None:
+        """aggregate_type on the snapshot record is correct after a real save/load.
+
+        The record's aggregate_type is used by the registry during get_by_id to
+        resolve the concrete class. If it were corrupted (e.g. set to None), the
+        registry lookup would fail. This test round-trips through save and load
+        to confirm the correct class is reconstructed.
+        """
+        repo, _, _, _ = _make_repo(threshold=3)
+        agg_id = make_id()
+        agg = DummyAggregate(agg_id)
+        agg.increment(1)
+        agg.increment(1)
+        agg.increment(1)  # triggers snapshot at threshold=3
+
+        repo.save(agg)
+
+        restored = repo.get_by_id(agg_id)
+
+        assert restored is not None
+        assert isinstance(restored, DummyAggregate)
+
     def test_save_raises_on_concurrent_write(self) -> None:
         """save() raises VersionConflictError when another writer has committed.
 
@@ -295,6 +343,24 @@ class TestEventSourcedRepositoryGetById:
 
         assert restored is not None
         assert restored.count == 7
+
+    def test_get_by_id_returns_correct_id_on_event_only_load(self) -> None:
+        """Aggregate reconstructed from events only has the correct id.
+
+        When no snapshot exists the aggregate is constructed via cls(aggregate_id).
+        If that argument were corrupted (e.g. set to None), agg.id would not match
+        the requested id.
+        """
+        repo, _, _, _ = _make_repo()
+        agg_id = make_id()
+        agg = DummyAggregate(agg_id)
+        agg.increment(1)
+        repo.save(agg)
+
+        restored = repo.get_by_id(agg_id)
+
+        assert restored is not None
+        assert restored.id == agg_id
 
     def test_get_by_id_uses_state_and_delta_when_state_present(self) -> None:
         """When a record with state exists, only events after it are replayed."""
