@@ -6,14 +6,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-
-**T3 — Fix `abcdef/core/__init__.py` module docstring**
-
-The docstring claims `d/` "includes Event, DomainEvent, EventEmittingAggregate"
-which is factually correct, but the framing originates from the defunct `cde/`
-split in the README. Once T2 is resolved, update the docstring to remove any
-reference to `cde/`.
-
 **T4 — Reformat all docstrings and comments to the 72-character line limit**
 
 AGENTS.md specifies 72 characters maximum for docstrings and comments (PEP 8

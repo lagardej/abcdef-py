@@ -1,7 +1,7 @@
 """Core package -- abstract base classes and marker interfaces.
 
-Covers CQRS, DDD, and Event Sourcing. Sub-packages follow the ABCDEF
-Venn diagram:
+Covers CQRS, DDD, and Event Sourcing. Sub-packages are grouped by
+concern:
   c/   -- CQRS only
   d/   -- DDD only
   de/  -- DDD + Event Sourcing
