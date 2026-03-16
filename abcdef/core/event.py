@@ -1,26 +1,25 @@
-"""Event base class for all domain events."""
+"""Event base class for all events dispatched on a bus."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..c.message import Message
+from .message import Message
 
 if TYPE_CHECKING:
     import datetime
 
 
 class Event(Message):
-    """Base class for all domain events.
+    """Base class for all events dispatched on an EventBus.
 
-    An Event is an immutable record of something that happened in the
-    domain. It extends Message because events are dispatched on an
-    EventBus.
+    An Event is an immutable record of something that happened. It
+    extends Message so it can be published on an EventBus and handled
+    by subscribers.
 
     Subclasses MUST declare a non-empty ``event_type`` class variable.
-    This decouples the event's stable identity (used in the event store
-    and projections) from the Python class name, which may be refactored
-    freely.
+    This decouples the event's stable identity from the Python class
+    name, which may be refactored freely.
 
     The ``event_type`` must be declared directly on the concrete class
     -- it cannot be satisfied by inheriting it from a parent class.
@@ -45,7 +44,8 @@ class Event(Message):
 
         Raises:
             TypeError: If a concrete subclass does not declare a
-                non-empty ``event_type`` directly in its own class body.
+                non-empty ``event_type`` directly in its own class
+                body.
         """
         super().__init_subclass__(**kwargs)
         if cls.__dict__.get("_abstract_event"):

@@ -3,9 +3,9 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
+from ..message import Message
 from ..result import Result
 from . import markers
-from .message import Message
 
 TCommand = TypeVar("TCommand", bound="Command")
 TResult = TypeVar("TResult", bound=Result)

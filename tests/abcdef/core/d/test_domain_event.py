@@ -6,7 +6,8 @@ import datetime
 
 import pytest
 
-from abcdef.core.d import DomainEvent, DomainEventRegistry, Event
+from abcdef.core import Event
+from abcdef.core.d import DomainEvent, DomainEventRegistry
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-from ..d.event import Event
+from ..event import Event
 
 _TSpecificEvent = TypeVar("_TSpecificEvent", bound=Event)
 
@@ -24,7 +24,8 @@ class MessageBus[TMessage](ABC):
 
         Args:
             message_type: The type of message to subscribe to.
-            handler: The handler function to invoke when a message is published.
+            handler: The handler function to invoke when a message
+                is published.
         """
         pass
 
@@ -42,7 +43,8 @@ class MessageBus[TMessage](ABC):
             message: The message to publish.
 
         Returns:
-            The result from the handler (if single handler) or aggregated results.
+            The result from the handler (if single handler) or
+            aggregated results.
         """
         pass
 
@@ -72,15 +74,17 @@ class EventBus[TEvent: Event](MessageBus[TEvent]):
     ) -> None:
         """Subscribe a handler to a specific event subtype.
 
-        Overrides MessageBus.subscribe to allow handlers typed for a concrete
-        event subtype (e.g. ``Callable[[OrderPlaced], Any]``) rather than the
-        bus's base event type.  The method-level TypeVar ``_TSpecificEvent``
-        binds ``message_type`` and ``handler`` together so Pyright accepts
-        narrowly-typed handlers at call sites.
+        Overrides MessageBus.subscribe to allow handlers typed for a
+        concrete event subtype (e.g. ``Callable[[OrderPlaced], Any]``)
+        rather than the bus's base event type. The method-level TypeVar
+        ``_TSpecificEvent`` binds ``message_type`` and ``handler``
+        together so Pyright accepts narrowly-typed handlers at call
+        sites.
 
         Args:
             message_type: The concrete event type to subscribe to.
-            handler: The handler to invoke when an event of this type is published.
+            handler: The handler to invoke when an event of this type
+                is published.
         """
         pass
 

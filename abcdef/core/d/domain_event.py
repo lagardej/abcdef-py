@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .event import Event
+from ..event import Event
 
 
 class DomainEventRegistry:

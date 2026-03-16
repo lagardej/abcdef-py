@@ -3,9 +3,9 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
+from ..message import Message
 from ..result import Result
 from . import markers
-from .message import Message
 
 TQuery = TypeVar("TQuery", bound="Query")
 TQueryResult = TypeVar("TQueryResult", bound=Result)
@@ -28,7 +28,6 @@ class QueryHandler[TQry: Query, TQryResult: Result](ABC):
 
     A QueryHandler processes a specific Query type and returns a result
     by reading from document stores.
-
     """
 
     @abstractmethod

@@ -17,8 +17,8 @@ from .markers import (
     query,
     query_handler,
 )
-from .message import Message
 from .message_bus import CommandBus, EventBus, MessageBus, QueryBus
+from .projector import Projector
 from .query import Query, QueryHandler, TQuery, TQueryResult
 from .registry import CommandRegistry, QueryRegistry
 
@@ -30,8 +30,8 @@ __all__ = [
     "Document",
     "DocumentStore",
     "EventBus",
-    "Message",
     "MessageBus",
+    "Projector",
     "Query",
     "QueryBus",
     "QueryHandler",
