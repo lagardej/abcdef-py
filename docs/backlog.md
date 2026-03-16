@@ -18,16 +18,6 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`abcdef/__init__.py` — root package has no `__init__.py`; intent unclear**
-  `abcdef` is a single-distribution framework (Pattern 2: one `pyproject.toml`,
-  sub-packages imported directly). Without an `__init__.py`, the root is a
-  namespace package, which works but gives no signal to callers or tooling.
-  Add `abcdef/__init__.py` containing only a module docstring and
-  `__all__ = []`. The empty `__all__` is the idiomatic Python signal that the
-  root exports nothing; callers should import from sub-packages directly
-  (`abcdef.core`, `abcdef.c`, etc.). The existing `Public API Boundaries`
-  section in `abcdef/README.md` already documents this in prose.
-
 - **`abcdef/specification/py.typed` — redundant PEP 561 marker**
   `abcdef/py.typed` already declares the entire package as typed. A second
   `py.typed` inside `specification/` is incorrect per PEP 561, which places
