@@ -18,10 +18,6 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`in_memory/event_bus.py` — unused `_TEvent` TypeVar**
-  `_TEvent = TypeVar("_TEvent", bound=Event)` is defined but never referenced.
-  Only `_TSpecificEvent` is used. Remove it.
-
 - **`abcdef/__init__.py` — root package has no `__init__.py`; intent unclear**
   `abcdef` is a single-distribution framework (Pattern 2: one `pyproject.toml`,
   sub-packages imported directly). Without an `__init__.py`, the root is a
