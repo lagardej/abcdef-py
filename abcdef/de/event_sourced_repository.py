@@ -193,6 +193,9 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
             agg = cls(aggregate_id)
 
         agg._load_from_history(events)
+        # from_state returns EventSourcedAggregate[TState] rather than Self due to a
+        # Python limitation -- Self cannot be combined with a bound generic type
+        # parameter on a classmethod. See from_state docstring for details.
         return agg  # type: ignore[return-value]
 
     def delete(self, aggregate_id: TId) -> None:

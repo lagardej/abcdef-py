@@ -94,6 +94,13 @@ class EventSourcedAggregate[TState: AggregateState](
         version and base_version to the given version so that the state threshold is
         calculated as a delta from this point.
 
+        Return type is ``EventSourcedAggregate[TState]`` rather than ``Self`` because
+        Python does not support combining ``Self`` with a bound generic type parameter
+        on a classmethod -- ``Self[TState]`` is not valid syntax. Callers that need the
+        concrete subtype must cast after calling this method. The ``# type: ignore`` on
+        the return statement in ``EventSourcedRepository.get_by_id`` is a direct
+        consequence of this constraint.
+
         Args:
             aggregate_id: The identity of the aggregate.
             state: The state record to restore from.

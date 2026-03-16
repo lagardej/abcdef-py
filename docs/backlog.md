@@ -18,14 +18,6 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`de/event_sourced_aggregate.py` — `from_state` return type too wide;
-  downstream `# type: ignore` unexplained**
-  `from_state` is annotated to return `EventSourcedAggregate[TState]` rather
-  than `Self`, which is a Python limitation with generic classmethods. The
-  `# type: ignore[return-value]` in `event_sourced_repository.py:get_by_id` is
-  a direct consequence. Add a comment on `from_state` explaining the constraint,
-  and update the ignore comment in the repository to reference it.
-
 - **`de/markers.py` — `AggregateStore` has no architecture marker**
   Every other major base class in the framework carries a marker. `AggregateStore`
   has no `__de_type__`. Either add an `@aggregate_store` decorator to
