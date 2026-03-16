@@ -18,13 +18,6 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`c/command.py`, `c/query.py` — dead `TypeVar` exports pollute public API**
-  `TCommand`, `TResult`, `TQuery`, `TQueryResult` are defined as old-style
-  `TypeVar` objects at module level and re-exported from `c/__init__.py`.
-  `CommandHandler` and `QueryHandler` already use PEP 695 generic syntax and
-  do not reference these variables. Remove the declarations and drop them from
-  `__all__`.
-
 - **`d/repository.py` — dead `TypeVar` declarations**
   `TId` and `TAggregate` are defined at module level but never used; `Repository`
   uses PEP 695 generics directly. Remove them.

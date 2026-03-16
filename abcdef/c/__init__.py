@@ -4,7 +4,7 @@ Base classes, marker interfaces, and bus abstractions for Command/Query Responsi
 Segregation.
 """
 
-from .command import Command, CommandHandler, TCommand, TResult
+from .command import Command, CommandHandler
 from .document import Document
 from .document_store import DocumentStore
 from .markers import (
@@ -18,7 +18,7 @@ from .markers import (
 )
 from .message_bus import CommandBus, EventBus, MessageBus, QueryBus
 from .projector import Projector
-from .query import Query, QueryHandler, TQuery, TQueryResult
+from .query import Query, QueryHandler
 from .registry import CommandRegistry, QueryRegistry
 
 __all__ = [
@@ -35,10 +35,6 @@ __all__ = [
     "QueryBus",
     "QueryHandler",
     "QueryRegistry",
-    "TCommand",
-    "TQuery",
-    "TQueryResult",
-    "TResult",
     "command",
     "command_handler",
     "document",

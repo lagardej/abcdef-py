@@ -1,15 +1,11 @@
 """Core abstractions for queries and handlers."""
 
 from abc import ABC, abstractmethod
-from typing import TypeVar
 
 from abcdef.core.message import Message
 from abcdef.core.result import Result
 
 from . import markers
-
-TQuery = TypeVar("TQuery", bound="Query")
-TQueryResult = TypeVar("TQueryResult", bound=Result)
 
 
 @markers.query

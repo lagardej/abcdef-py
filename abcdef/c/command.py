@@ -1,15 +1,11 @@
 """Core abstractions for commands and handlers."""
 
 from abc import ABC, abstractmethod
-from typing import TypeVar
 
 from abcdef.core.message import Message
 from abcdef.core.result import Result
 
 from . import markers
-
-TCommand = TypeVar("TCommand", bound="Command")
-TResult = TypeVar("TResult", bound=Result)
 
 
 @markers.command
