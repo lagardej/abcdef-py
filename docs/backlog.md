@@ -18,13 +18,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Improvements
 
-**I7 — Consolidate or document the `__es_type__` marker attribute split**
-
-All markers use `__cqrs_type__` or `__ddd_type__` except `@event_store`, which
-uses `__es_type__`. This inconsistency is undocumented. Either consolidate all
-markers under a single attribute (e.g. `__abc_type__`) or add an explicit
-rationale in the marker module docstrings and the README marker table.
-
 **I4 — Remove `_get_marker` from `abcdef/core/__init__.py` `__all__`**
 
 `_get_marker` is private by convention (underscore prefix) but is listed in

@@ -274,11 +274,11 @@ class TestEsMarkers:
         result = event_store(cls)
         assert result is cls
 
-    def test_event_store_sets_es_type(self) -> None:
-        """@event_store sets __es_type__ to 'event_store'."""
+    def test_event_store_sets_de_type(self) -> None:
+        """@event_store sets __de_type__ to 'event_store'."""
         cls = type("ES", (), {})
         event_store(cls)
-        assert cls.__es_type__ == "event_store"  # type: ignore[attr-defined]
+        assert cls.__de_type__ == "event_store"  # type: ignore[attr-defined]
 
     def test_event_store_marker_visible_on_subclass(self) -> None:
         """@event_store marker is inherited by subclasses."""
@@ -290,7 +290,7 @@ class TestEsMarkers:
         class SubES(BaseES):
             pass
 
-        assert _get_marker(SubES, "__es_type__") == "event_store"
+        assert _get_marker(SubES, "__de_type__") == "event_store"
 
 
 # ---------------------------------------------------------------------------

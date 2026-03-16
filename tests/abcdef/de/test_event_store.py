@@ -35,9 +35,9 @@ def _val(event: EventSourcedDomainEvent) -> str:
 class TestEventStoreMarker:
     """Tests for EventStore architecture marker."""
 
-    def test_event_store_has_es_type_marker(self) -> None:
-        """EventStore is marked with __es_type__ = 'event_store'."""
-        assert EventStore.__es_type__ == "event_store"  # type: ignore[attr-defined]
+    def test_event_store_has_de_type_marker(self) -> None:
+        """EventStore is marked with __de_type__ = 'event_store'."""
+        assert EventStore.__de_type__ == "event_store"  # type: ignore[attr-defined]
 
     def test_event_store_does_not_have_repository_marker(self) -> None:
         """EventStore must not be marked as a DDD repository."""

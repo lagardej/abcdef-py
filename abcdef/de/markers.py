@@ -2,6 +2,11 @@
 
 Decorators that mark classes with Event Sourcing concepts: event stores. Markers are
 inherited by subclasses.
+
+Marker attribute convention:
+- c/  uses ``__cqrs_type__``
+- d/  uses ``__ddd_type__``
+- de/ uses ``__de_type__``
 """
 
 
@@ -22,7 +27,7 @@ def event_store[T](cls: T) -> T:
         cls: The class to mark as an event store.
 
     Returns:
-        The class with __es_type__ = "event_store" metadata.
+        The class with __de_type__ = "event_store" metadata.
     """
-    cls.__es_type__ = "event_store"  # type: ignore[attr-defined]
+    cls.__de_type__ = "event_store"  # type: ignore[attr-defined]
     return cls
