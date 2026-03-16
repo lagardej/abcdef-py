@@ -1,6 +1,6 @@
 """In-memory implementation of DocumentStore."""
 
-from abcdef.core import Document, DocumentStore
+from abcdef.c import Document, DocumentStore
 
 
 class InMemoryDocumentStore[TDocument: Document](DocumentStore[TDocument]):

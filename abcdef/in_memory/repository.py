@@ -1,6 +1,6 @@
 """In-memory implementation of Repository."""
 
-from abcdef.core import AggregateId, AggregateRoot, Repository
+from abcdef.d import AggregateId, AggregateRoot, Repository
 
 
 class InMemoryRepository[TId: AggregateId, TAggregate: AggregateRoot](

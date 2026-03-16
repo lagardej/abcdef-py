@@ -2,7 +2,8 @@
 
 import datetime
 
-from abcdef.core import AggregateId, AggregateRoot, Event
+from abcdef.core import Event
+from abcdef.d import AggregateId, AggregateRoot
 
 
 class DummyAggregate(AggregateRoot):

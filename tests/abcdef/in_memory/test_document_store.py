@@ -1,6 +1,6 @@
 """Tests for InMemoryDocumentStore."""
 
-from abcdef.core import Document
+from abcdef.c import Document
 from abcdef.in_memory import InMemoryDocumentStore
 
 

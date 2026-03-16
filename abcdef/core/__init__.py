@@ -1,126 +1,13 @@
-"""Core package -- abstract base classes and marker interfaces.
+"""Core package -- abstract base classes and marker interfaces."""
 
-Covers CQRS, DDD, and Event Sourcing. Sub-packages are grouped by
-concern:
-  c/   -- CQRS only
-  d/   -- DDD only
-  de/  -- DDD + Event Sourcing
-"""
-
-from .c import (
-    Command,
-    CommandBus,
-    CommandHandler,
-    CommandRegistry,
-    Document,
-    DocumentStore,
-    EventBus,
-    MessageBus,
-    Projector,
-    Query,
-    QueryBus,
-    QueryHandler,
-    QueryRegistry,
-    Result,
-    TCommand,
-    TQuery,
-    TQueryResult,
-    TResult,
-)
-from .c.markers import (
-    command,
-    command_handler,
-    document,
-    document_store,
-    projector,
-    query,
-    query_handler,
-)
-from .d import (
-    AggregateId,
-    AggregateRoot,
-    DomainEvent,
-    DomainEventRegistry,
-    EventEmittingAggregate,
-    Repository,
-    ValueObject,
-)
-from .d.markers import (
-    aggregate,
-    domain_service,
-    factory,
-    identifier,
-    repository,
-    value_object,
-)
-from .de import (
-    AggregateRecord,
-    AggregateRegistry,
-    AggregateState,
-    AggregateStore,
-    EventSourcedAggregate,
-    EventSourcedDomainEvent,
-    EventSourcedDomainEventRegistry,
-    EventSourcedRepository,
-    EventStore,
-    VersionConflictError,
-    event_store,
-)
 from .event import Event
 from .markers import _get_marker
 from .message import Message
+from .result import Result
 
 __all__ = [
-    "AggregateId",
-    "AggregateRecord",
-    "AggregateRegistry",
-    "AggregateRoot",
-    "AggregateState",
-    "AggregateStore",
-    "Command",
-    "CommandBus",
-    "CommandHandler",
-    "CommandRegistry",
-    "Document",
-    "DocumentStore",
-    "DomainEvent",
-    "DomainEventRegistry",
     "Event",
-    "EventBus",
-    "EventEmittingAggregate",
-    "EventSourcedAggregate",
-    "EventSourcedDomainEvent",
-    "EventSourcedDomainEventRegistry",
-    "EventSourcedRepository",
-    "EventStore",
     "Message",
-    "MessageBus",
-    "Projector",
-    "Query",
-    "QueryBus",
-    "QueryHandler",
-    "QueryRegistry",
-    "Repository",
     "Result",
-    "TCommand",
-    "TQuery",
-    "TQueryResult",
-    "TResult",
-    "ValueObject",
-    "VersionConflictError",
     "_get_marker",
-    "aggregate",
-    "command",
-    "command_handler",
-    "document",
-    "document_store",
-    "domain_service",
-    "event_store",
-    "factory",
-    "identifier",
-    "projector",
-    "query",
-    "query_handler",
-    "repository",
-    "value_object",
 ]

@@ -1,22 +1,24 @@
 """Tests for architecture marker decorators and _get_marker inspection utility."""
 
-from abcdef.core import (
-    _get_marker,
-    aggregate,
+from abcdef.c.markers import (
     command,
     command_handler,
     document,
     document_store,
-    domain_service,
-    event_store,
-    factory,
-    identifier,
     projector,
     query,
     query_handler,
+)
+from abcdef.core import _get_marker
+from abcdef.d.markers import (
+    aggregate,
+    domain_service,
+    factory,
+    identifier,
     repository,
     value_object,
 )
+from abcdef.de.markers import event_store
 
 # ---------------------------------------------------------------------------
 # Helpers

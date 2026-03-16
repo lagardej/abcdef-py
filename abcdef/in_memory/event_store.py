@@ -2,8 +2,8 @@
 
 from collections.abc import Sequence
 
-from abcdef.core import AggregateId, AggregateRoot, EventStore
-from abcdef.core.de import EventSourcedDomainEvent
+from abcdef.d import AggregateId, AggregateRoot
+from abcdef.de import EventSourcedDomainEvent, EventStore
 
 
 class InMemoryEventStore[TId: AggregateId, TEntity: AggregateRoot](

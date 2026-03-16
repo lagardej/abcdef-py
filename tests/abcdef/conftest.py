@@ -3,7 +3,7 @@
 from typing import Self
 from uuid import uuid4
 
-from abcdef.core import AggregateId
+from abcdef.d import AggregateId
 
 
 class StrAggregateId(AggregateId):

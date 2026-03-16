@@ -2,13 +2,8 @@
 
 from typing import Any
 
-from abcdef.core import (
-    AggregateId,
-    AggregateRecord,
-    AggregateRoot,
-    AggregateStore,
-)
-from abcdef.core.de.aggregate_store import VersionConflictError
+from abcdef.d import AggregateId, AggregateRoot
+from abcdef.de import AggregateRecord, AggregateStore, VersionConflictError
 
 
 class InMemoryAggregateStore[TId: AggregateId, TEntity: AggregateRoot](
