@@ -68,7 +68,7 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
     def save(self, aggregate: TEntity) -> None:
         """Save an aggregate by persisting its uncommitted events.
 
-        All steps execute as a single logical transaction in this order:
+        All steps execute in this order:
 
         1. Check concurrency: write the aggregate record with ``expected_version`` set
            to the pre-emit version. If another writer has already committed,
@@ -79,6 +79,16 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
         3. Append events to the event store.
         4. Mark events as committed on the aggregate.
         5. Publish all committed events to the event bus.
+
+        **Atomicity warning:** steps 2 and 3 write to two separate stores with no
+        distributed transaction between them. If ``append_events`` (step 3) raises
+        after ``aggregate_store.save`` (step 2) has already succeeded, the version
+        record will be ahead of the event log: the aggregate's version is recorded but
+        its events are missing, leaving it unreconstructable via ``get_by_id``.
+
+        This is a fatal storage fault, not a retryable conflict. Recovery requires
+        external intervention -- for example, an outbox pattern, a saga, or manual
+        reconciliation. The framework does not attempt to compensate automatically.
 
         Raises:
             VersionConflictError: If another writer committed a record for this
@@ -120,6 +130,7 @@ class EventSourcedRepository[TId: AggregateId, TEntity: EventSourcedAggregate](
             aggregate._mark_state_saved()
 
         # Step 3: append events to the event store.
+        # WARNING: not atomic with step 2 -- see docstring.
         self._event_store.append_events(aggregate_id, events)
 
         # Step 4: mark events as committed on the aggregate.

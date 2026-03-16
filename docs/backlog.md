@@ -18,15 +18,6 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`de/event_sourced_repository.py` — non-transactional write order
-  undocumented**
-  The aggregate store write and the event store append are two separate,
-  non-atomic operations. If `append_events` raises after
-  `aggregate_store.save` succeeds, the version record is advanced but no events
-  are stored, leaving the aggregate unreconstructable. The `save()` docstring
-  should state explicitly that these writes are not transactional and describe
-  what partial failure means for the caller.
-
 - **`de/event_sourced_aggregate.py` — `from_state` return type too wide;
   downstream `# type: ignore` unexplained**
   `from_state` is annotated to return `EventSourcedAggregate[TState]` rather
