@@ -18,7 +18,7 @@ from abcdef.d.markers import (
     repository,
     value_object,
 )
-from abcdef.de.markers import event_store
+from abcdef.de.markers import aggregate_store, event_store
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -291,6 +291,30 @@ class TestEsMarkers:
             pass
 
         assert _get_marker(SubES, "__de_type__") == "event_store"
+
+    def test_aggregate_store_returns_class_unchanged(self) -> None:
+        """@aggregate_store returns the decorated class itself."""
+        cls = type("AS", (), {})
+        result = aggregate_store(cls)
+        assert result is cls
+
+    def test_aggregate_store_sets_de_type(self) -> None:
+        """@aggregate_store sets __de_type__ to 'aggregate_store'."""
+        cls = type("AS", (), {})
+        aggregate_store(cls)
+        assert cls.__de_type__ == "aggregate_store"  # type: ignore[attr-defined]
+
+    def test_aggregate_store_marker_visible_on_subclass(self) -> None:
+        """@aggregate_store marker is inherited by subclasses."""
+
+        @aggregate_store
+        class BaseAS:
+            pass
+
+        class SubAS(BaseAS):
+            pass
+
+        assert _get_marker(SubAS, "__de_type__") == "aggregate_store"
 
 
 # ---------------------------------------------------------------------------

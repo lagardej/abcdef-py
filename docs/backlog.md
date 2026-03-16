@@ -18,12 +18,6 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`de/markers.py` — `AggregateStore` has no architecture marker**
-  Every other major base class in the framework carries a marker. `AggregateStore`
-  has no `__de_type__`. Either add an `@aggregate_store` decorator to
-  `de/markers.py` and apply it, or explicitly document why it is intentionally
-  unmarked.
-
 - **`c/command.py`, `c/query.py` — dead `TypeVar` exports pollute public API**
   `TCommand`, `TResult`, `TQuery`, `TQueryResult` are defined as old-style
   `TypeVar` objects at module level and re-exported from `c/__init__.py`.

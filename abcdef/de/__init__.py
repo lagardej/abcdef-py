@@ -17,7 +17,7 @@ from .event_sourced_domain_event import (
 )
 from .event_sourced_repository import EventSourcedRepository
 from .event_store import EventStore
-from .markers import event_store
+from .markers import aggregate_store, event_store
 
 __all__ = [
     "AggregateRecord",
@@ -30,5 +30,6 @@ __all__ = [
     "EventSourcedRepository",
     "EventStore",
     "VersionConflictError",
+    "aggregate_store",
     "event_store",
 ]

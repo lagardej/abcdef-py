@@ -6,6 +6,7 @@ from typing import Any
 
 from ..d import AggregateId, AggregateRoot
 from .event_sourced_aggregate import AggregateState
+from .markers import aggregate_store
 
 
 class VersionConflictError(Exception):
@@ -61,6 +62,7 @@ class AggregateRecord[TState: AggregateState]:
     timestamp: float | None = field(default=None)
 
 
+@aggregate_store
 class AggregateStore[TId: AggregateId, TEntity: AggregateRoot](ABC):
     """Base interface for aggregate stores.
 
