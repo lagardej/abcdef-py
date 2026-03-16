@@ -10,7 +10,7 @@ abcdef/
 │   ├── c/             # CQRS — commands, queries, handlers, buses, registries
 │   ├── d/             # DDD — aggregates, value objects, repositories
 │   ├── de/            # DDD + ES — event-sourced aggregates, stores, repositories
-│   ├── cde/           # CQRS + DDD + ES — Event base class
+│   ├── event.py       # Shared Event base class
 │   └── markers.py     # Shared marker inspection utility (_get_marker)
 ├── specification/     # Specification pattern — Specification ABC and combinators
 └── in_memory/         # In-memory implementations for testing and development
@@ -19,14 +19,14 @@ abcdef/
 ## Core Concepts
 
 Each concept lives in the `core/` sub-package matching its paradigm intersection — CQRS (`c/`),
-DDD (`d/`), both plus Event Sourcing (`de/`, `cde/`):
+DDD (`d/`), and DDD plus Event Sourcing (`de/`). `Event` is shared in `core/event.py`:
 
 | Package | Paradigms | Contents |
 |---------|-----------|----------|
 | `c/` | CQRS | `Command`, `Query`, handlers, buses, registries, `Result`, `Document`, `DocumentStore` |
 | `d/` | DDD | `AggregateRoot`, `AggregateId`, `ValueObject`, `Repository` |
 | `de/` | DDD + ES | `EventSourcedAggregate`, `EventStore`, `AggregateStore`, `EventSourcedRepository`, `Snapshot` |
-| `cde/` | CQRS + DDD + ES | `Event` |
+| `core/event.py` | Shared | `Event` |
 | `specification/` | DDD | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker |
 
 - **Command** — Intent to mutate state; handled by exactly one `CommandHandler`
@@ -54,7 +54,6 @@ Each paradigm package exposes decorators for runtime annotation:
 | `@command`, `@query`, `@command_handler`, `@query_handler`, `@document`, `@document_store`, `@projector` | `c/` | `__cqrs_type__` |
 | `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@factory`, `@identifier` | `d/` | `__ddd_type__` |
 | `@specification` | `specification/` | `__ddd_type__` |
-| `@event` | `cde/` | `__cqrs_type__` |
 
 `_get_marker(cls, attr)` (from `core/markers.py`) inspects a class or its parents for a marker attribute.
 

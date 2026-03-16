@@ -6,12 +6,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Tasks
 
-**T2 — Fix `abcdef/README.md` — `cde/` directory and `@event` marker do not exist**
-
-The README documents a `cde/` sub-package (CQRS + DDD + ES) and an `@event`
-marker. Neither exists. `Event` lives in `core/d/event.py` and carries no marker.
-Remove the `cde/` directory entry, remove the `@event` marker row from the marker
-table, and correct the package description accordingly.
 
 **T3 — Fix `abcdef/core/__init__.py` module docstring**
 
