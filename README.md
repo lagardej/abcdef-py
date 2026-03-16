@@ -40,14 +40,14 @@ make fix           auto-fix lint violations then format
 make format        auto-format source files
 
 make ci            run check-format, lint, check-types, test
-make mutate        run mutation tests (pytest-gremlins)
+make mutate        run mutation tests (mutmut)
 
 make install       install git hooks
 ```
 
 ### Verbosity
 
-`test`, `ci`, and `mutate` support a `V` variable controlling output detail:
+`test` and `ci` support a `V` variable controlling output detail:
 
 | `V` | Level   | Behaviour                                 |
 |-----|---------|-------------------------------------------|
@@ -60,7 +60,8 @@ make test V=0
 make ci V=2
 ```
 
-`check-format`, `check-types`, `lint`, `fix`, and `format` are unaffected — they already only print what is relevant.
+`check-format`, `check-types`, `lint`, `fix`, `format`, and `mutate` are unaffected — they already only print what is
+relevant.
 
 ### Logs
 

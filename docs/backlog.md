@@ -6,7 +6,26 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Bugs
 
-(none)
+- **`tests/abcdef/de/test_event_sourced_repository.py` — three gaps revealed
+  by mutation testing**
+  The following mutations survived and represent real test gaps:
+
+  1. `snapshot_threshold` default not verified: no test constructs a repository
+     without specifying `snapshot_threshold` and verifies threshold behaviour
+     fires at exactly 10. Add a test that emits exactly 10 events without
+     passing `snapshot_threshold` and asserts a state snapshot is written.
+
+  2. `aggregate_type` not verified on snapshot record: when `save()` writes a
+     snapshot record, no test round-trips through the real save/load path to
+     confirm the stored `aggregate_type` is correct. If mutated to `None`, the
+     registry lookup in `get_by_id` would fail silently or error — but existing
+     tests inject the record directly and bypass save. Add a test that saves an
+     aggregate above the threshold and then loads it, asserting the returned
+     instance is of the correct type.
+
+  3. `get_by_id` aggregate id not verified on event-only load: when an aggregate
+     is reconstructed purely from events (no snapshot), no test checks that
+     `agg.id` matches the requested `aggregate_id`. Add a test for this.
 
 ---
 

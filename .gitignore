@@ -17,6 +17,7 @@ wheels/
 .coverage
 .pytest_cache/
 .ruff_cache/
+mutants/
 
 # IDEs — JetBrains (PyCharm, IntelliJ, etc.)
 .idea/

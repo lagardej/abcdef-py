@@ -30,7 +30,7 @@ help:
 	@echo ""
 	@echo "Pipelines"
 	@echo "  ci            run check-format, lint, check-types, test"
-	@echo "  mutate        run mutation tests (pytest-gremlins)"
+	@echo "  mutate        run mutation tests (mutmut)"
 	@echo ""
 	@echo "Setup"
 	@echo "  install       install git hooks"
@@ -70,10 +70,9 @@ lint:
 mutate:
 	@mkdir -p logs
 	@logfile="logs/mutate-$(_LOG_TIMESTAMP).log"; \
-	uv run pytest --gremlins $(PYTEST_FLAGS) 2>&1 | tee "$$logfile"; \
-	status=$${PIPESTATUS[0]}; \
+	uv run mutmut run 2>&1 | tee "$$logfile"; \
+	uv run mutmut results 2>&1 | tee -a "$$logfile"; \
 	ln -sf "$$(basename $$logfile)" logs/mutate.log; \
-	exit $$status
 
 test:
 	@mkdir -p logs
