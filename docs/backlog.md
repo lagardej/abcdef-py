@@ -18,12 +18,6 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`abcdef/specification/py.typed` — redundant PEP 561 marker**
-  `abcdef/py.typed` already declares the entire package as typed. A second
-  `py.typed` inside `specification/` is incorrect per PEP 561, which places
-  the marker at the distribution root only. Remove
-  `abcdef/specification/py.typed`.
-
 - **`abcdef/README.md` — `de/` row missing from the marker table**
   The Architecture Markers table lists `c/` (`__cqrs_type__`), `d/`
   (`__ddd_type__`), and `specification/` (`__ddd_type__`), but omits `de/`
