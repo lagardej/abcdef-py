@@ -57,12 +57,11 @@ class EventSourcedAggregate[TState: AggregateState](
     - Snapshot delta calculations
     - Event replay validation
 
-    Subclasses MUST declare a non-empty ``aggregate_type`` class variable directly on
-    the class. This decouples the stable stored identity from the Python class name,
-    which may be refactored freely.
+    ``aggregate_type`` enforcement is inherited from AggregateRoot. All concrete
+    subclasses must declare a non-empty ``aggregate_type`` directly in their class body.
 
-    Intermediate base classes may opt out of the check by setting
-    ``_abstract_aggregate = True`` directly in their class body.
+    Intermediate base classes may opt out by setting ``_abstract_aggregate = True``
+    directly in their class body.
 
     Subclasses must also implement:
     - _apply_event() -- apply emitted events to the aggregate's state
@@ -70,25 +69,7 @@ class EventSourcedAggregate[TState: AggregateState](
     - load_from_state() -- restore state from a persisted state record
     """
 
-    aggregate_type: str = ""
-    _abstract_aggregate: bool = False
-
-    def __init_subclass__(cls, **kwargs: object) -> None:
-        """Enforce aggregate_type declaration on all concrete subclasses.
-
-        Raises:
-            TypeError: If a concrete subclass does not declare a non-empty
-                ``aggregate_type`` directly in its own class body.
-        """
-        super().__init_subclass__(**kwargs)
-        if cls.__dict__.get("_abstract_aggregate"):
-            return
-        if "aggregate_type" not in cls.__dict__ or not cls.__dict__["aggregate_type"]:
-            raise TypeError(
-                f"{cls.__qualname__} must declare a non-empty "
-                f"'aggregate_type' class variable. "
-                f"It cannot be inherited from a parent class."
-            )
+    _abstract_aggregate = True
 
     def __init__(self, aggregate_id: AggregateId) -> None:
         """Initialise a new event-sourced aggregate with no history.

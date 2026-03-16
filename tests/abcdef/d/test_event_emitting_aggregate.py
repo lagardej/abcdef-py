@@ -35,6 +35,8 @@ class AnotherThingHappened(DomainEvent):
 class ConcreteEmitter(EventEmittingAggregate[DomainEvent]):
     """Minimal concrete EventEmittingAggregate for testing."""
 
+    aggregate_type = "concrete_emitter"
+
     def do_something(self) -> None:
         """Emit a ThingHappened event."""
         self._emit_event(ThingHappened())
@@ -144,7 +146,7 @@ class TestEventEmittingAggregateIsNotAbstract:
         """A subclass that overrides nothing is still instantiable."""
 
         class MinimalAggregate(EventEmittingAggregate[DomainEvent]):
-            pass
+            aggregate_type = "minimal_aggregate"
 
         agg = MinimalAggregate(make_id())
         assert agg._get_uncommitted_events() == []

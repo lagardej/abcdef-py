@@ -2,7 +2,7 @@
 
 import pytest
 
-from abcdef.d import AggregateId
+from abcdef.d import AggregateId, AggregateRoot
 from tests.abcdef.conftest import StrAggregateId, make_id
 from tests.abcdef.d.fixtures import DummyAggregate
 
@@ -111,6 +111,8 @@ class TestAggregateRoot:
         class ChildAggregate(DummyAggregate):
             """Minimal subclass for testing type-strict equality."""
 
+            aggregate_type = "child_aggregate"
+
         agg_id = make_id()
         parent = DummyAggregate(agg_id)
         child = ChildAggregate(agg_id)
@@ -137,3 +139,43 @@ class TestAggregateRoot:
     def test_hash_differs_for_different_ids(self) -> None:
         """Aggregates with different IDs produce different hashes."""
         assert hash(DummyAggregate(make_id())) != hash(DummyAggregate(make_id()))
+
+
+class TestAggregateRootType:
+    """Tests for aggregate_type enforcement on AggregateRoot subclasses."""
+
+    def test_concrete_subclass_without_aggregate_type_raises(self) -> None:
+        """Defining a concrete subclass without aggregate_type raises TypeError."""
+        with pytest.raises(TypeError, match="aggregate_type"):
+
+            class NoType(AggregateRoot):
+                pass
+
+    def test_concrete_subclass_with_inherited_aggregate_type_raises(self) -> None:
+        """aggregate_type must be declared on the class itself, not inherited."""
+        with pytest.raises(TypeError, match="aggregate_type"):
+
+            class Base(AggregateRoot):
+                _abstract_aggregate = True
+                aggregate_type = "base_type"
+
+            class Child(Base):
+                pass  # inherits aggregate_type -- must raise
+
+    def test_abstract_aggregate_flag_skips_enforcement(self) -> None:
+        """Intermediate classes with _abstract_aggregate = True are exempt."""
+
+        class Intermediate(AggregateRoot):
+            _abstract_aggregate = True
+
+        assert Intermediate  # no TypeError raised
+
+    def test_concrete_subclass_of_intermediate_must_declare_type(self) -> None:
+        """Concrete subclass of an exempt intermediate must still declare type."""
+        with pytest.raises(TypeError, match="aggregate_type"):
+
+            class Intermediate(AggregateRoot):
+                _abstract_aggregate = True
+
+            class Concrete(Intermediate):
+                pass  # no aggregate_type -- must raise

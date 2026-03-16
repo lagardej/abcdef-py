@@ -6,6 +6,8 @@ from abcdef.d import AggregateId, AggregateRoot, Repository
 class DummyAggregate(AggregateRoot):
     """Minimal concrete aggregate for testing AggregateRoot and Repository behaviour."""
 
+    aggregate_type = "dummy_aggregate"
+
     def __init__(self, aggregate_id: AggregateId, name: str = "") -> None:
         """Initialise with an aggregate_id and optional name."""
         super().__init__(aggregate_id)

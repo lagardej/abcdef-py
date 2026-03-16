@@ -24,7 +24,13 @@ class EventEmittingAggregate[TEvent: DomainEvent](AggregateRoot):
     equivalent infrastructure) calls _get_uncommitted_events() to retrieve pending
     events for publication, then _mark_events_as_committed() once they have been
     dispatched.
+
+    ``aggregate_type`` enforcement is inherited from AggregateRoot. All concrete
+    subclasses must declare a non-empty ``aggregate_type`` directly in their class
+    body.
     """
+
+    _abstract_aggregate = True
 
     def __init__(self, aggregate_id: AggregateId) -> None:
         """Initialise with no pending events.

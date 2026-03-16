@@ -9,6 +9,8 @@ from abcdef.d import AggregateId, AggregateRoot
 class DummyAggregate(AggregateRoot):
     """Dummy aggregate for in-memory repository tests."""
 
+    aggregate_type = "dummy_aggregate"
+
     def __init__(self, aggregate_id: AggregateId, value: str = "") -> None:
         """Initialise with an aggregate_id and optional value."""
         super().__init__(aggregate_id)

@@ -120,7 +120,34 @@ class AggregateRoot(ABC):  # noqa: B024
     Identity is carried by an AggregateId -- an infrastructure-level UUID wrapper.
     Domain-meaningful identity (e.g. order number, customer code) is expressed via the
     aggregate's own attributes.
+
+    All concrete subclasses MUST declare a non-empty ``aggregate_type`` class variable
+    directly on the class. This decouples the stable stored identifier from the Python
+    class name, which may be refactored freely without invalidating persisted data.
+
+    Intermediate base classes may opt out of the check by setting
+    ``_abstract_aggregate = True`` directly in their class body.
     """
+
+    aggregate_type: str = ""
+    _abstract_aggregate: bool = False
+
+    def __init_subclass__(cls, **kwargs: object) -> None:
+        """Enforce aggregate_type declaration on all concrete subclasses.
+
+        Raises:
+            TypeError: If a concrete subclass does not declare a non-empty
+                ``aggregate_type`` directly in its own class body.
+        """
+        super().__init_subclass__(**kwargs)
+        if cls.__dict__.get("_abstract_aggregate"):
+            return
+        if "aggregate_type" not in cls.__dict__ or not cls.__dict__["aggregate_type"]:
+            raise TypeError(
+                f"{cls.__qualname__} must declare a non-empty "
+                f"'aggregate_type' class variable. "
+                f"It cannot be inherited from a parent class."
+            )
 
     def __init__(self, aggregate_id: AggregateId) -> None:
         """Initialise the aggregate root.

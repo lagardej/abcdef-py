@@ -6,7 +6,6 @@ from abcdef.de import (
     AggregateRegistry,
     AggregateState,
     EventSourcedAggregate,
-    EventSourcedDomainEvent,
 )
 from tests.abcdef.conftest import make_id
 from tests.abcdef.de.fixtures import (
@@ -153,61 +152,6 @@ class TestAggregateRegistry:
         r1.register(DummyAggregate.aggregate_type, DummyAggregate)
         with pytest.raises(KeyError):
             r2.get(DummyAggregate.aggregate_type)
-
-
-class TestEventSourcedAggregateType:
-    """Tests for aggregate_type enforcement on EventSourcedAggregate subclasses."""
-
-    def test_concrete_subclass_without_aggregate_type_raises(self) -> None:
-        """Defining a concrete subclass without aggregate_type raises TypeError."""
-        with pytest.raises(TypeError, match="aggregate_type"):
-
-            class NoType(EventSourcedAggregate):  # type: ignore[type-arg]
-                def _apply_event(self, event: EventSourcedDomainEvent) -> None:
-                    pass
-
-                def create_state(self) -> object:
-                    return object()
-
-                def load_from_state(self, state: object) -> None:
-                    pass
-
-    def test_concrete_subclass_with_inherited_aggregate_type_raises(self) -> None:
-        """aggregate_type must be declared on the class itself, not inherited."""
-        with pytest.raises(TypeError, match="aggregate_type"):
-
-            class Base(EventSourcedAggregate):  # type: ignore[type-arg]
-                _abstract_aggregate = True
-                aggregate_type = "base_for_inheritance_test"
-
-                def _apply_event(self, event: EventSourcedDomainEvent) -> None:
-                    pass
-
-                def create_state(self) -> object:
-                    return object()
-
-                def load_from_state(self, state: object) -> None:
-                    pass
-
-            class Child(Base):  # type: ignore[type-arg]
-                pass  # inherits aggregate_type from Base -- must raise
-
-    def test_abstract_aggregate_flag_skips_enforcement(self) -> None:
-        """Intermediate classes with _abstract_aggregate = True are exempt."""
-
-        class Intermediate(EventSourcedAggregate):  # type: ignore[type-arg]
-            _abstract_aggregate = True
-
-            def _apply_event(self, event: EventSourcedDomainEvent) -> None:
-                pass
-
-            def create_state(self) -> object:
-                return object()
-
-            def load_from_state(self, state: object) -> None:
-                pass
-
-        # No TypeError raised -- class definition succeeds.
 
 
 class TestEventSourcedAggregateLoadFromHistory:
