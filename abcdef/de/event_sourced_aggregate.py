@@ -41,7 +41,9 @@ class AggregateState:
     pass
 
 
-class EventSourcedAggregate[TState: AggregateState](EventEmittingAggregate):
+class EventSourcedAggregate[TState: AggregateState](
+    EventEmittingAggregate[EventSourcedDomainEvent]
+):
     """Aggregate optimised for event sourcing with version tracking.
 
     Extends EventEmittingAggregate to add event sourcing concerns:
@@ -151,18 +153,15 @@ class EventSourcedAggregate[TState: AggregateState](EventEmittingAggregate):
         """
         return self._base_version
 
-    def _get_uncommitted_events(self) -> list[EventSourcedDomainEvent]:  # type: ignore[override]
+    def _get_uncommitted_events(self) -> list[EventSourcedDomainEvent]:
         """Return all events recorded but not yet persisted.
-
-        Narrows the return type from DomainEvent (declared on EventEmittingAggregate)
-        to EventSourcedDomainEvent.
 
         Returns:
             List of uncommitted event-sourced domain events.
         """
-        return self._pending_events.copy()  # type: ignore[return-value]
+        return self._pending_events.copy()
 
-    def _emit_event(self, event: EventSourcedDomainEvent) -> None:  # type: ignore[override]
+    def _emit_event(self, event: EventSourcedDomainEvent) -> None:
         """Record an event, apply it to state, and increment version.
 
         Overrides EventEmittingAggregate._emit_event to add:

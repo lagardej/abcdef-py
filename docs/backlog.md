@@ -18,15 +18,6 @@ Short-lived items: bugs, improvements, and refactoring tasks. Resolved entries a
 
 ## Improvements
 
-**I5 — Make `EventEmittingAggregate` generic over its event type**
-
-`_pending_events` is typed as `list[DomainEvent]` on `EventEmittingAggregate`,
-but `EventSourcedAggregate` narrows both `_emit_event()` and
-`_get_uncommitted_events()` to `EventSourcedDomainEvent`. This requires
-`type: ignore[override]` and `type: ignore[return-value]` on the overriding
-methods. Making `EventEmittingAggregate` generic over the event type would
-eliminate the suppression comments.
-
 **I7 — Consolidate or document the `__es_type__` marker attribute split**
 
 All markers use `__cqrs_type__` or `__ddd_type__` except `@event_store`, which

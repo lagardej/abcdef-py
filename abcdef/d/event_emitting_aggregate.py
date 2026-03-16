@@ -6,7 +6,7 @@ from .domain_event import DomainEvent
 
 
 @markers.aggregate
-class EventEmittingAggregate(AggregateRoot):
+class EventEmittingAggregate[TEvent: DomainEvent](AggregateRoot):
     """Aggregate that raises domain events for publication on the bus.
 
     Extends AggregateRoot to add event-emitting capability without event sourcing.
@@ -33,9 +33,9 @@ class EventEmittingAggregate(AggregateRoot):
             aggregate_id: The unique identity of this aggregate.
         """
         super().__init__(aggregate_id)
-        self._pending_events: list[DomainEvent] = []
+        self._pending_events: list[TEvent] = []
 
-    def _emit_event(self, event: DomainEvent) -> None:
+    def _emit_event(self, event: TEvent) -> None:
         """Record an event for later publication.
 
         The event is appended to the pending list.
@@ -45,7 +45,7 @@ class EventEmittingAggregate(AggregateRoot):
         """
         self._pending_events.append(event)
 
-    def _get_uncommitted_events(self) -> list[DomainEvent]:
+    def _get_uncommitted_events(self) -> list[TEvent]:
         """Return all events recorded but not yet published.
 
         Called by the repository during save. Not part of the domain API.

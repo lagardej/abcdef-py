@@ -32,7 +32,7 @@ class AnotherThingHappened(DomainEvent):
         super().__init__(occurred_at=_TS)
 
 
-class ConcreteEmitter(EventEmittingAggregate):
+class ConcreteEmitter(EventEmittingAggregate[DomainEvent]):
     """Minimal concrete EventEmittingAggregate for testing."""
 
     def do_something(self) -> None:
@@ -143,7 +143,7 @@ class TestEventEmittingAggregateIsNotAbstract:
     def test_subclass_with_no_overrides_is_valid(self) -> None:
         """A subclass that overrides nothing is still instantiable."""
 
-        class MinimalAggregate(EventEmittingAggregate):
+        class MinimalAggregate(EventEmittingAggregate[DomainEvent]):
             pass
 
         agg = MinimalAggregate(make_id())
