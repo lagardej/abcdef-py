@@ -9,7 +9,7 @@ from abcdef.c.markers import (
     query,
     query_handler,
 )
-from abcdef.core import _get_marker
+from abcdef.core.markers import _get_marker
 from abcdef.d.markers import (
     aggregate,
     domain_service,
