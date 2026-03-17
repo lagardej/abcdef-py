@@ -107,7 +107,7 @@ Shared primitives live in `b/`:
 <a id="eventstore"></a>
 - **EventStore** — Append-only store; single source of truth for event sourcing
 <a id="aggregatestore"></a>
-- **AggregateStore** — Persists aggregate state records for replay optimisation
+- **AggregateStore** — Persists aggregate state records for replay optimisation and enforces optimistic concurrency (expected_version / VersionConflictError)
 <a id="eventsourcedaggregate"></a>
 - **EventSourcedAggregate** — Aggregate with version tracking and event application
 <a id="eventsourcedrepository"></a>
