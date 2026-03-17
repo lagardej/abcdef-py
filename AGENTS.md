@@ -129,6 +129,11 @@ Key expectations:
 - Verify changes do not contradict the documented architecture before implementing.
 - Raise potential architectural violations or uncertainties to the developer and await direction.
 
+Note: `docs/design/architecture.md` uses project/module layer names such as `domain/` and
+`application/` to describe an abstract module structure. These are not the `abcdef`
+package names — consult `src/abcdef/README.md` for how framework concepts map to the
+`abcdef` package layout when working inside this repository.
+
 
 ---
 
