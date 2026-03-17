@@ -8,10 +8,7 @@ This root package exports nothing directly. Import from the public subpackages:
     abcdef.de            -- event-sourced DDD extensions
     abcdef.in_memory     -- in-memory adapters for tests and local runs
     abcdef.specification -- specification pattern support
-
-Shared utility at the package root:
-
-    abcdef.markers       -- _get_marker inspection utility
+    abcdef.modulith      -- modular architecture validation and documentation
 """
 
 __all__: list[str] = []

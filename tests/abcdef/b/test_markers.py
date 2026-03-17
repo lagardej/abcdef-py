@@ -18,7 +18,7 @@ from abcdef.d.markers import (
     value_object,
 )
 from abcdef.de.markers import aggregate_store, event_store
-from abcdef.markers import _get_marker
+from abcdef.modulith.extraction import _get_marker
 
 # ---------------------------------------------------------------------------
 # Helpers

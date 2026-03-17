@@ -42,6 +42,7 @@ _D = _ABCDEF / "d"
 _DE = _ABCDEF / "de"
 _IN_MEMORY = _ABCDEF / "in_memory"
 _SPECIFICATION = _ABCDEF / "specification"
+_MODULITH = _ABCDEF / "modulith"
 
 # ---------------------------------------------------------------------------
 # Allowed import prefixes per sub-package
@@ -58,6 +59,7 @@ _ALLOWED: dict[Path, set[str]] = {
     _C: _B_PREFIXES,
     _D: _B_PREFIXES,
     _DE: _B_PREFIXES | {"abcdef.d"},
+    _MODULITH: _B_PREFIXES,
 }
 
 _PACKAGE_FACADES = {
@@ -67,6 +69,7 @@ _PACKAGE_FACADES = {
     _DE,
     _IN_MEMORY,
     _SPECIFICATION,
+    _MODULITH,
 }
 
 # ---------------------------------------------------------------------------

@@ -25,6 +25,7 @@ Core package areas:
 - `abcdef.de` - event-sourced DDD integration
 - `abcdef.in_memory` - in-memory adapters for tests and local runs
 - `abcdef.specification` - specification pattern support
+- `abcdef.modulith` - modular architecture validation and documentation
 
 ## How to choose a brick
 
@@ -39,6 +40,7 @@ when the architecture requires them.
 | Commands, queries, buses, and read models                                      | `abcdef.c`               | CQRS plumbing; can be used with or without DDD                              |
 | Reusable business-rule predicates                                              | `abcdef.specification`   | Small standalone brick; fits naturally with `abcdef.d`                      |
 | Lightweight adapters for tests, examples, and local runs                       | `abcdef.in_memory`       | In-memory implementations for `c`, `d`, and `de` abstractions               |
+| Validation and documentation of modular application structure                  | `abcdef.modulith`        | For application developers to enforce and document module boundaries        |
 
 Typical combinations:
 
@@ -67,6 +69,7 @@ Each public brick also has its own focused guide:
 - [`abcdef.de`](src/abcdef/de/README.md) — event-sourced DDD extensions
 - [`abcdef.in_memory`](src/abcdef/in_memory/README.md) — in-memory adapters
 - [`abcdef.specification`](src/abcdef/specification/README.md) — specification pattern
+- [`abcdef.modulith`](src/abcdef/modulith/README.md) — modular architecture validation and documentation
 
 ---
 
