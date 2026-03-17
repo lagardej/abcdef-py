@@ -25,6 +25,10 @@ project. It is intentionally general so teams can map the guidance to the projec
 - Use a consistent maximum line length agreed by the team; default recommendation: 88 characters.
 - Use a consistent comment and documentation style appropriate for the language (e.g., Javadoc-style, docblocks,
   reStructuredText, Markdown). Document public APIs.
+- Documentation is treated as code: Markdown files are formatted with `mdformat` at 88
+  characters. Run `make format-doc` to reformat and `make check-doc` to verify. This
+  applies to all prose documentation; generated files (e.g. `.pytest_cache/README.md`)
+  are excluded.
 
 ## Typing and Interfaces
 
