@@ -135,6 +135,9 @@ class AggregateRoot(ABC):  # noqa: B024
     def __init_subclass__(cls, **kwargs: object) -> None:
         """Enforce aggregate_type declaration on all concrete subclasses.
 
+        Args:
+            **kwargs: Passed through to super().__init_subclass__.
+
         Raises:
             TypeError: If a concrete subclass does not declare a non-empty
                 ``aggregate_type`` directly in its own class body.
