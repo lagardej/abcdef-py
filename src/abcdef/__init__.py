@@ -9,6 +9,7 @@ This root package exports nothing directly. Import from the public subpackages:
     abcdef.in_memory     -- in-memory adapters for tests and local runs
     abcdef.specification -- specification pattern support
     abcdef.modularity      -- modular architecture validation and documentation
+    abcdef.codegen       -- scaffolding tool for modules and features
 """
 
 __all__: list[str] = []

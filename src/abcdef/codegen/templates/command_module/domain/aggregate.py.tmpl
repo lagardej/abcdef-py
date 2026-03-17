@@ -1,0 +1,21 @@
+"""$module_name_pascal aggregate."""
+
+from abcdef.d import AggregateId, AggregateRoot, aggregate, identifier
+
+
+@identifier
+class $aggregate_pascal_id(AggregateId):
+    """Identity for $module_name_pascal aggregate."""
+
+
+@aggregate
+class $aggregate_pascal(AggregateRoot):
+    """$module_name_pascal aggregate root.
+
+    TODO: Add domain fields and invariant-enforcing methods.
+    """
+
+    def __init__(self, aggregate_id: $aggregate_pascal_id) -> None:
+        """Initialise $module_name_pascal aggregate."""
+        super().__init__(aggregate_id)
+        # TODO: initialise domain fields

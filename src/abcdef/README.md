@@ -32,7 +32,9 @@ abcdef/
 ├── d/                 # DDD — aggregates, value objects, repositories
 ├── de/                # DDD + ES — event-sourced aggregates, stores, repositories
 ├── in_memory/         # In-memory implementations for testing and development
-└── specification/     # Specification pattern — Specification ABC and combinators
+├── specification/     # Specification pattern — Specification ABC and combinators
+├── modularity/        # Modular architecture validation and documentation
+└── codegen/           # Scaffolding tool — generate module and feature boilerplate
 ```
 
 ## Per-Brick Guides
@@ -46,6 +48,9 @@ imports, and intended usage:
 - [`de/`](de/README.md) — event-sourced DDD extensions
 - [`in_memory/`](in_memory/README.md) — in-memory adapters
 - [`specification/`](specification/README.md) — specification pattern
+- [`modularity/`](modularity/README.md) — modular architecture validation and
+  documentation
+- [`codegen/`](codegen/README.md) — scaffolding tool for modules and features
 
 ## Core Concepts
 

@@ -1,0 +1,27 @@
+"""$use_case_pascal use case."""
+
+from dataclasses import dataclass
+
+from abcdef.c import Command, CommandHandler, command, command_handler
+
+
+@command
+@dataclass(frozen=True)
+class $use_case_pascal(Command):
+    """Command to $use_case_name.
+
+    TODO: Add command fields.
+    """
+
+
+@command_handler
+class ${use_case_pascal}Handler(CommandHandler[$use_case_pascal]):
+    """Handles $use_case_pascal command.
+
+    TODO: Inject repository via __init__ and implement handle().
+    """
+
+    def handle(self, command: $use_case_pascal) -> None:
+        """Execute $use_case_name."""
+        # TODO: load aggregate, apply behaviour, save
+        raise NotImplementedError

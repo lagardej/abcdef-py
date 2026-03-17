@@ -1,0 +1,29 @@
+"""$use_case_pascal query."""
+
+from dataclasses import dataclass
+
+from abcdef.c import Query, QueryHandler, query, query_handler
+
+from $module_name.projection.document import $document_pascal
+
+
+@query
+@dataclass(frozen=True)
+class $use_case_pascal(Query):
+    """Query for $use_case_name.
+
+    TODO: Add query parameters.
+    """
+
+
+@query_handler
+class ${use_case_pascal}Handler(QueryHandler[$use_case_pascal, $document_pascal]):
+    """Handles $use_case_pascal query.
+
+    TODO: Inject document store via __init__ and implement handle().
+    """
+
+    def handle(self, query: $use_case_pascal) -> $document_pascal:
+        """Execute $use_case_name."""
+        # TODO: read from document store and return result
+        raise NotImplementedError

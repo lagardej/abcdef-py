@@ -1,0 +1,20 @@
+"""$module_name_pascal repository interface."""
+
+from abc import abstractmethod
+
+from abcdef.d import Repository, repository
+
+from $module_name.domain.aggregate import $aggregate_pascal, $aggregate_pascal_id
+
+
+@repository
+class $aggregate_pascal_repository(Repository[$aggregate_pascal, $aggregate_pascal_id]):
+    """Repository interface for $aggregate_pascal."""
+
+    @abstractmethod
+    def get(self, aggregate_id: $aggregate_pascal_id) -> $aggregate_pascal | None:
+        """Load $aggregate_pascal by identity."""
+
+    @abstractmethod
+    def save(self, aggregate: $aggregate_pascal) -> None:
+        """Persist $aggregate_pascal."""

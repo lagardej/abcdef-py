@@ -26,6 +26,7 @@ Core package areas:
 - `abcdef.in_memory` - in-memory adapters for tests and local runs
 - `abcdef.specification` - specification pattern support
 - `abcdef.modularity` - modular architecture validation and documentation
+- `abcdef.codegen` - scaffolding tool for modules and features (`abcdef-gen` CLI)
 
 ## How to choose a brick
 
@@ -76,6 +77,8 @@ Each public brick also has its own focused guide:
 - [`abcdef.specification`](src/abcdef/specification/README.md) — specification pattern
 - [`abcdef.modularity`](src/abcdef/modularity/README.md) — modular architecture
   validation and documentation
+- [`abcdef.codegen`](src/abcdef/codegen/README.md) — scaffolding tool for modules and
+  features
 
 ______________________________________________________________________
 

@@ -15,3 +15,13 @@ Each session captures:
 - **Lessons** — What worked, what could be better
 
 Collected at the end of each feature for reflection.
+
+______________________________________________________________________
+
+## Sessions
+
+- **2026-03-17** — [modulith_implementation](2026-03-17_modulith_implementation.md)\
+  Implement `abcdef.modularity` — modular architecture validation and documentation
+
+- **2026-03-17** — [codegen_implementation](2026-03-17_codegen_implementation.md)\
+  Implement `abcdef.codegen` — scaffolding tool with `abcdef-gen` CLI

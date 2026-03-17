@@ -1,0 +1,14 @@
+"""$module_name_pascal document (read model)."""
+
+from dataclasses import dataclass
+
+from abcdef.c import Document, document
+
+
+@document
+@dataclass(frozen=True)
+class $document_pascal(Document):
+    """Read model for $module_name_pascal.
+
+    TODO: Add projection fields.
+    """
