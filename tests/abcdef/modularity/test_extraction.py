@@ -1,5 +1,6 @@
 """Tests for abcdef.modularity.extraction — public API extraction."""
 
+import ast
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -243,4 +244,132 @@ _private = 2
     assert "os" in names
     assert "X" in names
     assert "_private" not in names
+
+
+def test___all_non_list_falls_back_to_inference() -> None:
+    """If __all__ is not an ast.List (e.g., a tuple), fallback inference is used."""
+    src = """__all__ = ('A',)
+from .pkg import X as Y
+Z = 1
+"""
+    tree = ast.parse(src)
+    extractor = PublicApiExtractor(Path("."))
+    names = extractor._get_exported_names(tree)
+
+    # Should fall back and include the import alias and assignment name
+    assert "Y" in names
+    assert "Z" in names
+
+
+def test_non_class_exports_are_ignored_and_marker_priority() -> None:
+    """Only class objects are categorised; marker priority is respected."""
+    import sys
+
+    with TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir) / "root"
+        pkg = root / "mixpkg"
+        pkg.mkdir(parents=True)
+
+        code = """from abcdef.c.markers import command
+
+CONST = 1
+
+@command
+class Cmd:
+    pass
+
+class NotAClass:
+    pass
+
+__all__ = ["CONST", "Cmd", "NotAClass"]
+"""
+        (pkg / "__init__.py").write_text(code, encoding="utf-8")
+
+        sys.path.insert(0, str(Path(tmpdir)))
+        try:
+            extractor = PublicApiExtractor(pkg)
+            api = extractor.extract()
+
+            # Only the class Cmd should be categorised as a command
+            assert any(s.name == "Cmd" for s in api.commands)
+            # CONST is not a class and should not appear in api.symbols
+            assert all(s.name != "CONST" for s in api.symbols)
+        finally:
+            sys.path.remove(str(Path(tmpdir)))
+            for m in list(sys.modules):
+                if m.startswith("root"):
+                    del sys.modules[m]
+
+
+def test_import_infers_dotted_import_package_name() -> None:
+    """Import of a dotted module should infer the top-level package name."""
+    src = """import package.module
+"""
+    tree = ast.parse(src)
+    extractor = PublicApiExtractor(Path("."))
+    names = extractor._get_exported_names(tree)
+
+    assert "package" in names
+
+
+def test_no_init_returns_empty() -> None:
+    """If the package has no __init__.py the extractor returns an empty API."""
+    with TemporaryDirectory() as tmpdir:
+        module_path = Path(tmpdir) / "pkg"
+        module_path.mkdir(parents=True)
+
+        extractor = PublicApiExtractor(module_path)
+        api = extractor.extract()
+
+        assert api.symbols == frozenset()
+        assert api.commands == frozenset()
+        assert api.queries == frozenset()
+        assert api.events == frozenset()
+        assert api.spis == frozenset()
+
+
+def test_ddd_and_modularity_markers_are_categorised() -> None:
+    """Classes with __ddd_type__ and __modularity_type__ markers are categorised."""
+    import sys
+
+    with TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir) / "root"
+        pkg = root / "markerspkg"
+        pkg.mkdir(parents=True)
+
+        code = """class E:
+    __ddd_type__ = 'domain_event'
+
+class S:
+    __modularity_type__ = 'spi'
+
+__all__ = ['E', 'S']
+"""
+        (pkg / "__init__.py").write_text(code, encoding="utf-8")
+
+        sys.path.insert(0, str(Path(tmpdir)))
+        try:
+            extractor = PublicApiExtractor(pkg)
+            api = extractor.extract()
+
+            assert any(s.name == "E" for s in api.events)
+            assert any(s.name == "S" for s in api.spis)
+        finally:
+            sys.path.remove(str(Path(tmpdir)))
+            for m in list(sys.modules):
+                if m.startswith("root"):
+                    del sys.modules[m]
+
+
+def test___all_ignores_non_constant_entries() -> None:
+    """When __all__ contains non-Constant entries, only Constant values are used."""
+    src = """__all__ = [A, 'B']
+A = 1
+"""
+    tree = ast.parse(src)
+    extractor = PublicApiExtractor(Path("."))
+    names = extractor._get_exported_names(tree)
+
+    assert names == {"B"}
+
 

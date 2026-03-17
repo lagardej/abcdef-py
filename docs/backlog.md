@@ -32,12 +32,6 @@ Use this template to add or triage backlog items. Keep entries concise and inclu
 
 ## Tasks
 
-- **`modularity/extraction.py` — add unit tests for AST extraction and marker inspection**
-  Type: Task · Priority: High · Created: 2026-03-17
-  Description: Add tests covering `__all__` present vs absent, import success vs ImportError fallback, marker resolution on classes and base classes, and different import styles so the AST inference and runtime marker inspection branches are exercised.
-  Files: `src/abcdef/modularity/extraction.py`, tests → `tests/abcdef/modularity/test_extraction.py`
-  Rationale: Largest uncovered area (≈44 missing statements). Tests here yield the biggest coverage improvement.
-
 - **`modularity/validation_boundary.py` — add unit tests for boundary validation**
   Type: Task · Priority: High · Created: 2026-03-17
   Description: Add tests covering each validation rule and failure modes (edge values, multi-violation cases).
