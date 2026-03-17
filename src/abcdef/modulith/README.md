@@ -106,6 +106,101 @@ The `generate_docs()` method produces Markdown describing:
 
 This focuses documentation on *what a module does* and *how it communicates*, not *how it's implemented*.
 
+## Example: Generated Documentation
+
+### Module Declarations
+
+Two example modules in an application:
+
+**`myapp/orders/__init__.py`** (command module):
+```python
+"""Order management — create, modify, and fulfill orders."""
+
+from .commands import CreateOrder, FulfillOrder
+from .events import OrderCreated, OrderFulfilled
+
+__modulith__ = {
+    "type": "command_module",
+    "name": "orders",
+}
+
+__all__ = ["CreateOrder", "FulfillOrder", "OrderCreated", "OrderFulfilled"]
+```
+
+**`myapp/reports/__init__.py`** (query module):
+```python
+"""Order reports and analytics — read-only views of order data."""
+
+from .queries import OrderSummary, OrderHistory
+from .projections import OrderDocument
+
+__modulith__ = {
+    "type": "query_module",
+    "name": "reports",
+}
+
+__all__ = ["OrderSummary", "OrderHistory", "OrderDocument"]
+```
+
+### Generated Documentation
+
+Running `modulith.generate_docs()` produces:
+
+```markdown
+# Module Documentation
+
+This document describes the public API and inter-module communication
+for all modules in the application. Implementation details are omitted.
+
+## Modules
+
+- [orders](#orders)
+- [reports](#reports)
+
+### orders
+
+**Type:** Command Module
+
+Order management — create, modify, and fulfill orders.
+
+#### Public API
+
+**Commands:**
+
+- `CreateOrder` — myapp.orders.commands.CreateOrder
+- `FulfillOrder` — myapp.orders.commands.FulfillOrder
+
+**Events Published:**
+
+- `OrderCreated` — myapp.orders.events.OrderCreated
+- `OrderFulfilled` — myapp.orders.events.OrderFulfilled
+
+### reports
+
+**Type:** Query Module
+
+Order reports and analytics — read-only views of order data.
+
+#### Public API
+
+**Queries:**
+
+- `OrderSummary` — myapp.reports.queries.OrderSummary
+- `OrderHistory` — myapp.reports.queries.OrderHistory
+```
+
+### What's NOT Shown
+
+The generated documentation **intentionally omits**:
+- Aggregate classes (`Order`, `OrderItem`)
+- Value objects (`OrderId`, `Money`)
+- Repositories and stores
+- Domain logic and invariants
+- Layer structure (domain, application, infrastructure)
+- Internal implementation types
+
+This keeps the documentation focused on the public contract: what commands trigger actions, what queries retrieve data, what events flow between modules.
+
 ## Module Discovery
 
 The `discover()` method scans the project for packages declaring `__modulith__` and loads them as `CommandModule` or `QueryModule` objects. It:
