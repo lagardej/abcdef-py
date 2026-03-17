@@ -1,9 +1,4 @@
-"""de -- DDD + Event Sourcing intersection.
-
-Contains concepts that belong to both DDD and Event Sourcing:
-event-sourced aggregates, repositories, event stores, aggregate records,
-and the EventSourcedDomainEvent hierarchy.
-"""
+"""Event-sourced extensions that build on the DDD model from abcdef.d."""
 
 from .aggregate_store import AggregateRecord, AggregateStore, VersionConflictError
 from .event_sourced_aggregate import (

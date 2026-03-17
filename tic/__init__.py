@@ -1,1 +1,0 @@
-"""TIC — Terra Invicta Companion."""

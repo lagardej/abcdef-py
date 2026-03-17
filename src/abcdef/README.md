@@ -1,5 +1,10 @@
 # ABCDEF — A Basic CQRS, DDD, Event-Sourcing Framework
 
+Technical package reference for `abcdef`.
+
+For the project overview, project goals, and development workflow, see the
+[root README](../../README.md).
+
 Minimal framework providing the plumbing for [event-sourced](https://martinfowler.com/eaaDev/EventSourcing.html),
 [domain-driven](https://martinfowler.com/bliki/DomainDrivenDesign.html) applications using
 [CQRS](https://martinfowler.com/bliki/CQRS.html) patterns.
@@ -25,18 +30,30 @@ abcdef/
 └── specification/     # Specification pattern — Specification ABC and combinators
 ```
 
+## Per-Brick Guides
+
+Each public subpackage has a focused guide describing its purpose,
+dependencies, public imports, and intended usage:
+
+- [`b/`](b/README.md) — shared foundational primitives
+- [`c/`](c/README.md) — CQRS building blocks
+- [`d/`](d/README.md) — DDD building blocks
+- [`de/`](de/README.md) — event-sourced DDD extensions
+- [`in_memory/`](in_memory/README.md) — in-memory adapters
+- [`specification/`](specification/README.md) — specification pattern
+
 ## Core Concepts
 
 Each concept lives in its package (`c/`, `d/`, `de/`, etc.).
 Shared primitives live in `b/`:
 
-| Package          | Paradigms | Contents                                                                                                                                                                                         |
-|------------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `b/`             | Shared    | [`Event`](#event), [`Message`](#message), [`Result`](#result), [`ClassRegistry`](#classregistry)                                                                                                  |
-| `c/`             | CQRS      | [`Command`](#command), [`CommandHandler`](#commandhandler), [`Query`](#query), [`QueryHandler`](#queryhandler), [`MessageBus` / `CommandBus` / `QueryBus` / `EventBus`](#messagebus), [`Document`](#document), [`DocumentStore`](#documentstore), [`Projector`](#projector) |
-| `d/`             | DDD       | [`AggregateRoot`](#aggregateroot), [`AggregateId`](#aggregateid), [`EventEmittingAggregate`](#eventemittingaggregate), [`DomainEvent`](#domainevent), [`DomainEventRegistry`](#domaineventregistry), [`ValueObject`](#valueobject), [`Repository`](#repository) |
-| `de/`            | DDD + ES  | [`EventSourcedAggregate`](#eventsourcedaggregate), [`AggregateState`](#aggregatestate), [`EventStore`](#eventstore), [`AggregateStore`](#aggregatestore), [`EventSourcedRepository`](#eventsourcedrepository), [`EventSourcedDomainEvent`](#eventsourceddomainevent), [`AggregateRegistry`](#aggregateregistry), [`EventSourcedDomainEventRegistry`](#eventsourceddomaineventregistry) |
-| `specification/` | DDD       | [`Specification`](#specification) ABC, `&`/`\|`/`~` combinators, `@specification` marker                                                                                                        |
+| Package          | Paradigms | Contents                                                                                                                                                                               |
+|------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `b/`             | Shared    | `Event`, `Message`, `Result`, `ClassRegistry`                                                                                                                                          |
+| `c/`             | CQRS      | `Command`, `CommandHandler`, `Query`, `QueryHandler`, `MessageBus` / `CommandBus` / `QueryBus` / `EventBus`, `Document`, `DocumentStore`, `Projector`                                  |
+| `d/`             | DDD       | `AggregateRoot`, `AggregateId`, `EventEmittingAggregate`, `DomainEvent`, `DomainEventRegistry`, `ValueObject`, `Repository`                                                            |
+| `de/`            | DDD + ES  | `EventSourcedAggregate`, `AggregateState`, `EventStore`, `AggregateStore`, `EventSourcedRepository`, `EventSourcedDomainEvent`, `AggregateRegistry`, `EventSourcedDomainEventRegistry` |
+| `specification/` | DDD       | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker                                                                                                                 |
 
 <a id="event"></a>
 - **Event** — Immutable record of something that happened in the domain
@@ -114,7 +131,7 @@ Message
         └── EventSourcedDomainEvent
 ```
 
-[`Message`](#message) · [`Command`](#command) · [`CommandHandler`](#commandhandler) · [`Query`](#query) · [`QueryHandler`](#queryhandler) · [`Event`](#event) · [`DomainEvent`](#domainevent) · [`EventSourcedDomainEvent`](#eventsourceddomainevent)
+`Message` · `Command` · `CommandHandler` · `Query` · `QueryHandler` · `Event` · `DomainEvent` · `EventSourcedDomainEvent`
 
 ### Aggregates
 
@@ -124,7 +141,7 @@ AggregateRoot
     └── EventSourcedAggregate
 ```
 
-[`AggregateRoot`](#aggregateroot) · [`EventEmittingAggregate`](#eventemittingaggregate) · [`EventSourcedAggregate`](#eventsourcedaggregate)
+`AggregateRoot` · `EventEmittingAggregate` · `EventSourcedAggregate`
 
 ## Architecture Markers
 

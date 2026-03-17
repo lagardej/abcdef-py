@@ -1,8 +1,4 @@
-"""d -- DDD building blocks.
-
-Base classes and abstractions for Domain-Driven Design concepts: aggregates, value
-objects, repositories, and domain events.
-"""
+"""DDD building blocks for aggregates, value objects, repositories, and domain events."""
 
 from .aggregate import AggregateId, AggregateRoot
 from .domain_event import DomainEvent, DomainEventRegistry

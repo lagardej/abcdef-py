@@ -1,28 +1,87 @@
-# TIC — Terra Invicta Companion
+# ABCDEF — A Basic CQRS, DDD, Event-Sourcing Framework
 
-### *TIC Isn't Competent*
+ABCDEF is a lightweight Python framework with building blocks for
+[CQRS](https://martinfowler.com/bliki/CQRS.html),
+[domain-driven design](https://martinfowler.com/bliki/DomainDrivenDesign.html),
+and [event sourcing](https://martinfowler.com/eaaDev/EventSourcing.html).
 
-A personal companion tool for [Terra Invicta](https://store.steampowered.com/app/1176470/Terra_Invicta/), filling the
-gaps in the game's UI with data visualisation and historical trend tracking.
----
+Each paradigm is independent. `abcdef.d` provides aggregates, value objects,
+and repositories with no knowledge of event sourcing or CQRS. `abcdef.c`
+provides commands, queries, and buses with no knowledge of the domain model.
+`abcdef.de` is the glue: it extends `abcdef.d` with event-sourcing mechanics
+and wires aggregates to the event store. Use only what you need — DDD without
+event sourcing, CQRS without DDD, or all three together.
 
 ## Purpose
 
-Terra Invicta surfaces a lot of data but offers limited tools for analysing it over time. TIC complements the in-game UI
-by providing:
+ABCDEF provides reusable primitives and abstractions so applications can focus on domain behaviour instead of framework
+wiring.
 
-- Visualisation of game state data
-- Historical trend tracking across saves
-- Custom views for information the base UI doesn't expose clearly
+Core package areas:
+
+- `abcdef.b` - base primitives (event/message/registry/result)
+- `abcdef.c` - CQRS building blocks
+- `abcdef.d` - DDD building blocks
+- `abcdef.de` - event-sourced DDD integration
+- `abcdef.in_memory` - in-memory adapters for tests and local runs
+- `abcdef.specification` - specification pattern support
+
+## How to choose a brick
+
+Start with the smallest brick that matches your needs, then add others only
+when the architecture requires them.
+
+| If you want...                                                                 | Use...                   | Notes                                                                       |
+|--------------------------------------------------------------------------------|--------------------------|-----------------------------------------------------------------------------|
+| Shared message and event primitives                                            | `abcdef.b`               | Foundation layer used by the rest of the framework                          |
+| A domain model with aggregates, value objects, repositories, and domain events | `abcdef.d`               | DDD only; no CQRS or event-sourcing mechanics                               |
+| Event sourcing on top of the DDD model                                         | `abcdef.de` + `abcdef.d` | `abcdef.de` extends `abcdef.d`; use it when events are your source of truth |
+| Commands, queries, buses, and read models                                      | `abcdef.c`               | CQRS plumbing; can be used with or without DDD                              |
+| Reusable business-rule predicates                                              | `abcdef.specification`   | Small standalone brick; fits naturally with `abcdef.d`                      |
+| Lightweight adapters for tests, examples, and local runs                       | `abcdef.in_memory`       | In-memory implementations for `c`, `d`, and `de` abstractions               |
+
+Typical combinations:
+
+- `abcdef.d` for DDD without event sourcing
+- `abcdef.d` + `abcdef.de` for event-sourced domain models
+- `abcdef.c` + `abcdef.d` when you want CQRS around a DDD model
+- `abcdef.c` + `abcdef.d` + `abcdef.de` for CQRS with event-sourced aggregates
+- `abcdef.in_memory` alongside any of the above for testing and local composition
+
+## Package Reference
+
+The canonical project overview lives in this README. The detailed package
+reference lives in [`src/abcdef/README.md`](src/abcdef/README.md), including:
+
+- package structure
+- core concepts and class hierarchies
+- architecture markers
+- public API boundaries
+- event-sourcing notes
+
+Each public brick also has its own focused guide:
+
+- [`abcdef.b`](src/abcdef/b/README.md) — shared foundational primitives
+- [`abcdef.c`](src/abcdef/c/README.md) — CQRS building blocks
+- [`abcdef.d`](src/abcdef/d/README.md) — DDD building blocks
+- [`abcdef.de`](src/abcdef/de/README.md) — event-sourced DDD extensions
+- [`abcdef.in_memory`](src/abcdef/in_memory/README.md) — in-memory adapters
+- [`abcdef.specification`](src/abcdef/specification/README.md) — specification pattern
 
 ---
 
 ## Project Goals
 
-Beyond the tool itself, TIC is a **learning project for AI-assisted development:**
+ABCDEF is a Python port of a private Java library of the same purpose. Beyond the port itself, this project is also a
+**learning exercise for AI-assisted development in an unfamiliar language:** the AI helped translate idioms from Java to
+Python, catch design errors, and generate implementations and documentation.
 
-- The developer makes overall architecture, design, and feature decisions.
-- The AI agent generates implementations, refactors, and documentation.
+Roles are divided as follows:
+
+| Role      | Responsibilities                                                     |
+|-----------|----------------------------------------------------------------------|
+| Developer | Overall architecture, design, and feature decisions                  |
+| AI agent  | Ports from Java, generates implementations, refactors, and documentation; flags design issues |
 
 ---
 
@@ -60,8 +119,7 @@ make test V=0
 make ci V=2
 ```
 
-`check-format`, `check-types`, `lint`, `fix`, `format`, and `mutate` are unaffected — they already only print what is
-relevant.
+`check-format`, `check-types`, `lint`, `fix`, `format`, and `mutate` are unaffected — they already only print what is relevant.
 
 ### Logs
 

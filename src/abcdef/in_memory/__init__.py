@@ -1,4 +1,4 @@
-"""in_memory — in-memory implementations of abcdef.core abstractions."""
+"""In-memory adapters for testing, examples, and lightweight local runs."""
 
 from .aggregate_store import InMemoryAggregateStore
 from .document_store import InMemoryDocumentStore

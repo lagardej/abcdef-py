@@ -1,8 +1,4 @@
-"""c -- CQRS building blocks.
-
-Base classes, marker interfaces, and bus abstractions for Command/Query Responsibility
-Segregation.
-"""
+"""CQRS building blocks for commands, queries, buses, and read models."""
 
 from .command import Command, CommandHandler
 from .document import Document

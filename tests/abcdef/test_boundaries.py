@@ -35,7 +35,7 @@ from pathlib import Path
 # Paths
 # ---------------------------------------------------------------------------
 
-_ABCDEF = Path(__file__).parents[2] / "abcdef"
+_ABCDEF = Path(__file__).parents[2] / "src" / "abcdef"
 _B = _ABCDEF / "b"
 _C = _ABCDEF / "c"
 _D = _ABCDEF / "d"

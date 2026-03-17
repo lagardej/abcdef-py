@@ -1,4 +1,4 @@
-"""b -- Basic primitives: abstract base classes and marker interfaces."""
+"""Shared foundational primitives for the rest of abcdef."""
 
 from .event import Event
 from .message import Message
