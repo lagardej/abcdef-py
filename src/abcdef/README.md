@@ -57,19 +57,14 @@ imports, and intended usage:
 Each concept lives in its package (`c/`, `d/`, `de/`, etc.). Shared primitives live in
 `b/`:
 
-| Package | Paradigms | Contents |
-|------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `b/` | Shared | `Event`, `Message`, `Result`, `ClassRegistry` | | `c/` | CQRS |
-`Command`, `CommandHandler`, `Query`, `QueryHandler`, `MessageBus` / `CommandBus` /
-`QueryBus` / `EventBus`, `Document`, `DocumentStore`, `Projector` | | `d/` | DDD |
-`AggregateRoot`, `AggregateId`, `EventEmittingAggregate`, `DomainEvent`,
-`DomainEventRegistry`, `ValueObject`, `Repository` | | `de/` | DDD + ES |
-`EventSourcedAggregate`, `AggregateState`, `EventStore`, `AggregateStore`,
-`EventSourcedRepository`, `EventSourcedDomainEvent`, `AggregateRegistry`,
-`EventSourcedDomainEventRegistry` | | `in_memory/` | Implementations |
-`InMemoryRepository`, `InMemoryDocumentStore`, `InMemoryEventBus`, `InMemoryEventStore`,
-`InMemoryAggregateStore` | | `specification/` | — | `Specification` ABC, `&`/`\|`/`~`
-combinators, `@specification` marker |
+| Package          | Paradigm        | Key types                                                                            |
+| ---------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `b/`             | Shared          | `Event`, `Message`, `Result`, `ClassRegistry`                                        |
+| `c/`             | CQRS            | `Command`, `CommandHandler`, `Query`, `QueryHandler`, buses, `Document`, `Projector` |
+| `d/`             | DDD             | `AggregateRoot`, `AggregateId`, `DomainEvent`, `ValueObject`, `Repository`           |
+| `de/`            | DDD + ES        | `EventSourcedAggregate`, `EventStore`, `AggregateStore`, `EventSourcedRepository`    |
+| `in_memory/`     | Implementations | `InMemoryRepository`, `InMemoryDocumentStore`, `InMemoryEventStore`                  |
+| `specification/` | —               | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification`                      |
 
 <a id="event"></a>
 
@@ -191,13 +186,12 @@ building blocks for domain models.
 
 Each paradigm package exposes decorators for runtime annotation:
 
-| Marker | Package | Attribute set |
-|----------------------------------------------------------------------------------------------------------|------------------|-----------------|
-| `@command`, `@query`, `@command_handler`, `@query_handler`, `@document`,
-`@document_store`, `@projector` | `c/` | `__cqrs_type__` | | `@aggregate`,
-`@value_object`, `@repository`, `@domain_service`, `@factory`, `@identifier` | `d/` |
-`__ddd_type__` | | `@event_store`, `@aggregate_store` | `de/` | `__de_type__` | |
-`@specification` | `specification/` | `__specification_type__` |
+| Markers                                                                                                 | Package          | Attribute                |
+| ------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------ |
+| `@command`, `@query`,`@command_handler`, `@query_handler`, `@document`, `@document_store`, `@projector` | `c/`             | `__cqrs_type__`          |
+| `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@factory`, `@identifier`              | `d/`             | `__ddd_type__`           |
+| `@event_store`, `@aggregate_store`                                                                      | `de/`            | `__de_type__`            |
+| `@specification`                                                                                        | `specification/` | `__specification_type__` |
 
 `_get_marker(cls, attr)` (from `abcdef/markers.py`) inspects a class or its parents for
 a marker attribute.

@@ -352,13 +352,14 @@ their layer structure. Sub-packages are allowed if they reflect structural needs
 example, `interface/cli` for CLI commands, `interface/web` for web routes), but public
 exports must be declared explicitly in a module's public API declaration.
 
-| Concept | File/Path Pattern |
-|-----------------------------|---------------------------------------| | Aggregate |
-`domain/<aggregate>` | | Aggregate repository/ABC | `domain/<aggregate>_repository` | |
-Use case command + handler | `application/<use_case>` | | Concrete implementation |
-`infrastructure/<tech>_<concept>` | | Query handler | `application/<query>` | | CLI
-command | `interface/cli/<command>` | | Web route | `interface/web/<route>` | | Module
-public API | Module root export / public API file |
+- **Aggregate** — `domain/<aggregate>`
+- **Aggregate repository/ABC** — `domain/<aggregate>_repository`
+- **Use case command + handler** — `application/<use_case>`
+- **Concrete implementation** — `infrastructure/<tech>_<concept>`
+- **Query handler** — `application/<query>`
+- **CLI command** — `interface/cli/<command>`
+- **Web route** — `interface/web/<route>`
+- **Module public API** — module root export / public API file
 
 ## Defensive Parsing (Abstract)
 
@@ -431,17 +432,20 @@ Keep related code together. Separate only when there is a genuine reason.
 
 ## Glossary
 
-| Term | Meaning |
-|------------------|------------------------------------------------------------------------------------------|
-| *Aggregate Root* | The entry point to an aggregate. All state changes go through it. |
-| *CQRS* | Command Query Responsibility Segregation. Separate write (commands) from read
-(queries). | | *DDD* | Domain-Driven Design. Organise code around domain language and
-boundaries. | | *DTO* | Data Transfer Object. Minimal data carrier (no business logic).
-| | *Event Sourcing* | Store changes as events; derive state by replaying. Events are
-the system of record. | | *Event* | An immutable record of something that happened.
-Source of truth for state changes. | | *Message Bus* | Publish/subscribe for events.
-Decouples modules. | | *Module* | A boundary within which models are consistent. No
-cross-module imports. | | *Projection* | A materialised read model derived from events.
-Optimised for queries. | | *Repository* | Abstracts persistence. Loads/saves aggregates;
-handles event dispatch. | | *Use Case* | An application-layer operation (command or
-query handler). |
+- ***Aggregate Root*** — the entry point to an aggregate; all state changes go through
+  it
+- ***CQRS*** — Command Query Responsibility Segregation; separate write (commands) from
+  read (queries)
+- ***DDD*** — Domain-Driven Design; organise code around domain language and boundaries
+- ***DTO*** — Data Transfer Object; minimal data carrier (no business logic)
+- ***Event Sourcing*** — store changes as events; derive state by replaying; events are
+  the system of record
+- ***Event*** — an immutable record of something that happened; source of truth for
+  state changes
+- ***Message Bus*** — publish/subscribe for events; decouples modules
+- ***Module*** — a boundary within which models are consistent; no cross-module imports
+- ***Projection*** — a materialised read model derived from events; optimised for
+  queries
+- ***Repository*** — abstracts persistence; loads/saves aggregates; handles event
+  dispatch
+- ***Use Case*** — an application-layer operation (command or query handler)

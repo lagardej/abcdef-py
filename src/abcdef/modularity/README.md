@@ -260,12 +260,13 @@ def test_module_boundaries():
 
 Modularity recognises markers from the framework:
 
-| Marker | Attribute | From | Purpose | |---|---|---|---| | `@command` |
-`__cqrs_type__ = "command"` | `abcdef.c.markers` | Command in CQRS | | `@query` |
-`__cqrs_type__ = "query"` | `abcdef.c.markers` | Query in CQRS | | `@domain_event` |
-`__ddd_type__ = "domain_event"` | `abcdef.d.markers` | Domain event in DDD | | `@spi` |
-`__modularity_type__ = "spi"` | `abcdef.modularity.markers` | Service Provider Interface
-|
+| Marker          | Attribute                       | From                        | Purpose                    |
+| --------------- | ------------------------------- | --------------------------- | -------------------------- |
+| `@command`      | `__cqrs_type__ = "command"`     | `abcdef.c.markers`          | Command in CQRS            |
+| `@query`        | `__cqrs_type__ = "query"`       | `abcdef.c.markers`          | Query in CQRS              |
+| `@domain_event` | `__ddd_type__ = "domain_event"` | `abcdef.d.markers`          | Domain event in DDD        |
+| `@spi`          | `__modularity_type__ = "spi"`   | `abcdef.modularity.markers` | Service Provider Interface |
+|                 |                                 |                             |                            |
 
 No new decorators are needed for most code; the framework markers are sufficient. `@spi`
 is the only modularity-specific marker and is optional (use it to explicitly mark

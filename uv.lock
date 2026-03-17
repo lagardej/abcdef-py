@@ -16,6 +16,7 @@ source = { editable = "." }
 dev = [
     { name = "coverage" },
     { name = "mdformat" },
+    { name = "mdformat-gfm" },
     { name = "mdformat-pyproject" },
     { name = "mutmut" },
     { name = "pyright" },
@@ -30,8 +31,9 @@ dev = [
 [package.metadata.requires-dev]
 dev = [
     { name = "coverage", extras = ["toml"], specifier = ">=7.0,<8" },
-    { name = "mdformat", specifier = ">=0.7,<1" },
-    { name = "mdformat-pyproject", specifier = ">=0.0.1" },
+    { name = "mdformat", specifier = ">=1.0.0,<2" },
+    { name = "mdformat-gfm", specifier = ">=1.0.0,<2" },
+    { name = "mdformat-pyproject", specifier = ">=0.1.1,<1" },
     { name = "mutmut", specifier = ">=3.3.0,<4" },
     { name = "pyright", specifier = ">=1.1.408,<2" },
     { name = "pytest", specifier = ">=9.0.2,<10" },
@@ -246,26 +248,41 @@ linkify = [
 
 [[package]]
 name = "mdformat"
-version = "0.7.22"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markdown-it-py" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fc/eb/b5cbf2484411af039a3d4aeb53a5160fae25dd8c84af6a4243bc2f3fedb3/mdformat-0.7.22.tar.gz", hash = "sha256:eef84fa8f233d3162734683c2a8a6222227a229b9206872e6139658d99acb1ea", size = 34610, upload-time = "2025-01-30T18:00:51.418Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/05/32b5e14b192b0a8a309f32232c580aefedd9d06017cb8fe8fce34bec654c/mdformat-1.0.0.tar.gz", hash = "sha256:4954045fcae797c29f86d4ad879e43bb151fa55dbaf74ac6eaeacf1d45bb3928", size = 56953, upload-time = "2025-10-16T12:05:03.695Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f2/6f/94a7344f6d634fe3563bea8b33bccedee37f2726f7807e9a58440dc91627/mdformat-0.7.22-py3-none-any.whl", hash = "sha256:61122637c9e1d9be1329054f3fa216559f0d1f722b7919b060a8c2a4ae1850e5", size = 34447, upload-time = "2025-01-30T18:00:48.708Z" },
+    { url = "https://files.pythonhosted.org/packages/54/9a/8fe71b95985ca7a4001effbcc58e5a07a1f2a2884203f74dcf48a3b08315/mdformat-1.0.0-py3-none-any.whl", hash = "sha256:bca015d65a1d063a02e885a91daee303057bc7829c2cd37b2075a50dbb65944b", size = 53288, upload-time = "2025-10-16T12:05:02.607Z" },
+]
+
+[[package]]
+name = "mdformat-gfm"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markdown-it-py" },
+    { name = "mdformat" },
+    { name = "mdit-py-plugins" },
+    { name = "wcwidth" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/56/6f/a626ebb142a290474401b67e2d61e73ce096bf7798ee22dfe6270f924b3f/mdformat_gfm-1.0.0.tar.gz", hash = "sha256:d1d49a409a6acb774ce7635c72d69178df7dce1dc8cdd10e19f78e8e57b72623", size = 10112, upload-time = "2025-10-16T09:12:22.402Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e6/18/6bc2189b744dd383cad03764f41f30352b1278d2205096f77a29c0b327ad/mdformat_gfm-1.0.0-py3-none-any.whl", hash = "sha256:7305a50efd2a140d7c83505b58e3ac5df2b09e293f9bbe72f6c7bee8c678b005", size = 10970, upload-time = "2025-10-16T09:12:21.276Z" },
 ]
 
 [[package]]
 name = "mdformat-pyproject"
-version = "0.0.2"
+version = "0.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mdformat" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/b0/6c7342afcb5518891f3c908f9e9f73fc399b727fe5b8133b31c8d468eae6/mdformat_pyproject-0.0.2.tar.gz", hash = "sha256:1638c4be0d239f49eea72089aafd06dc4ec603068ccc4868f91f0958b15b82c8", size = 5550, upload-time = "2024-11-20T19:39:13.301Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a7/33/4c7400f8d2ed273d675e72f55c33e72e08e6224a35f184ffca8ae6d40d53/mdformat_pyproject-0.1.1.tar.gz", hash = "sha256:be16ed754d42db5f5e376ccb9cdbdfefc7750f7f77eadddde37f99ab87272b54", size = 5654, upload-time = "2025-10-29T16:10:24.651Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bb/d7/0598e8de54d439ee7deda6bcba7816b36aaf28c26542ff9a0510cc29c079/mdformat_pyproject-0.0.2-py3-none-any.whl", hash = "sha256:e0791a335e53264d5589be353c519e230ac555b64fa076005bc64ca037717710", size = 4761, upload-time = "2024-11-20T19:39:11.879Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/31/113382823075056a46de42b21ed31372908f30d353c11ca01ec447ca2829/mdformat_pyproject-0.1.1-py3-none-any.whl", hash = "sha256:92d849f5c587ec7dc74a8d240139d3a9ecb65ea553cdb11e01f927fc55f248ce", size = 5102, upload-time = "2025-10-29T16:10:23.124Z" },
 ]
 
 [[package]]
@@ -606,4 +623,13 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/78/67/9a363818028526e2d4579334460df777115bdec1bb77c08f9db88f6389f2/uc_micro_py-2.0.0.tar.gz", hash = "sha256:c53691e495c8db60e16ffc4861a35469b0ba0821fe409a8a7a0a71864d33a811", size = 6611, upload-time = "2026-03-01T06:31:27.526Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/61/73/d21edf5b204d1467e06500080a50f79d49ef2b997c79123a536d4a17d97c/uc_micro_py-2.0.0-py3-none-any.whl", hash = "sha256:3603a3859af53e5a39bc7677713c78ea6589ff188d70f4fee165db88e22b242c", size = 6383, upload-time = "2026-03-01T06:31:26.257Z" },
+]
+
+[[package]]
+name = "wcwidth"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/35/a2/8e3becb46433538a38726c948d3399905a4c7cabd0df578ede5dc51f0ec2/wcwidth-0.6.0.tar.gz", hash = "sha256:cdc4e4262d6ef9a1a57e018384cbeb1208d8abbc64176027e2c2455c81313159", size = 159684, upload-time = "2026-02-06T19:19:40.919Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/5a/199c59e0a824a3db2b89c5d2dade7ab5f9624dbf6448dc291b46d5ec94d3/wcwidth-0.6.0-py3-none-any.whl", hash = "sha256:1a3a1e510b553315f8e146c54764f4fb6264ffad731b3d78088cdb1478ffbdad", size = 94189, upload-time = "2026-02-06T19:19:39.646Z" },
 ]

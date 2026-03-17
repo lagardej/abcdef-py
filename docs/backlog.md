@@ -53,14 +53,4 @@ ______________________________________________________________________
 
 ## Improvements
 
-- Title: Fix broken Markdown tables in docs
-- Type: Improvement
-- Priority: Low
-- Created: 2026-03-17
-- Description: mdformat collapses Markdown tables to fit the 88-character wrap limit,
-  breaking their rendering. Affected files include README.md, src/abcdef/README.md, and
-  any other docs with tables. Replace tables with lists or find an mdformat-compatible
-  table format.
-- Files: README.md, src/abcdef/README.md, and any other docs containing tables
-- Rationale: Docs are part of the codebase and should render correctly.
-- Status: Open
+(none)

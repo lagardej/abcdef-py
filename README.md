@@ -33,20 +33,16 @@ Core package areas:
 Start with the smallest brick that matches your needs, then add others only when the
 architecture requires them.
 
-| If you want... | Use... | Notes |
-|--------------------------------------------------------------------------------|--------------------------|-----------------------------------------------------------------------------|
-| Shared message and event primitives | `abcdef.b` | Foundation layer used by the rest
-of the framework | | A domain model with aggregates, value objects, repositories, and
-domain events | `abcdef.d` | DDD only; no CQRS or event-sourcing mechanics | | Event
-sourcing on top of the DDD model | `abcdef.de` + `abcdef.d` | `abcdef.de` extends
-`abcdef.d`; use it when events are your source of truth | | Commands, queries, buses,
-and read models | `abcdef.c` | CQRS plumbing; can be used with or without DDD | |
-Reusable business-rule predicates | `abcdef.specification` | Small standalone brick;
-fits naturally with `abcdef.d` | | Lightweight adapters for tests, examples, and local
-runs | `abcdef.in_memory` | In-memory implementations for `c`, `d`, and `de`
-abstractions | | Validation and documentation of modular application structure |
-`abcdef.modularity` | For application developers to enforce and document module
-boundaries |
+| If you want...                                                                     | Use...                   | Notes                                                                             |
+| ---------------------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------- |
+| **Shared message and event primitives**                                            | `abcdef.b`               | foundation layer used by the rest of the framework                                |
+| **A domain model with aggregates, value objects, repositories, and domain events** | `abcdef.d`               | DDD only; no CQRS or event-sourcing mechanics                                     |
+| **Event sourcing on top of the DDD model**                                         | `abcdef.de` + `abcdef.d` | `abcdef.de` extends `abcdef.d`; use it when events are your source of truth       |
+| **Commands, queries, buses, and read models**                                      | `abcdef.c`               | CQRS plumbing; can be used with or without DDD                                    |
+| **Reusable business-rule predicates**                                              | `abcdef.specification`   | small standalone brick; fits naturally with `abcdef.d`                            |
+| **Lightweight adapters for tests, examples, and local runs**                       | `abcdef.in_memory`       | in-memory implementations for `c`, `d`, and `de` abstractions                     |
+| **Validation and documentation of modular application structure**                  | `abcdef.modularity`      | for application developers to enforce and document module boundaries              |
+| **Scaffolding new modules and features**                                           | `abcdef.codegen`         | `abcdef-gen` CLI; run once per module or use case to generate correct boilerplate |
 
 Typical combinations:
 
@@ -91,11 +87,9 @@ errors, and generate implementations and documentation.
 
 Roles are divided as follows:
 
-| Role | Responsibilities |
-|-----------|----------------------------------------------------------------------| |
-Developer | Overall architecture, design, and feature decisions | | AI agent | Ports
-from Java, generates implementations, refactors, and documentation; flags design issues
-|
+- **Developer** — overall architecture, design, and feature decisions
+- **AI agent** — ports from Java, generates implementations, refactors, and
+  documentation; flags design issues
 
 ______________________________________________________________________
 
@@ -122,10 +116,9 @@ make install       install git hooks
 
 `test` and `ci` support a `V` variable controlling output detail:
 
-| `V` | Level | Behaviour |
-|-----|---------|-------------------------------------------| | `0` | quiet | dots and
-failures only | | `1` | default | file-level progress (default if omitted) | | `2` |
-verbose | per-test names, full tracebacks |
+- `0` — quiet: dots and failures only
+- `1` — default: file-level progress (default if omitted)
+- `2` — verbose: per-test names, full tracebacks
 
 ```
 make test V=0
