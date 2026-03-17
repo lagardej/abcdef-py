@@ -149,6 +149,19 @@ AggregateRoot
 
 ## Architecture Markers
 
+### Value & Identity types
+
+```
+ValueObject
+AggregateId
+```
+
+- `ValueObject` — frozen dataclass base for immutable value types. These are compared by value and have no identity semantics.
+- `AggregateId` — base identity type for aggregates; used by repositories and stores to identify aggregate instances.
+
+Note: `ValueObject` and `AggregateId` are standalone base types in the framework and do not form a deeper subclass tree in the core package; they are intended as simple building blocks for domain models.
+
+
 Each paradigm package exposes decorators for runtime annotation:
 
 | Marker                                                                                                   | Package          | Attribute set   |
