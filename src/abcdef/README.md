@@ -13,6 +13,9 @@ Each paradigm is independent. `d/` provides aggregates, value objects, and repos
 event sourcing or CQRS. `c/` provides commands, queries, and buses with no knowledge of the domain model.
 `de/` is the glue: it extends `d/` with event sourcing mechanics and wires aggregates to the event store.
 Use only what you need — aggregates without event sourcing, CQRS without DDD, or all three together.
+
+Shared foundational primitives live in `b/` (Event, Message, Result, ClassRegistry) and are used by the rest of
+the framework.
 `in_memory/` provides lightweight implementations of every store and bus for use in tests and development.
 `specification/` provides a composable predicate pattern for expressing business rules; it integrates
 naturally with `d/` aggregates and repositories but has no dependency on any other package.
