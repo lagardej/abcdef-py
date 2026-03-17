@@ -1,6 +1,16 @@
 # ABCDEF — A Basic CQRS, DDD, Event-Sourcing Framework
 
-Minimal framework providing the plumbing for event-sourced, domain-driven applications using CQRS patterns.
+Minimal framework providing the plumbing for [event-sourced](https://martinfowler.com/eaaDev/EventSourcing.html),
+[domain-driven](https://martinfowler.com/bliki/DomainDrivenDesign.html) applications using
+[CQRS](https://martinfowler.com/bliki/CQRS.html) patterns.
+
+Each paradigm is independent. `d/` provides aggregates, value objects, and repositories with no knowledge of
+event sourcing or CQRS. `c/` provides commands, queries, and buses with no knowledge of the domain model.
+`de/` is the glue: it extends `d/` with event sourcing mechanics and wires aggregates to the event store.
+Use only what you need — aggregates without event sourcing, CQRS without DDD, or all three together.
+`in_memory/` provides lightweight implementations of every store and bus for use in tests and development.
+`specification/` provides a composable predicate pattern for expressing business rules; it integrates
+naturally with `d/` aggregates and repositories but has no dependency on any other package.
 
 ## Structure
 
@@ -19,29 +29,101 @@ abcdef/
 Each concept lives in its package (`c/`, `d/`, `de/`, etc.).
 Shared primitives live in `core/`:
 
-| Package          | Paradigms | Contents                                                                                            |
-|------------------|-----------|-----------------------------------------------------------------------------------------------------|
-| `core/`          | Shared    | `Event`, `Message`, `Result`                                                                        |
-| `c/`             | CQRS      | `Command`, `Query`, handlers, buses, registries, `Document`, `DocumentStore`                        |
-| `d/`             | DDD       | `AggregateRoot`, `AggregateId`, `DomainEvent`, `ValueObject`, `Repository`                          |
-| `de/`            | DDD + ES  | `EventSourcedAggregate`, `AggregateState`, `EventStore`, `AggregateStore`, `EventSourcedRepository` |
-| `specification/` | DDD       | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker                              |
+| Package          | Paradigms | Contents                                                                                                                                                                                         |
+|------------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `core/`          | Shared    | [`Event`](#event), [`Message`](#message), [`Result`](#result), [`ClassRegistry`](#classregistry)                                                                                                  |
+| `c/`             | CQRS      | [`Command`](#command), [`CommandHandler`](#commandhandler), [`Query`](#query), [`QueryHandler`](#queryhandler), [`MessageBus` / `CommandBus` / `QueryBus` / `EventBus`](#messagebus), [`Document`](#document), [`DocumentStore`](#documentstore), [`Projector`](#projector) |
+| `d/`             | DDD       | [`AggregateRoot`](#aggregateroot), [`AggregateId`](#aggregateid), [`EventEmittingAggregate`](#eventemittingaggregate), [`DomainEvent`](#domainevent), [`DomainEventRegistry`](#domaineventregistry), [`ValueObject`](#valueobject), [`Repository`](#repository) |
+| `de/`            | DDD + ES  | [`EventSourcedAggregate`](#eventsourcedaggregate), [`AggregateState`](#aggregatestate), [`EventStore`](#eventstore), [`AggregateStore`](#aggregatestore), [`EventSourcedRepository`](#eventsourcedrepository), [`EventSourcedDomainEvent`](#eventsourceddomainevent), [`AggregateRegistry`](#aggregateregistry), [`EventSourcedDomainEventRegistry`](#eventsourceddomaineventregistry) |
+| `specification/` | DDD       | [`Specification`](#specification) ABC, `&`/`\|`/`~` combinators, `@specification` marker                                                                                                        |
 
-- **Command** — Intent to mutate state; handled by exactly one `CommandHandler`
-- **Query** — Request to read state; handled by exactly one `QueryHandler`
+<a id="event"></a>
 - **Event** — Immutable record of something that happened in the domain
-- **AggregateRoot** — Entity that maintains invariants and emits events
-- **ValueObject** — Immutable, identity-free object compared by value
-- **Repository** — Abstracts persistence; loads and saves aggregates
-- **EventStore** — Append-only store; single source of truth for event sourcing
-- **AggregateStore** — Persists aggregate state records for replay optimisation
-- **EventSourcedAggregate** — Aggregate with version tracking and event application
-- **EventSourcedRepository** — Orchestrates event replay and state persistence strategy
+<a id="message"></a>
+- **Message** — Common root type for Commands, Queries, and Events; buses and handlers constrain against this type
+<a id="result"></a>
+- **Result** — Marker interface for the outcome of an operation, returned by command and query handlers
+<a id="classregistry"></a>
+- **ClassRegistry** — Generic registry mapping stable string keys to classes; decouples persisted identifiers from Python class names so classes can be renamed freely without invalidating stored data
+
+<a id="command"></a>
+- **Command** — Intent to mutate state; handled by exactly one `CommandHandler`
+<a id="commandhandler"></a>
+- **CommandHandler** — Processes a single Command type; orchestrates changes to aggregates and emits domain events
+<a id="query"></a>
+- **Query** — Request to read state; handled by exactly one `QueryHandler`
+<a id="queryhandler"></a>
+- **QueryHandler** — Processes a single Query type; reads from document stores and returns a Result
+<a id="messagebus"></a>
 - **MessageBus / CommandBus / QueryBus / EventBus** — Publish/subscribe infrastructure
+<a id="document"></a>
 - **Document** — Denormalised, query-optimised read model built from domain events
+<a id="documentstore"></a>
 - **DocumentStore** — Query-side persistence; counterpart to `Repository` on the write side
+<a id="projector"></a>
 - **Projector** — Subscribes to domain events and updates Documents in a DocumentStore
+
+<a id="aggregateroot"></a>
+- **AggregateRoot** — Entity that maintains invariants and emits events
+<a id="aggregateid"></a>
+- **AggregateId** — Infrastructure-level identity for an aggregate; decouples persistence mechanics from domain identity
+<a id="eventemittingaggregate"></a>
+- **EventEmittingAggregate** — Aggregate that records domain events for publication on the bus; state is managed directly, not derived from events
+<a id="domainevent"></a>
+- **DomainEvent** — An Event raised by a domain aggregate; extends Event for dispatch on an EventBus
+<a id="domaineventregistry"></a>
+- **DomainEventRegistry** — Registry of DomainEvent subclasses keyed by `event_type`; decouples deserialisation from Python class names
+<a id="valueobject"></a>
+- **ValueObject** — Immutable, identity-free object compared by value
+<a id="repository"></a>
+- **Repository** — Abstracts persistence; loads and saves aggregates
+
+<a id="aggregatestate"></a>
+- **AggregateState** — Immutable snapshot of an aggregate's data at a version boundary; used for replay optimisation
+<a id="eventsourceddomainevent"></a>
+- **EventSourcedDomainEvent** — A DomainEvent raised by an event-sourced aggregate; carries the aggregate instance identity alongside the event data
+<a id="aggregateregistry"></a>
+- **AggregateRegistry** — Registry of EventSourcedAggregate subclasses keyed by `aggregate_type`; decouples rehydration from Python class names
+<a id="eventsourceddomaineventregistry"></a>
+- **EventSourcedDomainEventRegistry** — Registry of EventSourcedDomainEvent subclasses keyed by `event_type`; decouples deserialisation from Python class names
+<a id="eventstore"></a>
+- **EventStore** — Append-only store; single source of truth for event sourcing
+<a id="aggregatestore"></a>
+- **AggregateStore** — Persists aggregate state records for replay optimisation
+<a id="eventsourcedaggregate"></a>
+- **EventSourcedAggregate** — Aggregate with version tracking and event application
+<a id="eventsourcedrepository"></a>
+- **EventSourcedRepository** — Orchestrates event replay and state persistence strategy
+
+<a id="specification"></a>
 - **Specification** — Reusable business rule predicate; composable via `&`, `|`, and `~`
+
+## Class Hierarchies
+
+### Messages
+
+```
+Message
+├── Command
+│   └── (CommandHandler processes one Command type)
+├── Query
+│   └── (QueryHandler processes one Query type)
+└── Event
+    └── DomainEvent
+        └── EventSourcedDomainEvent
+```
+
+[`Message`](#message) · [`Command`](#command) · [`CommandHandler`](#commandhandler) · [`Query`](#query) · [`QueryHandler`](#queryhandler) · [`Event`](#event) · [`DomainEvent`](#domainevent) · [`EventSourcedDomainEvent`](#eventsourceddomainevent)
+
+### Aggregates
+
+```
+AggregateRoot
+└── EventEmittingAggregate
+    └── EventSourcedAggregate
+```
+
+[`AggregateRoot`](#aggregateroot) · [`EventEmittingAggregate`](#eventemittingaggregate) · [`EventSourcedAggregate`](#eventsourcedaggregate)
 
 ## Architecture Markers
 
