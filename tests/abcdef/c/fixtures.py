@@ -1,7 +1,7 @@
 """Shared fixtures for c/ tests."""
 
+from abcdef.b import Result
 from abcdef.c import Command, CommandHandler, Query, QueryHandler
-from abcdef.core import Result
 
 
 class DummyCommand(Command):

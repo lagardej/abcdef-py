@@ -9,7 +9,6 @@ from abcdef.c.markers import (
     query,
     query_handler,
 )
-from abcdef.core.markers import _get_marker
 from abcdef.d.markers import (
     aggregate,
     domain_service,
@@ -19,6 +18,7 @@ from abcdef.d.markers import (
     value_object,
 )
 from abcdef.de.markers import aggregate_store, event_store
+from abcdef.markers import _get_marker
 
 # ---------------------------------------------------------------------------
 # Helpers

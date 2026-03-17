@@ -6,10 +6,10 @@ failure naming the offending file and the disallowed import.
 
 Allowed import matrix
 ---------------------
-- `core/`: core/ only
-- `c/`: core/ only
-- `d/`: core/ only
-- `de/`: core/, `d/`
+- `b/`: b/ only
+- `c/`: b/ only
+- `d/`: b/ only
+- `de/`: b/, `d/`
 
 Package facade rule
 -------------------
@@ -36,7 +36,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 
 _ABCDEF = Path(__file__).parents[2] / "abcdef"
-_CORE = _ABCDEF / "core"
+_B = _ABCDEF / "b"
 _C = _ABCDEF / "c"
 _D = _ABCDEF / "d"
 _DE = _ABCDEF / "de"
@@ -51,17 +51,17 @@ _SPECIFICATION = _ABCDEF / "specification"
 # Intra-package imports are always allowed and handled separately.
 # ---------------------------------------------------------------------------
 
-_CORE_PREFIXES = {"abcdef.core"}
+_B_PREFIXES = {"abcdef.b"}
 
 _ALLOWED: dict[Path, set[str]] = {
-    _CORE: _CORE_PREFIXES,
-    _C: _CORE_PREFIXES,
-    _D: _CORE_PREFIXES,
-    _DE: _CORE_PREFIXES | {"abcdef.d"},
+    _B: _B_PREFIXES,
+    _C: _B_PREFIXES,
+    _D: _B_PREFIXES,
+    _DE: _B_PREFIXES | {"abcdef.d"},
 }
 
 _PACKAGE_FACADES = {
-    _CORE,
+    _B,
     _C,
     _D,
     _DE,
@@ -242,23 +242,23 @@ def _facade_violations(directory: Path) -> list[str]:
 class TestImportBoundaries:
     """Enforce the sub-package import boundary rules."""
 
-    def test_core_imports_only_core(self) -> None:
-        """core/ must only import from core/."""
-        violations = _violations(_CORE, allowed=_ALLOWED[_CORE])
+    def test_b_imports_only_b(self) -> None:
+        """b/ must only import from b/."""
+        violations = _violations(_B, allowed=_ALLOWED[_B])
         assert violations == [], "\n" + "\n".join(violations)
 
-    def test_c_imports_only_core(self) -> None:
-        """c/ must only import from core/."""
+    def test_c_imports_only_b(self) -> None:
+        """c/ must only import from b/."""
         violations = _violations(_C, allowed=_ALLOWED[_C])
         assert violations == [], "\n" + "\n".join(violations)
 
-    def test_d_imports_only_core(self) -> None:
-        """d/ must only import from core/."""
+    def test_d_imports_only_b(self) -> None:
+        """d/ must only import from b/."""
         violations = _violations(_D, allowed=_ALLOWED[_D])
         assert violations == [], "\n" + "\n".join(violations)
 
-    def test_de_imports_only_core_and_d(self) -> None:
-        """de/ must only import from core/ and d/."""
+    def test_de_imports_only_b_and_d(self) -> None:
+        """de/ must only import from b/ and d/."""
         violations = _violations(_DE, allowed=_ALLOWED[_DE])
         assert violations == [], "\n" + "\n".join(violations)
 

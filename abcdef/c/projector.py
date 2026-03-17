@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from abcdef.core.event import Event
+from abcdef.b.event import Event
 
 from . import markers
 

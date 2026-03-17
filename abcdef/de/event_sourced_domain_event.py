@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from abcdef.core.registry import ClassRegistry
+from abcdef.b.registry import ClassRegistry
 
 from ..d.domain_event import DomainEvent
 

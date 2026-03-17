@@ -2,7 +2,7 @@
 
 import datetime
 
-from abcdef.core import Event
+from abcdef.b import Event
 from abcdef.d import AggregateId, AggregateRoot
 
 

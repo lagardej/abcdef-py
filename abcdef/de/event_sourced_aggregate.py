@@ -4,7 +4,7 @@ from abc import abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from ..core.registry import ClassRegistry
+from ..b.registry import ClassRegistry
 from ..d import AggregateId
 from ..d.event_emitting_aggregate import EventEmittingAggregate
 from .event_sourced_domain_event import EventSourcedDomainEvent

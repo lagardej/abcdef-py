@@ -2,8 +2,8 @@
 
 from abc import ABC, abstractmethod
 
-from abcdef.core.message import Message
-from abcdef.core.result import Result
+from abcdef.b.message import Message
+from abcdef.b.result import Result
 
 from . import markers
 

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from abcdef.core.event import Event
-from abcdef.core.registry import ClassRegistry
+from abcdef.b.event import Event
+from abcdef.b.registry import ClassRegistry
 
 
 class DomainEventRegistry(ClassRegistry["type[DomainEvent]"]):

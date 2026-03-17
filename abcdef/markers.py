@@ -1,7 +1,7 @@
 """Shared marker inspection utility.
 
-Provides runtime inspection of architecture markers applied by the c/, d/, and de/
-marker modules.
+Provides runtime inspection of architecture markers applied by the c/, d/, de/,
+and specification/ marker modules.
 
 Marker attribute convention:
 - c/             uses ``__cqrs_type__``

@@ -16,7 +16,8 @@ naturally with `d/` aggregates and repositories but has no dependency on any oth
 
 ```
 abcdef/
-├── core/              # Shared abstractions: Event, Message, Result, markers
+├── markers.py         # Shared marker inspection utility (_get_marker)
+├── b/                 # Basic primitives: Event, Message, Result, ClassRegistry
 ├── c/                 # CQRS — commands, queries, handlers, buses, registries
 ├── d/                 # DDD — aggregates, value objects, repositories
 ├── de/                # DDD + ES — event-sourced aggregates, stores, repositories
@@ -27,11 +28,11 @@ abcdef/
 ## Core Concepts
 
 Each concept lives in its package (`c/`, `d/`, `de/`, etc.).
-Shared primitives live in `core/`:
+Shared primitives live in `b/`:
 
 | Package          | Paradigms | Contents                                                                                                                                                                                         |
 |------------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `core/`          | Shared    | [`Event`](#event), [`Message`](#message), [`Result`](#result), [`ClassRegistry`](#classregistry)                                                                                                  |
+| `b/`             | Shared    | [`Event`](#event), [`Message`](#message), [`Result`](#result), [`ClassRegistry`](#classregistry)                                                                                                  |
 | `c/`             | CQRS      | [`Command`](#command), [`CommandHandler`](#commandhandler), [`Query`](#query), [`QueryHandler`](#queryhandler), [`MessageBus` / `CommandBus` / `QueryBus` / `EventBus`](#messagebus), [`Document`](#document), [`DocumentStore`](#documentstore), [`Projector`](#projector) |
 | `d/`             | DDD       | [`AggregateRoot`](#aggregateroot), [`AggregateId`](#aggregateid), [`EventEmittingAggregate`](#eventemittingaggregate), [`DomainEvent`](#domainevent), [`DomainEventRegistry`](#domaineventregistry), [`ValueObject`](#valueobject), [`Repository`](#repository) |
 | `de/`            | DDD + ES  | [`EventSourcedAggregate`](#eventsourcedaggregate), [`AggregateState`](#aggregatestate), [`EventStore`](#eventstore), [`AggregateStore`](#aggregatestore), [`EventSourcedRepository`](#eventsourcedrepository), [`EventSourcedDomainEvent`](#eventsourceddomainevent), [`AggregateRegistry`](#aggregateregistry), [`EventSourcedDomainEventRegistry`](#eventsourceddomaineventregistry) |
@@ -136,16 +137,18 @@ Each paradigm package exposes decorators for runtime annotation:
 | `@event_store`, `@aggregate_store`                                                                       | `de/`            | `__de_type__`   |
 | `@specification`                                                                                         | `specification/` | `__specification_type__` |
 
-`_get_marker(cls, attr)` (from `core/markers.py`) inspects a class or its parents for a marker attribute.
+`_get_marker(cls, attr)` (from `abcdef/markers.py`) inspects a class or its parents for a marker attribute.
 
 ## Public API Boundaries
 
-- Import each package from its own namespace (`abcdef.core`, `abcdef.c`,
+- Import each package from its own namespace (`abcdef.b`, `abcdef.c`,
   `abcdef.d`, `abcdef.de`, `abcdef.in_memory`, `abcdef.specification`).
 - Package `__init__.py` facades only re-export symbols from their own
   package namespace.
 - Cross-package usage should import from the package that defines the symbol
-  (for example, `Event` from `abcdef.core`, not from `abcdef.d`).
+  (for example, `Event` from `abcdef.b`, not from `abcdef.d`).
+- The shared marker inspection utility lives at `abcdef.markers` (package root),
+  not inside any sub-package.
 
 ## Event Sourcing
 

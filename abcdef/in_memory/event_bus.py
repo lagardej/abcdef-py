@@ -3,8 +3,8 @@
 from collections.abc import Callable
 from typing import Any, TypeVar
 
+from abcdef.b import Event
 from abcdef.c import EventBus
-from abcdef.core import Event
 
 _TSpecificEvent = TypeVar("_TSpecificEvent", bound=Event)
 

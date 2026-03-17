@@ -3,7 +3,7 @@
 from collections.abc import Callable
 from typing import Any, TypeVar, cast
 
-from abcdef.core.result import Result
+from abcdef.b.result import Result
 
 from .command import Command
 from .message_bus import CommandBus, QueryBus

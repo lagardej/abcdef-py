@@ -2,7 +2,7 @@
 
 import pytest
 
-from abcdef.core.registry import ClassRegistry
+from abcdef.b.registry import ClassRegistry
 
 
 class _Base:

@@ -2,12 +2,16 @@
 
 Root package. This package exports nothing directly; import from sub-packages:
 
-    abcdef.core        -- shared primitives: Event, Message, Result, markers
-    abcdef.c           -- CQRS building blocks
-    abcdef.d           -- DDD building blocks
-    abcdef.de          -- DDD + Event Sourcing intersection
-    abcdef.in_memory   -- in-memory implementations for testing
+    abcdef.b             -- Basic primitives: Event, Message, Result, ClassRegistry
+    abcdef.c             -- CQRS building blocks
+    abcdef.d             -- DDD building blocks
+    abcdef.de            -- DDD + Event Sourcing intersection
+    abcdef.in_memory     -- in-memory implementations for testing
     abcdef.specification -- Specification pattern
+
+Shared utilities at the package root:
+
+    abcdef.markers       -- _get_marker inspection utility
 """
 
 __all__: list[str] = []

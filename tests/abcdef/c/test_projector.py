@@ -6,9 +6,9 @@ import datetime
 
 import pytest
 
+from abcdef.b import Event
 from abcdef.c import Projector
 from abcdef.c.markers import projector as projector_marker
-from abcdef.core import Event
 
 _TS = datetime.datetime(2024, 1, 1, 12, 0, 0, tzinfo=datetime.UTC)
 

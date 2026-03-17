@@ -8,7 +8,7 @@ from abcdef.in_memory import InMemoryEventBus
 from tests.abcdef.in_memory.fixtures import OrderCancelled, OrderPlaced
 
 if TYPE_CHECKING:
-    from abcdef.core import Event
+    from abcdef.b import Event
 
 
 class TestInMemoryEventBus:
