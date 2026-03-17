@@ -18,16 +18,9 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 
 ## Improvements
 
-- **`abcdef/README.md` — `AggregateStore` definition understates its responsibilities**
-  The bullet says "Persists aggregate state records for replay optimisation" but omits
-  that `AggregateStore` is also the enforcement point for optimistic concurrency control
-  via `expected_version` / `VersionConflictError`. Update the definition to cover both
-  responsibilities.
-
-- **`abcdef/README.md` — `specification/` Paradigms column incorrectly says `DDD`**
-  `specification/` has no dependency on DDD and uses its own `__specification_type__`
-  marker precisely to reflect that independence. The Paradigms column should not say
-  `DDD`. Change to `—` or a neutral label such as `Logic`.
+- **`abcdef/README.md` — preamble never mentions `b/`**
+  The preamble explains every other package but skips `b/`, which is the foundation
+  everything else builds on. Add a sentence describing `b/` and its role.
 
 - **`abcdef/README.md` — preamble never mentions `b/`**
   The preamble explains every other package but skips `b/`, which is the foundation
