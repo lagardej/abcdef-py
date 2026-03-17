@@ -247,6 +247,20 @@ Modulith recognises markers from the framework:
 
 No new decorators are needed for most code; the framework markers are sufficient. `@spi` is the only modulith-specific marker and is optional (use it to explicitly mark abstract base classes intended as contracts).
 
+## Acknowledgments
+
+`abcdef.modulith` is directly inspired by [Spring Modulith](https://spring.io/projects/spring-modulith), a library for building modular Spring applications. 
+
+Spring Modulith defined most of the concepts and validation rules implemented here:
+
+- **Module as a first-class design unit** with explicit boundaries and public APIs
+- **Read/write separation** via command and query modules (inspired by Spring Modulith's command/event publishing distinction)
+- **Facade rule** — modules expose only their root; no re-exports of foreign symbols
+- **Import boundary validation** — layers within a module must not bypass public APIs to import from other modules' internals
+- **Documentation focus** on "what" (public API and communication) rather than "how" (implementation details)
+
+The key difference: `abcdef.modulith` is tailored for ABCDEF applications (DDD, CQRS, Event Sourcing) and uses Python idioms (`__modulith__` dict, AST parsing) rather than Java/Spring conventions. The architecture principles, however, are directly drawn from Spring Modulith's proven approach.
+
 ## Public API
 
 **Entry point:**
