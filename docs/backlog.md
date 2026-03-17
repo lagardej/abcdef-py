@@ -1,7 +1,20 @@
-
 # Backlog
 
 Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries are removed.
+
+---
+
+## Conventions
+
+- **One commit per item.** Each backlog item is addressed in its own commit.
+- **Remove on resolve.** Completed items are deleted from this file, not marked Done.
+  The git log is the record of what was done and when.
+- **Types:** `Bug` — incorrect behaviour; `Task` — missing or incomplete work (e.g.
+  tests, implementation); `Improvement` — quality, tooling, or documentation.
+- **Priorities:** `High` — blocks progress or correctness; `Medium` — should be done
+  soon; `Low` — nice to have, no urgency.
+- **Agents:** follow the one-commit-per-item rule. Do not batch unrelated items into a
+  single commit. Do not add speculative items to this backlog.
 
 ---
 
@@ -38,21 +51,4 @@ Use this template to add or triage backlog items. Keep entries concise and inclu
 
 ## Improvements
 
-- **Add `CONTRIBUTING.md` with test and coverage instructions**
-  Type: Improvement · Priority: Low · Created: 2026-03-17
-  Description: Short guide showing how to run tests on Windows and Unix (e.g., `python -m pytest -q`, coverage commands), and note `make` is optional on Windows.
-  Files: new `CONTRIBUTING.md` at repo root.
-  Rationale: Make it easier for contributors to run tests locally.
-
-- **Backlog / roadmap tagging guidance**
-  Type: Improvement · Priority: Low · Created: 2026-03-17
-  Description: Add a short section in this file describing tags/priority conventions for backlog entries and the “one-commit-per-item” rule.
-  Files: `docs/backlog.md` (this file)
-  Rationale: Keep backlog disciplined and consistent for agents and contributors.
-
-- **Coverage target issues**
-  Type: Improvement · Priority: Low · Created: 2026-03-17
-  Description: Add backlog items to track target coverage for `modularity/` (e.g., aim 90%+) and other modules with low coverage.
-  Files: `docs/backlog.md`
-  Rationale: Track measurable goals for test coverage.
-
+(none)
