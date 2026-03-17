@@ -32,23 +32,7 @@ Use this template to add or triage backlog items. Keep entries concise and inclu
 
 ## Tasks
 
-- **CQRS components — cover message/document flow edge cases**
-  Type: Task · Priority: Medium · Created: 2026-03-17
-  Description: Add tests for `c/document_store.py` (missing-doc and error flows), `c/message_bus.py` (subscriber errors, no-subscriber case), `c/projector.py` and `c/query.py` edge cases.
-  Files: `src/abcdef/c/*.py`, tests → `tests/abcdef/c/`
-  Rationale: Close multiple small gaps and guard CQRS behavior.
-
-- **DDD / repository tests**
-  Type: Task · Priority: Medium · Created: 2026-03-17
-  Description: Add tests for `d/repository.py` and `d/aggregate.py` edge cases (load/save/delete, no-record cases).
-  Files: `src/abcdef/d/*.py`, tests → `tests/abcdef/d/`
-  Rationale: Improve confidence around repository semantics.
-
-- **DE event-sourcing tests**
-  Type: Task · Priority: Medium · Created: 2026-03-17
-  Description: Add tests covering `de/aggregate_store.py`, `de/event_sourced_aggregate.py`, `de/event_store.py` for `VersionConflictError`, snapshot behaviour, and append/read semantics.
-  Files: `src/abcdef/de/*.py`, tests → `tests/abcdef/de/`
-  Rationale: Fill coverage gaps and test optimistic concurrency.
+(none)
 
 ---
 
