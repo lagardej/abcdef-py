@@ -1,20 +1,22 @@
-# TIC Architecture Reference
+# Architecture Reference
 
-This document centralises the architectural design of TIC.
-It explains the "why" behind structural decisions and provides a reference for implementing features consistently.
+This document centralises the architectural design of this project. It explains the "why" behind structural
+decisions and provides a reference for implementing features consistently.
 
 ---
 
 ## Overview
 
-TIC is built using *Domain-Driven Design (DDD)*, *Command Query Responsibility Segregation (CQRS)*, and *Event Sourcing*, organised by modules.
+The project is built using *Domain-Driven Design (DDD)*, *Command Query Responsibility Segregation (CQRS)*, and *Event
+Sourcing*, organised by modules.
 
 **Core philosophy:** Architecture is a constraint that keeps the codebase coherent as it grows.
 Every decision is enforced at the module level and validated at build time.
 
-## Spring Modulith Philosophy
+## Modular Philosophy
 
-TIC adopts the *Spring Modulith* philosophy: modules are first-class design units with enforced boundaries, explicit public APIs, and automated verification.
+This project adopts a modular philosophy: modules are first-class design units with enforced boundaries, explicit
+public APIs, and automated verification where practical.
 
 ### Core Principles
 
@@ -27,10 +29,13 @@ TIC adopts the *Spring Modulith* philosophy: modules are first-class design unit
 
 * **Module-to-module boundaries:** Modules communicate through events (publish/subscribe) or SPIs (Service Provider Interfaces—public ABCs with internal implementations). Cross-module imports use root exports only.
 * **Infrastructure exemption:** Infrastructure packages (`shared/`, composition root) are not subject to public API rules. They can import from any layer as needed for dependency injection and framework concerns.
-* **Domain layer:** Always internal. Never exported from `__init__.py`. Domain objects (aggregates, value objects) remain encapsulated within their module.
-* Sub-packages are allowed if structurally necessary (e.g., `interface/cli/`, `interface/web/`) as long as their exports are explicitly declared in `__init__.py`.
-* A module's `__init__.py` declares what other *modules* may import—events for cross-module communication, or ABCs for service provider interfaces.
-* Package facades may only re-export symbols from their own namespace. Do not re-export symbols from sibling packages.
+* **Domain layer:** Always internal. Domain objects (aggregates, value objects) remain encapsulated within their module. A
+  module's public API must be explicitly declared in a clear, language-appropriate place (for example: a module export
+  file, package manifest, or public API declaration). Avoid implicitly exporting internals.
+* Sub-packages are allowed if structurally necessary (for example, `interface/cli/` or `interface/web/`) provided their
+  public exports are explicitly declared.
+* Package facades should only re-export symbols from their own module boundary. Do not re-export symbols from sibling
+  modules without explicit intent.
 
 #### 3. Event-Driven Communication
 
@@ -60,7 +65,7 @@ developer):
 ## Modules (Abstract)
 
 A module is an organisational boundary within which domain language and models are consistent.
-TIC uses modules to partition responsibilities and enforce strict separation.
+This project uses modules to partition responsibilities and enforce strict separation.
 
 Modules fall into two categories:
 
@@ -91,7 +96,7 @@ It is a place to keep abstract classes and common services that other modules ma
 ## Module Structure (Abstract)
 
 ```
-tic/
+project_root/
 ├── <module_command>/                 # Command Module (write side)
 │   ├── domain
 │   ├── application
@@ -113,7 +118,7 @@ tic/
 
 ## Command Modules vs Query Modules
 
-TIC enforces strict separation between write-side (command) and read-side (query) modules.
+This project enforces strict separation between write-side (command) and read-side (query) modules.
 
 ### Command Modules
 
@@ -162,7 +167,8 @@ TIC enforces strict separation between write-side (command) and read-side (query
 
 ## Layer Dependencies
 
-Strict module hierarchy is enforced at import time:
+Strict module hierarchy is an architectural constraint and should be enforced by conventions, verification scripts, or
+build-time checks where possible:
 
 ```
 interface → application → domain
@@ -171,9 +177,10 @@ infrastructure → any layer (never the reverse)
 
 ### Domain Layer (`domain`)
 
-* *Zero external dependencies.* No imports from other layers, no third-party libraries.
-* Defines aggregates, value objects, and ABCs.
-* Encodes business logic and invariants.
+* Minimise external dependencies. Domain code should not depend on infrastructure or other modules; keep the core
+  model and invariants isolated from implementation concerns.
+* Define aggregates, value objects, and abstract contracts appropriate to the project's language.
+* Encapsulate business logic and invariants in the domain.
 
 ### Application Layer (`application`)
 
@@ -184,15 +191,29 @@ infrastructure → any layer (never the reverse)
 
 ### Infrastructure Layer (`infrastructure`)
 
-* *Concrete implementations of domain ABCs.*
-* Database access, file I/O, external services.
-* Injected into application handlers; never called directly.
+* Concrete implementations of domain/application contracts.
+* Responsible for persistence, external APIs, and platform-specific concerns.
+* Provide implementations that are wired into higher layers at the composition root; avoid direct imports of
+  infrastructure from domain code.
 
 ### Interface Layer (`interface`)
 
 * *User-facing entry points.* CLI commands, web routes, API endpoints.
 * Parses user input, calls application handlers, formats output.
 * Depends only on application handlers (no domain logic here).
+
+### Dependency Placement (Guidance)
+
+Dependency placement and module-coupling rules are an architectural concern and live here. Language-specific
+implementation details (for example, how to express interfaces or perform dependency injection in a particular
+language) belong in language convention documents.
+
+- Core/domain modules should avoid direct dependencies on infrastructure or external libraries whenever practical.
+- Define abstract interfaces or contracts in the appropriate higher-level layer (domain or application) and provide
+  concrete implementations in `infrastructure/` or adapter modules.
+- Wire concrete implementations at the composition root; do not import infrastructure implementations directly from
+  domain modules.
+- Document and justify any exceptions in the architecture decision log or PR description.
 
 ## Data Flow (Abstract Example)
 
@@ -256,82 +277,53 @@ The event store is the system of records. All state changes are captured as immu
 
 **Event design (abstract):**
 
-* Events are plain classes with no behaviour (not dataclasses).
+* Events are immutable data records representing facts that have occurred. Prefer simple, serialisable data
+  structures with no behavioural logic.
 
 ### Event Immutability
 
-`Event` enforces immutability via `__setattr__` and `__delattr__` overrides,
-using the same pattern as `AggregateId`. Any attempt to assign or delete an
-attribute after construction raises `AttributeError`.
+Events must be treated as immutable once created. Enforce immutability using the language's facilities or clear
+conventions (for example, read-only data types, immutable value objects, or defensive copying). The implementation
+details will vary by language; document language-specific patterns in the language convention documents.
 
-Because `Event` is not a dataclass, subclasses must initialise their own
-attributes using `object.__setattr__(self, name, value)` in `__init__` —
-normal assignment (`self.x = y`) is blocked by the override.
+### Abstract Event Types
 
-```python
-class ThingHappened(DomainEvent):
-    event_type = "thing_happened"
-
-    def __init__(self, value: str, *, occurred_at: datetime, aggregate_id: str) -> None:
-        super().__init__(occurred_at=occurred_at, aggregate_id=aggregate_id)
-        object.__setattr__(self, "value", value)  # required
-```
-
-Plain-class subclasses that use `self.x = y` in `__init__` will raise
-`AttributeError` at construction time — the convention must be followed
-manually.
-
-### Abstract Event Classes (`_abstract_event`)
-
-`Event.__init_subclass__` enforces that every concrete subclass declares a
-non-empty `event_type` directly in its own class body. Intermediate base
-classes in the hierarchy (e.g. `DomainEvent`) need to opt out of this check
-because they are not themselves concrete events.
-
-They do so by setting `_abstract_event = True` directly in their class body:
-
-```python
-class DomainEvent(Event):
-    _abstract_event = True  # exempt from event_type enforcement
-```
-
-The flag is checked via `cls.__dict__.get("_abstract_event")`, so it must
-appear directly on the class — inheriting it from a parent has no effect.
-Concrete leaf classes must never set it; they must declare `event_type`.
-
-The underscore prefix marks this as an internal framework convention. It is
-not part of the public API and should not appear on application-level event
-classes.
+Every concrete event type should declare a stable identifier (an "event type") and a well-defined schema. Intermediate
+base event types may be used for grouping and should be clearly marked as abstract in the language-appropriate way.
+Document the event registry and deserialisation strategy in an implementation guide.
 
 **Aggregate rehydration:**
 
 * Aggregates are rebuilt by replaying event history in order.
-* A snapshotting system may be needed later.
+* Consider snapshotting when replay cost becomes significant.
 
 ## Message Bus
 
 Events are published to a message bus, allowing modules to react without direct coupling.
 
-* Subscribers are registered at the composition root.
-* A synchronous in-memory bus is acceptable for local development.
-* An async bus can replace it without changing modules.
+- Subscribers are registered at the composition root.
+- A synchronous in-memory bus is acceptable for local development.
+- An async bus can replace it without changing modules.
 
 ## File Granularity
 
 *One concept per file.* This is a hard constraint.
 
-Physical location follows clear patterns. Aggregates and value objects always live in `domain` and are never exported. Application handlers follow their layer structure. Sub-packages are allowed if they reflect structural needs (e.g., `interface/cli` for CLI commands, `interface/web` for web routes), but all public exports must be declared in `__init__.py`.
+Physical location follows clear patterns. Aggregates and value objects live in `domain` and are not exported as part
+of other modules' internals. Application handlers follow their layer structure. Sub-packages are allowed if they
+reflect structural needs (for example, `interface/cli` for CLI commands, `interface/web` for web routes), but public
+exports must be declared explicitly in a module's public API declaration.
 
-| Concept                     | File Pattern                         |
-|-----------------------------|--------------------------------------|
-| Aggregate                   | `domain/<aggregate>.py`              |
-| Aggregate ABC               | `domain/<aggregate>_repository.py`   |
-| Use case command + handler  | `application/<use_case>.py`          |
-| Concrete ABC implementation | `infrastructure/<tech>_<concept>.py` |
-| Query handler               | `application/<query>.py`             |
-| CLI command                 | `interface/cli/<command>.py`         |
-| Web route                   | `interface/web/<route>.py`           |
-| `__init__.py`               | Public API contract; re-exports only |
+| Concept                     | File/Path Pattern                     |
+|-----------------------------|---------------------------------------|
+| Aggregate                   | `domain/<aggregate>`                  |
+| Aggregate repository/ABC    | `domain/<aggregate>_repository`       |
+| Use case command + handler  | `application/<use_case>`              |
+| Concrete implementation     | `infrastructure/<tech>_<concept>`     |
+| Query handler               | `application/<query>`                 |
+| CLI command                 | `interface/cli/<command>`             |
+| Web route                   | `interface/web/<route>`               |
+| Module public API           | Module root export / public API file  |
 
 ## Defensive Parsing (Abstract)
 
@@ -342,39 +334,34 @@ When ingesting evolving external data:
 * Only extract what is needed for the current feature.
 * Fail fast on corrupted data (e.g., invalid JSON).
 
-## Testing Strategy (Abstract)
+### Testing Strategy (Abstract)
 
 ### Fakes, Not Mocks
 
-For each module ABC, provide in-memory fakes for testing.
+For each module interface or abstract contract, provide in-memory fakes for unit testing where practical.
 
 ### Test Structure
 
-* `tests/` mirrors `tic/`.
-* No test code inside module directories.
-* No external I/O in tests; use in-memory databases when needed.
-* Boundary checks should validate both runtime import rules and package facade
-  re-export rules (`__init__.py` imports only from its own namespace).
+* Tests should live in a dedicated top-level `tests/` area and mirror the project's module structure where practical.
+* Keep test code separate from production module code.
+* Avoid external I/O in unit tests; use in-memory databases or test doubles when appropriate.
+* Boundary checks should validate runtime import rules and module public API contracts.
 
 ## Code Style and Conventions
 
-### Type Hints
+This document describes architectural rules. Language- and tool-specific coding conventions belong in the
+language-specific convention documents (for example, `docs/design/python_conventions.md`). High-level expectations:
 
-All function signatures must have type hints.
+### General
 
-### Docstrings
+- Prefer explicit and clear code over clever or implicit constructs.
+- Avoid circular dependencies between modules.
+- Infrastructure implementations should be provided by the composition root and not imported into domain logic.
 
-Public classes and functions have Google-style docstrings.
+### Encoding & I/O
 
-### Imports
-
-* No circular imports.
-* Infrastructure is never imported directly outside the composition root.
-* Cross-module imports use root exports only.
-
-### Encoding
-
-Always specify encoding explicitly when opening files or running subprocesses.
+- Treat UTF-8 as the canonical encoding for text content. When reading or writing files, specify encoding explicitly if
+  the platform or language requires it.
 
 ## Design Principles
 
@@ -388,14 +375,10 @@ Validate early and raise descriptive errors.
 
 ### Immutability
 
-Domain entities and events are immutable where practical.
-
-`AggregateState` is a frozen dataclass. All concrete state classes must be
-declared as `@dataclass(frozen=True)`. This enforces immutability at
-construction time, provides value-based `__eq__` and `__hash__`, and makes
-`__repr__` readable without boilerplate. Plain-class subclasses (not
-decorated with `@dataclass`) will compile but will not have immutability
-enforced at runtime — the convention must be followed manually.
+Domain entities and events should be treated as immutable where practical. Use the appropriate language-level
+mechanisms (for example, read-only data structures, immutable value objects, or explicit freezing patterns) to
+enforce immutability for state objects and events. Document any language-specific enforcement techniques in the
+language convention documents.
 
 ### No Surprises
 

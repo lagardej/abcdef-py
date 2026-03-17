@@ -1,1 +1,1 @@
-"""Tests for the TIC project."""
+"""Tests for the ABCDEF project."""

@@ -1,4 +1,4 @@
-# TIC — [FX] Roadmap Template
+# [FX] Roadmap Template
 
 **Use this template for all feature roadmaps.** Each feature corresponds to one module (bounded context). Replace
 `[FX]` with the phase number, `[Module Name]` with the domain concept, and fill in the sections below.
@@ -27,7 +27,7 @@ durable storage.
 
 **Outputs:**
 
-- `[EntityDocument]`: read model dataclass, fields optimised for query/display (this is the contract — only data here will be tracked)
+ - `[EntityDocument]`: read model contract; fields optimised for query/display (this is the contract — only data here will be tracked)
 - `[EntityStore]` ABC: read-side persistence interface responsible for storing and querying projection documents (`EntityDocument`)
 - Event subscriber handler signature: what events will update this projection
 - Tests: document construction, field types, constraints (no implementation yet)
@@ -43,7 +43,7 @@ durable storage.
 
 **Outputs:**
 
-- `[Aggregate]` aggregate: core identity and state fields, extends the project's `Aggregate` base class
+ - `[Aggregate]` aggregate: core identity and state fields, extends the project's `Aggregate` base contract
 - `[AggregateRepository]` ABC: concrete repository ABC that specifies `get()`, `list_all()`, `save()` signatures
 - Domain events: all events the aggregate can emit (e.g. `[EntityCreated]`, `[EntityUpdated]`), each implements the project's `DomainEvent` contract; events carry fields needed to populate Phase 1 document
 - Any value objects for sub-domains
@@ -59,7 +59,7 @@ durable storage.
 
 **Outputs:**
 
-- `[Command]` dataclass(es): input contracts for use cases, implementing the project's `CommandHandler` contract
+ - `[Command]` input contract(s) for use cases, implementing the project's `CommandHandler` contract
 - Command handlers: orchestrate aggregate state changes and repository persistence
 - `[Query]` dataclass(es): read contracts, implementing the project's `QueryHandler` contract
 - Query handlers: read from `[EntityStore]`, return `[EntityDocument]`
@@ -76,7 +76,7 @@ durable storage.
 
 **Outputs:**
 
-- Typer command implementations: dispatch to Phase 3 command and query handlers
+ - CLI command implementations: dispatch to Phase 3 command and query handlers
 - Help topics registered in REPL (`_HELP_TOPICS` dict)
 - Output formatting (tables, lists, details)
 - Manual verification: all commands discoverable via `help`, run correctly with sample data (all using in-memory storage)
@@ -91,7 +91,7 @@ durable storage.
 
 **Outputs:**
 
-- FastAPI route handlers: list view, detail view, and any domain-specific views; dispatch to Phase 3 query handlers
+ - Web route handlers: list view, detail view, and any domain-specific views; dispatch to Phase 3 query handlers
 - Jinja2 templates: layout, entity list, entity detail
 - Navigation integration (links from other pages, if applicable)
 - Manual verification: all pages render correctly, new data appears immediately, URLs are user-friendly (all using in-memory storage)
@@ -106,8 +106,8 @@ durable storage.
 
 **Outputs:**
 
-- `Sqlite[Aggregate]Repository` extends the project's `SqliteRepository` base: persists aggregates to per-aggregate databases
-- `Sqlite[Entity]Store`: persists projection to durable storage (same interface as in-memory version)
+ - `Sqlite[Aggregate]Repository` extends the project's `SqliteRepository` base: persists aggregates to per-aggregate databases
+ - `Sqlite[Entity]Store`: persists projection to durable storage (same interface as in-memory version)
 - Event registry: `dict[str, type[DomainEvent]]` mapping `DomainEvent.NAME` constants to event classes for deserialisation
 - SQLite schema: tables for aggregates/events and projections, with isolation by aggregate ID
 - Dependency injection: wire the project's `SqliteEventStore`, inject concrete `SqliteRepository` and `SqliteStore` implementations

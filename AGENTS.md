@@ -1,7 +1,7 @@
-# Agent Instructions for TIC
+# Agent Instructions for this project
 
-This document contains all rules and instructions for AI agents working on the TIC (Terra Invicta Companion) project. It
-is agent-agnostic and takes precedence over any default agent behaviour.
+This document contains the rules and instructions for AI agents working on this project. It is agent-agnostic and takes
+precedence over any default agent behaviour.
 
 **Critical:** Read [RULE 0](#rule-0--mandatory-hard-stop-read-this-first) before anything else.
 
@@ -98,8 +98,8 @@ The agent is responsible for:
 - Proactively suggesting improvements, simplifications, and alternatives — even when not asked
 - Writing, refactoring, and documenting code
 - Catching bugs, edge cases, and inconsistencies
-- **Acting as a keeper of architectural integrity** — identifying and flagging drift from DDD, CQRS, Event Sourcing, or
-  the module structure before it compounds
+- **Acting as a keeper of architectural integrity** — identifying and flagging drift from this project's documented
+  architecture before it compounds
 - Raising concerns about technical debt, naming inconsistencies, or structural erosion as they are noticed, not only
   when asked
 
@@ -116,118 +116,29 @@ task.
 
 ## Architecture — Essential Constraints
 
-**For comprehensive architecture details, see [docs/design/architecture.md](docs/design/architecture.md), which is
-the
-authoritative source of truth.**
+**The project's authoritative architecture is documented in [docs/design/architecture.md](docs/design/architecture.md).**
 
-This section covers the essential constraints that agents must enforce at all times.
+Agents must treat that document as the single source of truth for architectural boundaries, patterns, and constraints.
+Before proposing or implementing any change that affects structure, dependencies, or cross-module behaviour, consult
+the architecture document and verify the change aligns with it. If the document is ambiguous or the requested change
+would contradict the documented architecture, raise the issue to the developer and wait for explicit instruction.
 
-### Modules
+Key expectations:
 
-- TIC is organised using modules as first-class design boundaries with strict isolation rules
-- Modules communicate through domain events or via explicitly declared public APIs (Service Provider Interfaces)
-- Direct module-to-module imports are permitted only through public root exports declared in `__init__.py`; internal
-  module structures remain encapsulated
-    - Detailed module structure, boundaries, public API contracts, and enforcement rules are
-      in [docs/design/architecture.md](docs/design/architecture.md)
+- Consult [docs/design/architecture.md](docs/design/architecture.md) first for any architecture questions.
+- Verify changes do not contradict the documented architecture before implementing.
+- Raise potential architectural violations or uncertainties to the developer and await direction.
 
-### Layer Dependencies (Strict)
-
-```
-interface → application → domain
-infrastructure → any layer
-```
-
-**Non-negotiable rules:**
-
-- **domain/ and application/ have ZERO external dependencies** — no infrastructure, no other layers
-- No layer may import from `infrastructure/` — infrastructure is injected, never called directly
-- If a layer needs a service backed by a third-party dependency, declare an ABC in that layer; inject the concrete
-  implementation from `infrastructure/`
-- Violations must be flagged **before** implementation, not after
-
-### File Granularity
-
-**One file per concept:**
-
-- One use case per file, containing the command/query and its handler: `application/import_save.py`
-- One CLI command per file: `interface/cli/import_save.py`
-- `__init__.py` files aggregate and re-export only — no logic
-
-### CQRS & Event Sourcing (Strict)
-
-- Event store is append-only — events never modified/deleted
-- Projections are fully rebuildable from events
-- Command handlers emit events; may return minimal data (e.g. IDs) but never full aggregates
-- Query handlers read from projections, never from the event store directly
-
-### Save File Parsing
-
-- Parse defensively — missing keys are normal, not errors
-- Never fail due to unknown/missing fields
-- Unknown fields silently ignored
-
-### Violations Are Hard Constraints
-
-**Before implementing anything, verify it doesn't violate:**
-
-1. Layer dependencies (no domain depends on infrastructure)
-2. Module boundaries (no cross-module imports except via public exports)
-3. File granularity (new concepts get new files)
-4. Event sourcing rules (events immutable, projections rebuildable)
-
-**If a request violates these, refuse to implement and explain the conflict. Wait for a developer to revise the
-direction.**
 
 ---
 
 ## Coding Conventions
 
-### Language & Tooling
+Coding conventions and language/tooling-specific rules are maintained in a separate document:
 
-- Python 3.11+
-- Type hints everywhere — no untyped function signatures
-- Docstrings on all public classes and functions (Google style)
-- Dataclasses for value objects and events
-- No third-party dependencies in `domain/` layers
-- Prefer explicit over implicit
-- Prefer flat over nested
-- Small, single-purpose functions
-
-### Line Length
-
-- 88 characters maximum for all content: code, comments, and docstrings
-- Code lines are enforced by ruff; comments and docstrings are not — apply manually
-- Reflow wrapped lines to use the full width rather than breaking earlier than needed
-
-### Encoding
-
-Always pass `encoding="utf-8"` explicitly when opening files or calling `subprocess.run` with `text=True` — never rely
-on the system default. Windows systems use `cp1252` by default; omitting the encoding causes silent failures or decode
-errors when Unicode characters are present.
-
-### Language & Spelling
-
-Use British English spelling throughout code comments, docstrings, and documentation.
-
-Examples: `behaviour`, `visualisation`, `organisation`, `colour`, `analyse`, `optimise`
-
-This applies to comments, docstrings, and all written documentation (README, markdown, etc.).
-
-### Testing
-
-- Tests are written before the code they cover (TDD)
-- Tests live in a top-level `tests/` directory, mirroring the module structure
-- Tests have no dependency on `domain/` internals — test behaviour, not implementation
-- No test code inside the module directories
-
-### Commit Messages
-
-- Follow the Conventional Commits format: `type(scope): description`
-- ASCII only — no Unicode characters (no em dashes, arrows, bullets, etc.). Non-ASCII characters cause encoding errors
-  on Windows.
-- Use plain hyphens (`-`) or colons (`:`) instead of dashes or arrows
-- Body lines are plain prose; no special characters
+- See `docs/design/coding_conventions.md` for the project's coding standards, style rules, testing conventions, and
+  commit message guidelines. Treat that document as the authoritative source for coding practices.
+ - For Python-specific guidance (when working in Python code), see `docs/design/python_conventions.md`.
 
 ---
 
@@ -242,8 +153,8 @@ boilerplate grows, explore alternatives. But first, it must work and be tested.
 
 ### Pre-Production Stance: Breaking Changes Are Expected
 
-TIC is **not in production**. The codebase is actively being refactored and restructured. Breaking changes are expected
-and encouraged during development:
+This project is **not in production**. The codebase is actively being refactored and restructured. Breaking changes are
+expected and encouraged during development:
 
 - Do not maintain backwards compatibility between modules for the sake of it.
 - When extracting code to a framework, remove re-exports and old imports from the source modules.
