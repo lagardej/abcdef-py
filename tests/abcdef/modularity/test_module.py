@@ -1,16 +1,16 @@
-"""Tests for abcdef.modulith.module — module types."""
+"""Tests for abcdef.modularity.module — module types."""
 
 from pathlib import Path
 
 import pytest
 
-from abcdef.modulith.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modulith.module import (
+from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
+from abcdef.modularity.module import (
     CommandModule,
     ModuleDeclaration,
     QueryModule,
 )
-from abcdef.modulith.validation import PublicApi
+from abcdef.modularity.validation import PublicApi
 
 
 class TestModuleDeclaration:

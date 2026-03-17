@@ -1,15 +1,15 @@
-"""Tests for abcdef.modulith.report — Markdown documentation generation."""
+"""Tests for abcdef.modularity.report — Markdown documentation generation."""
 
 from pathlib import Path
 
-from abcdef.modulith.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modulith.module import (
+from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
+from abcdef.modularity.module import (
     CommandModule,
     ModuleDeclaration,
     QueryModule,
 )
-from abcdef.modulith.report import MarkdownReporter
-from abcdef.modulith.validation import PublicApi, PublicApiSymbol
+from abcdef.modularity.report import MarkdownReporter
+from abcdef.modularity.validation import PublicApi, PublicApiSymbol
 
 
 class TestMarkdownReporter:

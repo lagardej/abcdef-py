@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 
-from abcdef.modulith.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modulith.validation import PublicApi
+from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
+from abcdef.modularity.validation import PublicApi
 
 
 @dataclass(frozen=True)

@@ -1,4 +1,4 @@
-"""Boundary validation for modulith modules."""
+"""Boundary validation for modularity modules."""
 
 from __future__ import annotations
 
@@ -6,16 +6,16 @@ import ast
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from abcdef.modulith.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modulith.module import Module
-from abcdef.modulith.validation import Violation
+from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
+from abcdef.modularity.module import Module
+from abcdef.modularity.validation import Violation
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
 class BoundaryValidator:
-    """Validates modulith architectural constraints."""
+    """Validates modularity architectural constraints."""
 
     def __init__(self, modules: Sequence[Module]) -> None:
         """Initialise validator with modules.

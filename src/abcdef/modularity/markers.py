@@ -1,10 +1,10 @@
-"""Modulith architecture markers.
+"""Modularity architecture markers.
 
-Markers that declare architectural concepts specific to modulith:
+Markers that declare architectural concepts specific to modularity:
 module type declaration and Service Provider Interface (SPI) exposure.
 
 Marker attribute convention:
-- modulith/ uses ``__modulith_type__``
+- modularity/ uses ``__modularity_type__``
 """
 
 # Constants for module type declaration

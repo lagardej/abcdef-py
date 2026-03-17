@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Violation:
-    """A single modulith constraint violation.
+    """A single modularity constraint violation.
 
     Attributes:
         module_name: Logical module name where violation occurred.
@@ -49,7 +49,7 @@ class PublicApi:
         commands: Symbols marked as commands (`__cqrs_type__ = "command"`).
         queries: Symbols marked as queries (`__cqrs_type__ = "query"`).
         events: Symbols marked as domain events (`__ddd_type__ = "domain_event"`).
-        spis: Symbols marked as SPIs (`__modulith_type__ = "spi"`).
+        spis: Symbols marked as SPIs (`__modularity_type__ = "spi"`).
     """
 
     symbols: frozenset[PublicApiSymbol]

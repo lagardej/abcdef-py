@@ -1,12 +1,12 @@
-# Modulith — Modular Architecture Validation and Documentation
+# Modularity — Modular Architecture Validation and Documentation
 
 Tools for application developers to enforce, validate, and document the modular architecture of their applications built on the ABCDEF framework.
 
 ## Purpose
 
-`abcdef.modulith` helps applications declare their module structure explicitly and enforce architectural constraints:
+`abcdef.modularity` helps applications declare their module structure explicitly and enforce architectural constraints:
 
-- **Explicit module declaration** — each module declares its type (command or query) and metadata via `__modulith__` dict in `__init__.py`
+- **Explicit module declaration** — each module declares its type (command or query) and metadata via `__modularity__` dict in `__init__.py`
 - **Validation** — checks that modules respect their declared type and don't cross architectural boundaries
 - **Documentation** — generates clean Markdown showing each module's public API and inter-module communication (events, SPIs)
 
@@ -21,7 +21,7 @@ In each module's `__init__.py`:
 
 # ... your exports ...
 
-__modulith__ = {
+__modularity__ = {
     "type": "command_module",  # or "query_module"
     "name": "orders",          # optional: defaults to package name
     "description": "...",      # optional: defaults to docstring above
@@ -32,12 +32,12 @@ __modulith__ = {
 
 ```python
 from pathlib import Path
-from abcdef.modulith import Modulith
+from abcdef.modularity import Modularity
 
-modulith = Modulith(Path.cwd())
-modules = modulith.discover()
-violations = modulith.validate()
-docs = modulith.generate_docs()
+modularity = Modularity(Path.cwd())
+modules = modularity.discover()
+violations = modularity.validate()
+docs = modularity.generate_docs()
 
 # Print violations (if any) or save docs
 if violations:
@@ -78,7 +78,7 @@ Read side. Projects events into read models, serves queries.
 Modules communicate **only through their root exports** (`__init__.py`).
 
 - **Events published** — commands/queries/events declared in root and decorated with framework markers
-- **SPIs** — abstract classes marked with `@spi` (modulith marker)
+- **SPIs** — abstract classes marked with `@spi` (modularity marker)
 - **No internal imports** — layers (domain, application, infrastructure, projection) must not import from other modules' internals
 
 ## Validation Checks
@@ -119,7 +119,7 @@ Two example modules in an application:
 from .commands import CreateOrder, FulfillOrder
 from .events import OrderCreated, OrderFulfilled
 
-__modulith__ = {
+__modularity__ = {
     "type": "command_module",
     "name": "orders",
 }
@@ -134,7 +134,7 @@ __all__ = ["CreateOrder", "FulfillOrder", "OrderCreated", "OrderFulfilled"]
 from .queries import OrderSummary, OrderHistory
 from .projections import OrderDocument
 
-__modulith__ = {
+__modularity__ = {
     "type": "query_module",
     "name": "reports",
 }
@@ -144,7 +144,7 @@ __all__ = ["OrderSummary", "OrderHistory", "OrderDocument"]
 
 ### Generated Documentation
 
-Running `modulith.generate_docs()` produces:
+Running `modularity.generate_docs()` produces:
 
 ```markdown
 # Module Documentation
@@ -203,31 +203,31 @@ This keeps the documentation focused on the public contract: what commands trigg
 
 ## Module Discovery
 
-The `discover()` method scans the project for packages declaring `__modulith__` and loads them as `CommandModule` or `QueryModule` objects. It:
+The `discover()` method scans the project for packages declaring `__modularity__` and loads them as `CommandModule` or `QueryModule` objects. It:
 
 - Recursively walks the project from the root path
 - Skips `tests/`, `venv/`, and `abcdef/` directories
-- Reads each package's `__init__.py` for the `__modulith__` dict
+- Reads each package's `__init__.py` for the `__modularity__` dict
 - Extracts the module's docstring as description if not explicitly set
 - Discovers the module's public API by importing and inspecting exported symbols
 
 ## Error Handling
 
-- **Missing type** — raises `ValueError` if `__modulith__['type']` is absent
+- **Missing type** — raises `ValueError` if `__modularity__['type']` is absent
 - **Invalid type** — raises `ValueError` if type is not `"command_module"` or `"query_module"`
 - **Import errors** — captured gracefully; module structure is still discoverable even if imports fail
 - **Violations** — collected and returned as `Violation` objects, not raised as exceptions
 
 ## Usage in Tests
 
-Use `modulith.validate()` in a test to enforce boundaries:
+Use `modularity.validate()` in a test to enforce boundaries:
 
 ```python
 def test_module_boundaries():
-    """Enforce modulith architecture constraints."""
-    modulith = Modulith(Path(__file__).parent.parent.parent)
-    modulith.discover()
-    violations = modulith.validate()
+    """Enforce modularity architecture constraints."""
+    modularity = Modularity(Path(__file__).parent.parent.parent)
+    modularity.discover()
+    violations = modularity.validate()
     
     assert violations == [], "\n".join(
         f"{v.module_name}: {v.message}" for v in violations
@@ -236,20 +236,20 @@ def test_module_boundaries():
 
 ## Markers
 
-Modulith recognises markers from the framework:
+Modularity recognises markers from the framework:
 
 | Marker | Attribute | From | Purpose |
 |---|---|---|---|
 | `@command` | `__cqrs_type__ = "command"` | `abcdef.c.markers` | Command in CQRS |
 | `@query` | `__cqrs_type__ = "query"` | `abcdef.c.markers` | Query in CQRS |
 | `@domain_event` | `__ddd_type__ = "domain_event"` | `abcdef.d.markers` | Domain event in DDD |
-| `@spi` | `__modulith_type__ = "spi"` | `abcdef.modulith.markers` | Service Provider Interface |
+| `@spi` | `__modularity_type__ = "spi"` | `abcdef.modularity.markers` | Service Provider Interface |
 
-No new decorators are needed for most code; the framework markers are sufficient. `@spi` is the only modulith-specific marker and is optional (use it to explicitly mark abstract base classes intended as contracts).
+No new decorators are needed for most code; the framework markers are sufficient. `@spi` is the only modularity-specific marker and is optional (use it to explicitly mark abstract base classes intended as contracts).
 
 ## Acknowledgments
 
-`abcdef.modulith` is directly inspired by [Spring Modulith](https://spring.io/projects/spring-modulith), a library for building modular Spring applications. 
+`abcdef.modularity` is directly inspired by [Spring Modulith](https://spring.io/projects/spring-modulith), a library for building modular Spring applications.
 
 Spring Modulith defined most of the concepts and validation rules implemented here:
 
@@ -259,13 +259,13 @@ Spring Modulith defined most of the concepts and validation rules implemented he
 - **Import boundary validation** — layers within a module must not bypass public APIs to import from other modules' internals
 - **Documentation focus** on "what" (public API and communication) rather than "how" (implementation details)
 
-The key difference: `abcdef.modulith` is tailored for ABCDEF applications (DDD, CQRS, Event Sourcing) and uses Python idioms (`__modulith__` dict, AST parsing) rather than Java/Spring conventions. The architecture principles, however, are directly drawn from Spring Modulith's proven approach.
+The key difference: `abcdef.modularity` is tailored for ABCDEF applications (DDD, CQRS, Event Sourcing) and uses Python idioms (`__modularity__` dict, AST parsing) rather than Java/Spring conventions. The architecture principles, however, are directly drawn from Spring Modulith's proven approach.
 
 ## Public API
 
 **Entry point:**
 
-- `Modulith(root_path)` — discover and validate modules
+- `Modularity(root_path)` — discover and validate modules
 
 **Results:**
 

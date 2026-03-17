@@ -1,8 +1,8 @@
-"""Tests for abcdef.modulith.validation — violation detection."""
+"""Tests for abcdef.modularity.validation — violation detection."""
 
 import pytest
 
-from abcdef.modulith.validation import PublicApi, PublicApiSymbol, Violation
+from abcdef.modularity.validation import PublicApi, PublicApiSymbol, Violation
 
 
 class TestViolation:

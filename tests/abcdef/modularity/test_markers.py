@@ -1,6 +1,6 @@
-"""Tests for abcdef.modulith — marker constants."""
+"""Tests for abcdef.modularity — marker constants."""
 
-from abcdef.modulith.markers import COMMAND_MODULE, QUERY_MODULE, SPI
+from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE, SPI
 
 
 class TestMarkerConstants:

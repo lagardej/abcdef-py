@@ -1,27 +1,27 @@
-"""Tests for abcdef.modulith — integration and registry."""
+"""Tests for abcdef.modularity — integration and registry."""
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
 
-from abcdef.modulith.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modulith.registry import Modulith
+from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
+from abcdef.modularity.registry import Modularity
 
 
-class TestModulithDiscovery:
+class TestModularityDiscovery:
     """Tests for module discovery."""
 
     def test_discover_no_modules_returns_empty(self) -> None:
         """No declared modules returns empty list."""
         with TemporaryDirectory() as tmpdir:
-            modulith = Modulith(Path(tmpdir))
-            modules = modulith.discover()
+            modularity = Modularity(Path(tmpdir))
+            modules = modularity.discover()
 
             assert modules == []
 
     def test_discover_command_module(self) -> None:
-        """Discover a command module with __modulith__ declaration."""
+        """Discover a command module with __modularity__ declaration."""
         with TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             module_dir = root / "myapp" / "orders"
@@ -30,15 +30,15 @@ class TestModulithDiscovery:
             # Create __init__.py with declaration
             init_code = f"""\"\"\"Order management module.\"\"\"
 
-__modulith__ = {{
+__modularity__ = {{
     "type": "{COMMAND_MODULE}",
     "name": "orders",
 }}
 """
             (module_dir / "__init__.py").write_text(init_code, encoding="utf-8")
 
-            modulith = Modulith(root)
-            modules = modulith.discover()
+            modularity = Modularity(root)
+            modules = modularity.discover()
 
             assert len(modules) == 1
             module = modules[0]
@@ -54,15 +54,15 @@ __modulith__ = {{
 
             init_code = f"""\"\"\"Reporting module.\"\"\"
 
-__modulith__ = {{
+__modularity__ = {{
     "type": "{QUERY_MODULE}",
     "name": "reports",
 }}
 """
             (module_dir / "__init__.py").write_text(init_code, encoding="utf-8")
 
-            modulith = Modulith(root)
-            modules = modulith.discover()
+            modularity = Modularity(root)
+            modules = modularity.discover()
 
             assert len(modules) == 1
             assert modules[0].declaration.module_type == QUERY_MODULE
@@ -76,14 +76,14 @@ __modulith__ = {{
 
             init_code = f"""\"\"\"Handle order creation and management.\"\"\"
 
-__modulith__ = {{
+__modularity__ = {{
     "type": "{COMMAND_MODULE}",
 }}
 """
             (module_dir / "__init__.py").write_text(init_code, encoding="utf-8")
 
-            modulith = Modulith(root)
-            modules = modulith.discover()
+            modularity = Modularity(root)
+            modules = modularity.discover()
 
             assert (
                 modules[0].declaration.description
@@ -97,15 +97,15 @@ __modulith__ = {{
             module_dir = root / "myapp" / "orders_cmd"  # physical name
             module_dir.mkdir(parents=True)
 
-            init_code = f"""__modulith__ = {{
+            init_code = f"""__modularity__ = {{
     "type": "{COMMAND_MODULE}",
     "name": "orders",  # logical name
 }}
 """
             (module_dir / "__init__.py").write_text(init_code, encoding="utf-8")
 
-            modulith = Modulith(root)
-            modules = modulith.discover()
+            modularity = Modularity(root)
+            modules = modularity.discover()
 
             assert modules[0].declaration.name == "orders"  # logical name used
             assert modules[0].path.name == "orders_cmd"  # physical name in path
@@ -117,15 +117,15 @@ __modulith__ = {{
             module_dir = root / "myapp" / "invalid"
             module_dir.mkdir(parents=True)
 
-            init_code = """__modulith__ = {
+            init_code = """__modularity__ = {
     "type": "invalid_type",
 }
 """
             (module_dir / "__init__.py").write_text(init_code, encoding="utf-8")
 
-            modulith = Modulith(root)
+            modularity = Modularity(root)
             with pytest.raises(ValueError, match="must be"):
-                modulith.discover()
+                modularity.discover()
 
     def test_skips_test_directories(self) -> None:
         """Modules in tests/ directories are skipped."""
@@ -136,7 +136,7 @@ __modulith__ = {{
             app_dir = root / "myapp" / "orders"
             app_dir.mkdir(parents=True)
             (app_dir / "__init__.py").write_text(
-                f'__modulith__ = {{"type": "{COMMAND_MODULE}"}}',
+                f'__modularity__ = {{"type": "{COMMAND_MODULE}"}}',
                 encoding="utf-8",
             )
 
@@ -144,18 +144,18 @@ __modulith__ = {{
             test_dir = root / "tests" / "orders"
             test_dir.mkdir(parents=True)
             (test_dir / "__init__.py").write_text(
-                f'__modulith__ = {{"type": "{COMMAND_MODULE}"}}',
+                f'__modularity__ = {{"type": "{COMMAND_MODULE}"}}',
                 encoding="utf-8",
             )
 
-            modulith = Modulith(root)
-            modules = modulith.discover()
+            modularity = Modularity(root)
+            modules = modularity.discover()
 
             # Only app module should be discovered
             assert len(modules) == 1
 
 
-class TestModulithValidation:
+class TestModularityValidation:
     """Tests for validation."""
 
     def test_validate_returns_empty_for_valid_modules(self) -> None:
@@ -166,18 +166,18 @@ class TestModulithValidation:
             module_dir.mkdir(parents=True)
 
             (module_dir / "__init__.py").write_text(
-                f'__modulith__ = {{"type": "{COMMAND_MODULE}"}}',
+                f'__modularity__ = {{"type": "{COMMAND_MODULE}"}}',
                 encoding="utf-8",
             )
 
-            modulith = Modulith(root)
-            modulith.discover()
-            violations = modulith.validate()
+            modularity = Modularity(root)
+            modularity.discover()
+            violations = modularity.validate()
 
             assert violations == []
 
 
-class TestModulithDocs:
+class TestModularityDocs:
     """Tests for documentation generation."""
 
     def test_generate_docs_produces_markdown(self) -> None:
@@ -189,15 +189,15 @@ class TestModulithDocs:
 
             init_code = f"""\"\"\"Order management.\"\"\"
 
-__modulith__ = {{
+__modularity__ = {{
     "type": "{COMMAND_MODULE}",
 }}
 """
             (module_dir / "__init__.py").write_text(init_code, encoding="utf-8")
 
-            modulith = Modulith(root)
-            modulith.discover()
-            docs = modulith.generate_docs()
+            modularity = Modularity(root)
+            modularity.discover()
+            docs = modularity.generate_docs()
 
             assert "# Module Documentation" in docs
             assert "orders" in docs

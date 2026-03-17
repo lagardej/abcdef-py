@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-from abcdef.modulith.validation import PublicApi, PublicApiSymbol
+from abcdef.modularity.validation import PublicApi, PublicApiSymbol
 
 if TYPE_CHECKING:
     from types import ModuleType
@@ -23,7 +23,7 @@ def _get_marker(cls: type, marker_attr: str) -> str | None:
     Args:
         cls: The class to inspect.
         marker_attr: The marker attribute name (``__cqrs_type__``, ``__ddd_type__``,
-            ``__de_type__``, ``__modulith_type__``, or ``__specification_type__``).
+            ``__de_type__``, ``__modularity_type__``, or ``__specification_type__``).
 
     Returns:
         The marker value if found on the class or any base class, None otherwise.
@@ -103,7 +103,7 @@ class PublicApiExtractor:
             # Check markers in priority order
             cqrs_marker = _get_marker(obj, "__cqrs_type__")
             ddd_marker = _get_marker(obj, "__ddd_type__")
-            modulith_marker = _get_marker(obj, "__modulith_type__")
+            modularity_marker = _get_marker(obj, "__modularity_type__")
 
             if cqrs_marker == "command":
                 symbol = PublicApiSymbol(name=name, kind="command", full_path=full_path)
@@ -117,7 +117,7 @@ class PublicApiExtractor:
                 symbol = PublicApiSymbol(name=name, kind="event", full_path=full_path)
                 events.append(symbol)
                 symbols[-1] = symbol
-            elif modulith_marker == "spi":
+            elif modularity_marker == "spi":
                 symbol = PublicApiSymbol(name=name, kind="spi", full_path=full_path)
                 spis.append(symbol)
                 symbols[-1] = symbol

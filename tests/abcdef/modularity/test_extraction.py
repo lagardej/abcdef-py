@@ -1,11 +1,11 @@
-"""Tests for abcdef.modulith.extraction — public API extraction."""
+"""Tests for abcdef.modularity.extraction — public API extraction."""
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from abcdef.c.markers import command, query
-from abcdef.modulith.extraction import PublicApiExtractor, _get_marker
-from abcdef.modulith.validation import PublicApi
+from abcdef.modularity.extraction import PublicApiExtractor, _get_marker
+from abcdef.modularity.validation import PublicApi
 
 
 class TestGetMarker:

@@ -1,11 +1,11 @@
-"""Documentation generation from modulith metadata."""
+"""Documentation generation from modularity metadata."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from abcdef.modulith.module import Module
+    from abcdef.modularity.module import Module
 
 
 class MarkdownReporter:

@@ -1,32 +1,32 @@
-"""Modulith — modularity discovery, validation, and documentation generation."""
+"""Modularity — modularity discovery, validation, and documentation generation."""
 
 from __future__ import annotations
 
 import ast
 from pathlib import Path
 
-from abcdef.modulith.extraction import PublicApiExtractor
-from abcdef.modulith.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modulith.module import (
+from abcdef.modularity.extraction import PublicApiExtractor
+from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
+from abcdef.modularity.module import (
     CommandModule,
     Module,
     ModuleDeclaration,
     QueryModule,
 )
-from abcdef.modulith.report import MarkdownReporter
-from abcdef.modulith.validation import Violation
-from abcdef.modulith.validation_boundary import BoundaryValidator
+from abcdef.modularity.report import MarkdownReporter
+from abcdef.modularity.validation import Violation
+from abcdef.modularity.validation_boundary import BoundaryValidator
 
 
-class Modulith:
+class Modularity:
     """Discover, validate, and document modules in an application.
 
-    Scans a project for packages declaring `__modulith__` metadata and
+    Scans a project for packages declaring `__modularity__` metadata and
     enforces architectural constraints.
     """
 
     def __init__(self, root_path: Path) -> None:
-        """Initialise modulith for a project.
+        """Initialise modularity for a project.
 
         Args:
             root_path: Root directory of the project (the package parent).
@@ -39,7 +39,7 @@ class Modulith:
     def discover(self) -> list[Module]:
         """Discover all declared modules.
 
-        Scans the project for packages with `__modulith__` declaration in
+        Scans the project for packages with `__modularity__` declaration in
         `__init__.py` and loads them as Module objects.
 
         Returns:
@@ -50,7 +50,7 @@ class Modulith:
         """
         self.modules = []
 
-        # Find all packages with __modulith__ declaration
+        # Find all packages with __modularity__ declaration
         for init_file in self.root_path.rglob("__init__.py"):
             module_path = init_file.parent
 
@@ -104,7 +104,7 @@ class Modulith:
     ) -> ModuleDeclaration | None:
         """Read module declaration from __init__.py.
 
-        Looks for `__modulith__` dict with `type` and optional `name`.
+        Looks for `__modularity__` dict with `type` and optional `name`.
         Extracts module docstring as description if not set.
 
         Args:
@@ -120,42 +120,42 @@ class Modulith:
         source = init_file.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(init_file))
 
-        # Extract __modulith__ dict and module docstring
-        modulith_dict: dict[str, str] | None = None
+        # Extract __modularity__ dict and module docstring
+        modularity_dict: dict[str, str] | None = None
         module_docstring = ast.get_docstring(tree)
 
         for node in ast.iter_child_nodes(tree):
             if isinstance(node, ast.Assign):
                 for target in node.targets:
-                    if isinstance(target, ast.Name) and target.id == "__modulith__":
+                    if isinstance(target, ast.Name) and target.id == "__modularity__":
                         if isinstance(node.value, ast.Dict):
-                            modulith_dict = {}
+                            modularity_dict = {}
                             for key, value in zip(node.value.keys, node.value.values):
                                 if isinstance(key, ast.Constant) and isinstance(
                                     value, ast.Constant
                                 ):
-                                    modulith_dict[key.value] = value.value
+                                    modularity_dict[key.value] = value.value
 
-        if modulith_dict is None:
+        if modularity_dict is None:
             return None
 
-        module_type = modulith_dict.get("type")
+        module_type = modularity_dict.get("type")
         if not module_type:
             raise ValueError(
-                f"{init_file}: __modulith__ declaration missing required 'type'"
+                f"{init_file}: __modularity__ declaration missing required 'type'"
             )
 
         if module_type not in (COMMAND_MODULE, QUERY_MODULE):
             raise ValueError(
-                f"{init_file}: __modulith__['type'] must be "
+                f"{init_file}: __modularity__['type'] must be "
                 f"'{COMMAND_MODULE}' or '{QUERY_MODULE}', got '{module_type}'"
             )
 
         # Logical name: explicit or inferred from package name
-        name = modulith_dict.get("name") or module_path.name
+        name = modularity_dict.get("name") or module_path.name
 
         # Description: explicit or from docstring
-        description = modulith_dict.get("description") or (module_docstring or "")
+        description = modularity_dict.get("description") or (module_docstring or "")
 
         return ModuleDeclaration(
             module_type=module_type, name=name, description=description
