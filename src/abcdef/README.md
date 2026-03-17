@@ -53,7 +53,7 @@ Shared primitives live in `b/`:
 | `c/`             | CQRS      | `Command`, `CommandHandler`, `Query`, `QueryHandler`, `MessageBus` / `CommandBus` / `QueryBus` / `EventBus`, `Document`, `DocumentStore`, `Projector`                                  |
 | `d/`             | DDD       | `AggregateRoot`, `AggregateId`, `EventEmittingAggregate`, `DomainEvent`, `DomainEventRegistry`, `ValueObject`, `Repository`                                                            |
 | `de/`            | DDD + ES  | `EventSourcedAggregate`, `AggregateState`, `EventStore`, `AggregateStore`, `EventSourcedRepository`, `EventSourcedDomainEvent`, `AggregateRegistry`, `EventSourcedDomainEventRegistry` |
-| `specification/` | DDD       | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker                                                                                                                 |
+| `specification/` | —         | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker                                                                                                                 |
 
 <a id="event"></a>
 - **Event** — Immutable record of something that happened in the domain
