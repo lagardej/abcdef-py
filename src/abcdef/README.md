@@ -56,6 +56,7 @@ Shared primitives live in `b/`:
 | `c/`             | CQRS      | `Command`, `CommandHandler`, `Query`, `QueryHandler`, `MessageBus` / `CommandBus` / `QueryBus` / `EventBus`, `Document`, `DocumentStore`, `Projector`                                  |
 | `d/`             | DDD       | `AggregateRoot`, `AggregateId`, `EventEmittingAggregate`, `DomainEvent`, `DomainEventRegistry`, `ValueObject`, `Repository`                                                            |
 | `de/`            | DDD + ES  | `EventSourcedAggregate`, `AggregateState`, `EventStore`, `AggregateStore`, `EventSourcedRepository`, `EventSourcedDomainEvent`, `AggregateRegistry`, `EventSourcedDomainEventRegistry` |
+| `in_memory/`     | Implementations | `InMemoryRepository`, `InMemoryDocumentStore`, `InMemoryEventBus`, `InMemoryEventStore`, `InMemoryAggregateStore`                                                                 |
 | `specification/` | —         | `Specification` ABC, `&`/`\|`/`~` combinators, `@specification` marker                                                                                                                 |
 
 <a id="event"></a>
