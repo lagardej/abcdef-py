@@ -134,7 +134,7 @@ Each paradigm package exposes decorators for runtime annotation:
 | `@command`, `@query`, `@command_handler`, `@query_handler`, `@document`, `@document_store`, `@projector` | `c/`             | `__cqrs_type__` |
 | `@aggregate`, `@value_object`, `@repository`, `@domain_service`, `@factory`, `@identifier`               | `d/`             | `__ddd_type__`  |
 | `@event_store`, `@aggregate_store`                                                                       | `de/`            | `__de_type__`   |
-| `@specification`                                                                                         | `specification/` | `__ddd_type__`  |
+| `@specification`                                                                                         | `specification/` | `__specification_type__` |
 
 `_get_marker(cls, attr)` (from `core/markers.py`) inspects a class or its parents for a marker attribute.
 

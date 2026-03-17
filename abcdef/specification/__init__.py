@@ -4,7 +4,8 @@ Provides the Specification ABC, combinators, and the @specification architecture
 marker.
 """
 
-from .specification import Specification, specification
+from .markers import specification
+from .specification import Specification
 
 __all__ = [
     "Specification",

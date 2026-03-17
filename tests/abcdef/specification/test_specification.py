@@ -2,7 +2,8 @@
 
 import pytest
 
-from abcdef.specification import Specification, specification
+from abcdef.specification import Specification
+from abcdef.specification.markers import specification as specification_marker
 
 # ---------------------------------------------------------------------------
 # Concrete specification fixtures
@@ -216,15 +217,15 @@ class TestMixedCombinators:
 class TestSpecificationMarker:
     """Tests for the @specification decorator."""
 
-    def test_marker_sets_ddd_type(self) -> None:
-        """@specification sets __ddd_type__ to 'specification'."""
+    def test_marker_sets_specification_type(self) -> None:
+        """@specification sets __specification_type__ to 'specification'."""
 
-        @specification
+        @specification_marker
         class MySpec(Specification[int]):
             def is_satisfied_by(self, candidate: int) -> bool:
                 return True
 
-        assert MySpec.__ddd_type__ == "specification"  # type: ignore[attr-defined]
+        assert MySpec.__specification_type__ == "specification"  # type: ignore[attr-defined]
 
     def test_marker_returns_class_unchanged(self) -> None:
         """@specification returns the decorated class itself."""
@@ -233,13 +234,13 @@ class TestSpecificationMarker:
             def is_satisfied_by(self, candidate: int) -> bool:
                 return True
 
-        result = specification(MySpec)
+        result = specification_marker(MySpec)
         assert result is MySpec
 
     def test_marker_inherited_by_subclass(self) -> None:
         """@specification marker is inherited by subclasses."""
 
-        @specification
+        @specification_marker
         class Base(Specification[int]):
             def is_satisfied_by(self, candidate: int) -> bool:
                 return True
@@ -247,4 +248,4 @@ class TestSpecificationMarker:
         class Sub(Base):
             pass
 
-        assert Sub.__ddd_type__ == "specification"  # type: ignore[attr-defined]
+        assert Sub.__specification_type__ == "specification"  # type: ignore[attr-defined]

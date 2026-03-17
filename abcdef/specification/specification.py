@@ -8,7 +8,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
+from . import markers
 
+
+@markers.specification
 class Specification[T](ABC):
     """Abstract base for domain specifications.
 
@@ -160,19 +163,3 @@ class _NotSpecification[T](Specification[T]):
             True if the inner specification is not satisfied.
         """
         return not self._inner.is_satisfied_by(candidate)
-
-
-def specification[T](cls: T) -> T:
-    """Mark a class as a Specification.
-
-    A Specification encapsulates complex business rules that can be reused across
-    multiple contexts. Marker is inherited by subclasses.
-
-    Args:
-        cls: The class to mark as a specification.
-
-    Returns:
-        The class with ``__ddd_type__ = "specification"`` metadata.
-    """
-    cls.__ddd_type__ = "specification"  # type: ignore[attr-defined]
-    return cls
