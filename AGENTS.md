@@ -37,7 +37,7 @@ For any non-trivial task, follow this sequence:
 1. **Read** the relevant files first
 2. **State** your understanding of what needs to change and why
 3. **STOP HERE → WAIT FOR EXPLICIT GO-AHEAD** (see RULE 0 above)
-4. Write the tests
+4. Write the tests — For code changes, write tests. (Skip if the task produces no code.)
 5. Implement
 6. Note anything deferred or assumed
 7. **WAIT FOR MANUAL VALIDATION** — before updating documentation, wait for explicit confirmation that the work is
