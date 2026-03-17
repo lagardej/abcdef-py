@@ -1,15 +1,19 @@
-import ast
+"""Tests for BoundaryValidator — read/write, facade, and import-boundary rules."""
+
 from pathlib import Path
 
 import pytest
 
 from abcdef.modularity.module import CommandModule, ModuleDeclaration, QueryModule
 from abcdef.modularity.validation import PublicApi, PublicApiSymbol
-from abcdef.modularity.validation import Violation
 from abcdef.modularity.validation_boundary import BoundaryValidator
 
 
-def _public_api_with(symbols=(), commands=(), queries=()):
+def _public_api_with(
+    symbols: tuple[PublicApiSymbol, ...] = (),
+    commands: tuple[PublicApiSymbol, ...] = (),
+    queries: tuple[PublicApiSymbol, ...] = (),
+) -> PublicApi:
     return PublicApi(
         symbols=frozenset(symbols),
         commands=frozenset(commands),
@@ -19,13 +23,15 @@ def _public_api_with(symbols=(), commands=(), queries=()):
     )
 
 
-def test_read_write_constraints_command_exports_query(tmp_path):
-    # Command module that exposes a query should produce a read_write_constraint violation
+def test_read_write_constraints_command_exports_query(tmp_path: Path) -> None:
+    """Command module that exposes a query produces a read_write_constraint."""
     module_path = tmp_path / "cmd_module"
     module_path.mkdir()
     decl = ModuleDeclaration(module_type="command_module", name="app.commands")
 
-    query_sym = PublicApiSymbol(name="get_x", kind="query", full_path="app.commands.get_x")
+    query_sym = PublicApiSymbol(
+        name="get_x", kind="query", full_path="app.commands.get_x"
+    )
     api = _public_api_with(queries=(query_sym,))
 
     module = CommandModule(_declaration=decl, _path=module_path, _public_api=api)
@@ -34,11 +40,14 @@ def test_read_write_constraints_command_exports_query(tmp_path):
 
     violations = validator.validate()
 
-    assert any(v.violation_type == "read_write_constraint" and v.module_name == decl.name for v in violations)
+    assert any(
+        v.violation_type == "read_write_constraint" and v.module_name == decl.name
+        for v in violations
+    )
 
 
-def test_read_write_constraints_query_exports_command(tmp_path):
-    # Query module that exposes a command should produce a read_write_constraint violation
+def test_read_write_constraints_query_exports_command(tmp_path: Path) -> None:
+    """Query module that exposes a command produces a read_write_constraint."""
     module_path = tmp_path / "qry_module"
     module_path.mkdir()
     decl = ModuleDeclaration(module_type="query_module", name="app.queries")
@@ -51,11 +60,16 @@ def test_read_write_constraints_query_exports_command(tmp_path):
     validator = BoundaryValidator([module])
     violations = validator.validate()
 
-    assert any(v.violation_type == "read_write_constraint" and v.module_name == decl.name for v in violations)
+    assert any(
+        v.violation_type == "read_write_constraint" and v.module_name == decl.name
+        for v in violations
+    )
 
 
-def test_facade_rule_reexports_foreign_module(tmp_path, monkeypatch):
-    # Create a module with an __init__.py that re-exports from a foreign app module
+def test_facade_rule_reexports_foreign_module(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Module __init__.py that re-exports from a foreign app module is a facade_rule."""
     module_path = tmp_path / "facade_mod"
     module_path.mkdir()
     init_file = module_path / "__init__.py"
@@ -65,10 +79,9 @@ def test_facade_rule_reexports_foreign_module(tmp_path, monkeypatch):
     api = _public_api_with()
     module = CommandModule(_declaration=decl, _path=module_path, _public_api=api)
 
-    # Make module name derivation deterministic for the test
     name_map = {module_path: decl.name}
 
-    def fake_module_name(self, path: Path) -> str:
+    def fake_module_name(self: BoundaryValidator, path: Path) -> str:
         return name_map.get(path, path.name)
 
     monkeypatch.setattr(BoundaryValidator, "_module_name_from_path", fake_module_name)
@@ -76,11 +89,16 @@ def test_facade_rule_reexports_foreign_module(tmp_path, monkeypatch):
     validator = BoundaryValidator([module])
     violations = validator.validate()
 
-    assert any(v.violation_type == "facade_rule" and v.module_name == decl.name for v in violations)
+    assert any(
+        v.violation_type == "facade_rule" and v.module_name == decl.name
+        for v in violations
+    )
 
 
-def test_import_boundaries_detect_internal_imports(tmp_path, monkeypatch):
-    # Create two modules: this.mod and other.mod. this.mod contains a submodule that imports internals
+def test_import_boundaries_detect_internal_imports(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Layer file importing module internals produces an import_boundary violation."""
     this_path = tmp_path / "this_mod"
     this_path.mkdir()
     (this_path / "layer").mkdir()
@@ -93,13 +111,17 @@ def test_import_boundaries_detect_internal_imports(tmp_path, monkeypatch):
     this_decl = ModuleDeclaration(module_type="command_module", name="this.mod")
     other_decl = ModuleDeclaration(module_type="query_module", name="other.mod")
 
-    this_module = CommandModule(_declaration=this_decl, _path=this_path, _public_api=PublicApi.empty())
-    other_module = QueryModule(_declaration=other_decl, _path=other_path, _public_api=PublicApi.empty())
+    this_module = CommandModule(
+        _declaration=this_decl, _path=this_path, _public_api=PublicApi.empty()
+    )
+    other_module = QueryModule(
+        _declaration=other_decl, _path=other_path, _public_api=PublicApi.empty()
+    )
 
-    # Map paths to logical module names so validator logic can compare names deterministically
+    # Map paths to logical module names for deterministic name comparison.
     name_map = {this_path: this_decl.name, other_path: other_decl.name}
 
-    def fake_module_name(self, path: Path) -> str:
+    def fake_module_name(self: BoundaryValidator, path: Path) -> str:
         return name_map.get(path, path.name)
 
     monkeypatch.setattr(BoundaryValidator, "_module_name_from_path", fake_module_name)
@@ -107,12 +129,17 @@ def test_import_boundaries_detect_internal_imports(tmp_path, monkeypatch):
     validator = BoundaryValidator([this_module, other_module])
     violations = validator.validate()
 
-    # Should detect an import_boundary violation for the deep import from other.mod.internals
-    assert any(v.violation_type == "import_boundary" and v.module_name == this_decl.name for v in violations)
+    # Should detect an import_boundary violation for the deep import.
+    assert any(
+        v.violation_type == "import_boundary" and v.module_name == this_decl.name
+        for v in violations
+    )
 
 
-def test_import_boundaries_allow_root_import(tmp_path, monkeypatch):
-    # If importing from module root, no violation should be raised
+def test_import_boundaries_allow_root_import(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Importing from a module root raises no import_boundary violation."""
     this_path = tmp_path / "this_mod2"
     this_path.mkdir()
     (this_path / "layer").mkdir()
@@ -125,12 +152,16 @@ def test_import_boundaries_allow_root_import(tmp_path, monkeypatch):
     this_decl = ModuleDeclaration(module_type="command_module", name="this.mod2")
     other_decl = ModuleDeclaration(module_type="query_module", name="other.mod2")
 
-    this_module = CommandModule(_declaration=this_decl, _path=this_path, _public_api=PublicApi.empty())
-    other_module = QueryModule(_declaration=other_decl, _path=other_path, _public_api=PublicApi.empty())
+    this_module = CommandModule(
+        _declaration=this_decl, _path=this_path, _public_api=PublicApi.empty()
+    )
+    other_module = QueryModule(
+        _declaration=other_decl, _path=other_path, _public_api=PublicApi.empty()
+    )
 
     name_map = {this_path: this_decl.name, other_path: other_decl.name}
 
-    def fake_module_name(self, path: Path) -> str:
+    def fake_module_name(self: BoundaryValidator, path: Path) -> str:
         return name_map.get(path, path.name)
 
     monkeypatch.setattr(BoundaryValidator, "_module_name_from_path", fake_module_name)
@@ -139,4 +170,3 @@ def test_import_boundaries_allow_root_import(tmp_path, monkeypatch):
     violations = validator.validate()
 
     assert all(v.violation_type != "import_boundary" for v in violations)
-

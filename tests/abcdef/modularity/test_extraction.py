@@ -159,7 +159,6 @@ class TestPublicApiEmpty:
 def test_import_success_and_marker_categorisation() -> None:
     """When the package can be imported, exported classes are categorised by markers."""
     import sys
-    import importlib
 
     with TemporaryDirectory() as tmpdir:
         root = Path(tmpdir) / "root"
@@ -237,7 +236,7 @@ X = 1
 _private = 2
 """
     tree = ast.parse(src)
-    extractor = PublicApiExtractor(Path("."))
+    extractor = PublicApiExtractor(Path())
     names = extractor._get_exported_names(tree)
 
     assert "BarAlias" in names
@@ -253,7 +252,7 @@ from .pkg import X as Y
 Z = 1
 """
     tree = ast.parse(src)
-    extractor = PublicApiExtractor(Path("."))
+    extractor = PublicApiExtractor(Path())
     names = extractor._get_exported_names(tree)
 
     # Should fall back and include the import alias and assignment name
@@ -306,7 +305,7 @@ def test_import_infers_dotted_import_package_name() -> None:
     src = """import package.module
 """
     tree = ast.parse(src)
-    extractor = PublicApiExtractor(Path("."))
+    extractor = PublicApiExtractor(Path())
     names = extractor._get_exported_names(tree)
 
     assert "package" in names
@@ -367,9 +366,7 @@ def test___all_ignores_non_constant_entries() -> None:
 A = 1
 """
     tree = ast.parse(src)
-    extractor = PublicApiExtractor(Path("."))
+    extractor = PublicApiExtractor(Path())
     names = extractor._get_exported_names(tree)
 
     assert names == {"B"}
-
-

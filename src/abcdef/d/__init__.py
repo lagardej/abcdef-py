@@ -1,4 +1,7 @@
-"""DDD building blocks for aggregates, value objects, repositories, and domain events."""
+"""DDD building blocks for aggregates, value objects, repositories, and domain events.
+
+This module re-exports the core DDD primitives from the ``abcdef.d`` package.
+"""
 
 from .aggregate import AggregateId, AggregateRoot
 from .domain_event import DomainEvent, DomainEventRegistry

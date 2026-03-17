@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import ast
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from abcdef.modularity.extraction import PublicApiExtractor
 from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
@@ -14,8 +14,12 @@ from abcdef.modularity.module import (
     QueryModule,
 )
 from abcdef.modularity.report import MarkdownReporter
-from abcdef.modularity.validation import Violation
 from abcdef.modularity.validation_boundary import BoundaryValidator
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from abcdef.modularity.validation import PublicApi, Violation
 
 
 class Modularity:
@@ -120,25 +124,69 @@ class Modularity:
         source = init_file.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(init_file))
 
-        # Extract __modularity__ dict and module docstring
-        modularity_dict: dict[str, str] | None = None
-        module_docstring = ast.get_docstring(tree)
-
-        for node in ast.iter_child_nodes(tree):
-            if isinstance(node, ast.Assign):
-                for target in node.targets:
-                    if isinstance(target, ast.Name) and target.id == "__modularity__":
-                        if isinstance(node.value, ast.Dict):
-                            modularity_dict = {}
-                            for key, value in zip(node.value.keys, node.value.values):
-                                if isinstance(key, ast.Constant) and isinstance(
-                                    value, ast.Constant
-                                ):
-                                    modularity_dict[key.value] = value.value
-
+        modularity_dict = Modularity._extract_modularity_dict(tree)
         if modularity_dict is None:
             return None
 
+        return Modularity._build_declaration(
+            init_file, module_path, tree, modularity_dict
+        )
+
+    @staticmethod
+    def _extract_modularity_dict(tree: ast.Module) -> dict[str, str] | None:
+        """Extract the ``__modularity__`` dict literal from AST.
+
+        Args:
+            tree: Parsed AST of ``__init__.py``.
+
+        Returns:
+            Dict of string key/value pairs if found, None otherwise.
+        """
+        for node in ast.iter_child_nodes(tree):
+            if not isinstance(node, ast.Assign):
+                continue
+            for target in node.targets:
+                if (
+                    isinstance(target, ast.Name)
+                    and target.id == "__modularity__"
+                    and isinstance(node.value, ast.Dict)
+                ):
+                    result: dict[str, str] = {}
+                    for key, value in zip(
+                        node.value.keys, node.value.values, strict=False
+                    ):
+                        if (
+                            isinstance(key, ast.Constant)
+                            and isinstance(value, ast.Constant)
+                            and isinstance(key.value, str)
+                            and isinstance(value.value, str)
+                        ):
+                            result[key.value] = value.value
+                    return result
+        return None
+
+    @staticmethod
+    def _build_declaration(
+        init_file: Path,
+        module_path: Path,
+        tree: ast.Module,
+        modularity_dict: dict[str, str],
+    ) -> ModuleDeclaration:
+        """Build a ModuleDeclaration from a parsed modularity dict.
+
+        Args:
+            init_file: Path to __init__.py (for error messages).
+            module_path: Path to module directory.
+            tree: Parsed AST (for docstring extraction).
+            modularity_dict: Extracted ``__modularity__`` key/value pairs.
+
+        Returns:
+            Populated ModuleDeclaration.
+
+        Raises:
+            ValueError: If the declaration is missing required fields or has invalid
+                values.
+        """
         module_type = modularity_dict.get("type")
         if not module_type:
             raise ValueError(
@@ -151,10 +199,8 @@ class Modularity:
                 f"'{COMMAND_MODULE}' or '{QUERY_MODULE}', got '{module_type}'"
             )
 
-        # Logical name: explicit or inferred from package name
         name = modularity_dict.get("name") or module_path.name
-
-        # Description: explicit or from docstring
+        module_docstring = ast.get_docstring(tree)
         description = modularity_dict.get("description") or (module_docstring or "")
 
         return ModuleDeclaration(
@@ -162,7 +208,9 @@ class Modularity:
         )
 
     @staticmethod
-    def _create_module(decl: ModuleDeclaration, module_path: Path, api) -> Module:
+    def _create_module(
+        decl: ModuleDeclaration, module_path: Path, api: PublicApi
+    ) -> Module:
         """Create a Module instance from declaration and API.
 
         Args:

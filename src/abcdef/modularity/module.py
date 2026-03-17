@@ -4,10 +4,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modularity.validation import PublicApi
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from abcdef.modularity.validation import PublicApi
 
 
 @dataclass(frozen=True)

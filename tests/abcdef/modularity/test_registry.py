@@ -227,7 +227,7 @@ __modularity__ = {{
 
             # Empty dict — no 'type' key at all
             (module_dir / "__init__.py").write_text(
-                '__modularity__ = {}\n',
+                "__modularity__ = {}\n",
                 encoding="utf-8",
             )
 
@@ -272,7 +272,9 @@ __modularity__ = {{
             modularity = Modularity(root)
             modules = modularity.discover()
 
-            assert modules[0].declaration.description == "Explicit description from dict."
+            assert (
+                modules[0].declaration.description == "Explicit description from dict."
+            )
 
 
 class TestCreateModuleUnknownType:

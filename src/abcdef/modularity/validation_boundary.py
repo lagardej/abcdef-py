@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import ast
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modularity.module import Module
 from abcdef.modularity.validation import Violation
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
+
+    from abcdef.modularity.module import Module
 
 
 class BoundaryValidator:
@@ -72,20 +73,19 @@ class BoundaryValidator:
                     )
                 )
 
-        elif decl.module_type == QUERY_MODULE:
-            if api.commands:
-                command_names = ", ".join(s.name for s in api.commands)
-                violations.append(
-                    Violation(
-                        module_name=decl.name,
-                        violation_type="read_write_constraint",
-                        message=(
-                            f"Query module exports commands: {command_names}. "
-                            "Query modules must only export queries and documents."
-                        ),
-                        location=str(module.path / "__init__.py"),
-                    )
+        elif decl.module_type == QUERY_MODULE and api.commands:
+            command_names = ", ".join(s.name for s in api.commands)
+            violations.append(
+                Violation(
+                    module_name=decl.name,
+                    violation_type="read_write_constraint",
+                    message=(
+                        f"Query module exports commands: {command_names}. "
+                        "Query modules must only export queries and documents."
+                    ),
+                    location=str(module.path / "__init__.py"),
                 )
+            )
 
         return violations
 
@@ -110,28 +110,26 @@ class BoundaryValidator:
         module_prefix = self._module_name_from_path(module.path)
 
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom):
-                if node.module and node.module.startswith("abcdef"):
-                    # Cross-package imports are allowed
-                    continue
-
-                # Import from external application code
-                if node.module:
-                    if not (
-                        node.module == module_prefix
-                        or node.module.startswith(module_prefix + ".")
-                    ):
-                        violations.append(
-                            Violation(
-                                module_name=module.declaration.name,
-                                violation_type="facade_rule",
-                                message=(
-                                    f"Facade re-exports from foreign module: {node.module}. "
-                                    "Module __init__.py may only re-export from its own namespace."
-                                ),
-                                location=str(init_file),
-                            )
-                        )
+            if not isinstance(node, ast.ImportFrom):
+                continue
+            if node.module and node.module.startswith("abcdef"):
+                continue
+            if node.module and not (
+                node.module == module_prefix
+                or node.module.startswith(module_prefix + ".")
+            ):
+                violations.append(
+                    Violation(
+                        module_name=module.declaration.name,
+                        violation_type="facade_rule",
+                        message=(
+                            f"Facade re-exports from foreign module: {node.module}."
+                            " Module __init__.py may only re-export from its own"
+                            " namespace."
+                        ),
+                        location=str(init_file),
+                    )
+                )
 
         return violations
 
@@ -149,12 +147,11 @@ class BoundaryValidator:
         violations: list[Violation] = []
         module_prefix = self._module_name_from_path(module.path)
 
-        # Scan all .py files in layers (domain, application, projection, infrastructure, interface)
+        # Scan all .py files in layers
+        # (domain, application, projection, infrastructure, interface)
         for py_file in module.path.rglob("*.py"):
             if py_file.name == "__init__.py":
                 continue
-
-            # Skip if in root (facade already validated)
             if py_file.parent == module.path:
                 continue
 
@@ -162,32 +159,31 @@ class BoundaryValidator:
             tree = ast.parse(source, filename=str(py_file))
 
             for node in ast.walk(tree):
-                if isinstance(node, ast.ImportFrom):
-                    if node.module and node.module.startswith("abcdef"):
-                        # Framework imports are always allowed
-                        continue
+                if not isinstance(node, ast.ImportFrom):
+                    continue
+                if node.module and node.module.startswith("abcdef"):
+                    continue
 
-                    # Check if importing from another application module
-                    if node.module:
-                        other_module_name = self._extract_module_name(node.module)
-                        if (
-                            other_module_name in self._module_by_name
-                            and other_module_name != module_prefix
-                        ):
-                            # Check if importing from root or from internals
-                            if not self._is_root_import(node.module, other_module_name):
-                                rel_file = py_file.relative_to(module.path)
-                                violations.append(
-                                    Violation(
-                                        module_name=module.declaration.name,
-                                        violation_type="import_boundary",
-                                        message=(
-                                            f"Layer imports from other module internals: "
-                                            f"'{node.module}'. Must import from module root only."
-                                        ),
-                                        location=f"{module.declaration.name}/{rel_file}",
-                                    )
-                                )
+                if node.module:
+                    other_module_name = self._extract_module_name(node.module)
+                    if (
+                        other_module_name in self._module_by_name
+                        and other_module_name != module_prefix
+                        and not self._is_root_import(node.module, other_module_name)
+                    ):
+                        rel_file = py_file.relative_to(module.path)
+                        violations.append(
+                            Violation(
+                                module_name=module.declaration.name,
+                                violation_type="import_boundary",
+                                message=(
+                                    "Layer imports from other module internals:"
+                                    f" '{node.module}'."
+                                    " Must import from module root only."
+                                ),
+                                location=f"{module.declaration.name}/{rel_file}",
+                            )
+                        )
 
         return violations
 
@@ -201,8 +197,6 @@ class BoundaryValidator:
         Returns:
             Fully qualified module name.
         """
-        # This is a heuristic; adjust based on actual project structure
-        # For an application at project root with package layout: app/
         parts = []
         for part in path.parts:
             if part in ("src", "abcdef"):
@@ -236,5 +230,4 @@ class BoundaryValidator:
         """
         parts = import_path.split(".")
         module_parts = module_name.split(".")
-        # Root import if path exactly matches module name (no extra parts)
         return len(parts) == len(module_parts)

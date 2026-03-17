@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from abcdef.modularity.module import Module
+    from abcdef.modularity.validation import PublicApi, PublicApiSymbol
 
 
 class MarkdownReporter:
@@ -69,11 +70,8 @@ class MarkdownReporter:
         decl = module.declaration
         api = module.public_api
 
-        # Header
         lines.append(f"### {decl.name}")
         lines.append("")
-
-        # Type and description
         lines.append(f"**Type:** {decl.module_type.replace('_', ' ').title()}")
         lines.append("")
 
@@ -81,41 +79,51 @@ class MarkdownReporter:
             lines.append(decl.description)
             lines.append("")
 
-        # Public API
         if api.symbols:
             lines.append("#### Public API")
             lines.append("")
-
-            # Commands
-            if api.commands:
-                lines.append("**Commands:**")
-                lines.append("")
-                for symbol in sorted(api.commands, key=lambda s: s.name):
-                    lines.append(f"- `{symbol.name}` — {symbol.full_path}")
-                lines.append("")
-
-            # Queries
-            if api.queries:
-                lines.append("**Queries:**")
-                lines.append("")
-                for symbol in sorted(api.queries, key=lambda s: s.name):
-                    lines.append(f"- `{symbol.name}` — {symbol.full_path}")
-                lines.append("")
-
-            # Events published
-            if api.events:
-                lines.append("**Events Published:**")
-                lines.append("")
-                for symbol in sorted(api.events, key=lambda s: s.name):
-                    lines.append(f"- `{symbol.name}` — {symbol.full_path}")
-                lines.append("")
-
-            # SPIs
-            if api.spis:
-                lines.append("**Service Provider Interfaces (SPIs):**")
-                lines.append("")
-                for symbol in sorted(api.spis, key=lambda s: s.name):
-                    lines.append(f"- `{symbol.name}` — {symbol.full_path}")
-                lines.append("")
+            lines.extend(self._api_section(api))
 
         return lines
+
+    @staticmethod
+    def _api_section(api: PublicApi) -> list[str]:
+        """Render the public API subsection for a module.
+
+        Args:
+            api: Extracted public API.
+
+        Returns:
+            List of markdown lines.
+        """
+        lines: list[str] = []
+
+        if api.commands:
+            lines.extend(_symbol_block("Commands", api.commands))
+        if api.queries:
+            lines.extend(_symbol_block("Queries", api.queries))
+        if api.events:
+            lines.extend(_symbol_block("Events Published", api.events))
+        if api.spis:
+            lines.extend(_symbol_block("Service Provider Interfaces (SPIs)", api.spis))
+
+        return lines
+
+
+def _symbol_block(heading: str, symbols: frozenset[PublicApiSymbol]) -> list[str]:
+    """Render a labelled block of symbols.
+
+    Args:
+        heading: Section heading (e.g. ``"Commands"``).
+        symbols: Symbols to list.
+
+    Returns:
+        List of markdown lines.
+    """
+    lines: list[str] = []
+    lines.append(f"**{heading}:**")
+    lines.append("")
+    for symbol in sorted(symbols, key=lambda s: s.name):
+        lines.append(f"- `{symbol.name}` — {symbol.full_path}")
+    lines.append("")
+    return lines

@@ -8,13 +8,13 @@ from __future__ import annotations
 
 import ast
 import sys
-from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-from abcdef.modularity.validation import PublicApi, PublicApiSymbol
-
 if TYPE_CHECKING:
+    from pathlib import Path
     from types import ModuleType
+
+    from abcdef.modularity.validation import PublicApi, PublicApiSymbol
 
 
 def _get_marker(cls: type, marker_attr: str) -> str | None:
@@ -59,20 +59,19 @@ class PublicApiExtractor:
             FileNotFoundError: If `__init__.py` does not exist.
             SyntaxError: If `__init__.py` cannot be parsed.
         """
+        from abcdef.modularity.validation import PublicApi, PublicApiSymbol
+
         if not self.init_file.exists():
             return PublicApi.empty()
 
         source = self.init_file.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(self.init_file))
 
-        # Collect all exported names from __all__ or infer from imports/assignments
         exported_names = self._get_exported_names(tree)
 
-        # Try to import the module to inspect marker values
         try:
             module = self._import_module()
         except Exception:
-            # If import fails, return symbols without categorisation
             return PublicApi(
                 symbols=frozenset(
                     PublicApiSymbol(name=n, kind="unknown", full_path=n)
@@ -84,7 +83,20 @@ class PublicApiExtractor:
                 spis=frozenset(),
             )
 
-        # Categorise each exported symbol by inspecting markers
+        return self._categorise(module, exported_names)
+
+    def _categorise(self, module: ModuleType, exported_names: set[str]) -> PublicApi:
+        """Categorise exported symbols by inspecting runtime markers.
+
+        Args:
+            module: Imported module object.
+            exported_names: Names to inspect.
+
+        Returns:
+            PublicApi with symbols sorted into categories.
+        """
+        from abcdef.modularity.validation import PublicApi, PublicApiSymbol
+
         symbols: list[PublicApiSymbol] = []
         commands: list[PublicApiSymbol] = []
         queries: list[PublicApiSymbol] = []
@@ -100,7 +112,6 @@ class PublicApiExtractor:
             symbol = PublicApiSymbol(name=name, kind="unknown", full_path=full_path)
             symbols.append(symbol)
 
-            # Check markers in priority order
             cqrs_marker = _get_marker(obj, "__cqrs_type__")
             ddd_marker = _get_marker(obj, "__ddd_type__")
             modularity_marker = _get_marker(obj, "__modularity_type__")
@@ -142,36 +153,54 @@ class PublicApiExtractor:
         Returns:
             Set of exported symbol names.
         """
-        # Check for __all__
+        names = self._names_from_all(tree)
+        if names is not None:
+            return names
+        return self._infer_exported_names(tree)
+
+    @staticmethod
+    def _names_from_all(tree: ast.Module) -> set[str] | None:
+        """Extract names from ``__all__`` if present.
+
+        Args:
+            tree: Parsed AST of ``__init__.py``.
+
+        Returns:
+            Set of names from ``__all__``, or None if not defined.
+        """
         for node in ast.walk(tree):
             if isinstance(node, ast.Assign):
                 for target in node.targets:
-                    if isinstance(target, ast.Name) and target.id == "__all__":
-                        if isinstance(node.value, ast.List):
-                            names = set()
-                            for elt in node.value.elts:
-                                if isinstance(elt, ast.Constant):
-                                    names.add(str(elt.value))
-                            return names
+                    if (
+                        isinstance(target, ast.Name)
+                        and target.id == "__all__"
+                        and isinstance(node.value, ast.List)
+                    ):
+                        return {
+                            str(elt.value)
+                            for elt in node.value.elts
+                            if isinstance(elt, ast.Constant)
+                        }
+        return None
 
-        # Fallback: infer from top-level imports and assignments (not private)
-        names = set()
+    @staticmethod
+    def _infer_exported_names(tree: ast.Module) -> set[str]:
+        """Infer exported names from top-level imports and assignments.
+
+        Args:
+            tree: Parsed AST of ``__init__.py``.
+
+        Returns:
+            Set of inferred public names (excluding private ``_`` prefixed names).
+        """
+        names: set[str] = set()
         for node in tree.body:
             if isinstance(node, ast.ImportFrom):
-                for alias in node.names:
-                    imported_name = alias.asname or alias.name
-                    if not imported_name.startswith("_"):
-                        names.add(imported_name)
+                names.update(_names_from_import_from(node))
             elif isinstance(node, ast.Import):
-                for alias in node.names:
-                    imported_name = alias.asname or alias.name
-                    if not imported_name.startswith("_"):
-                        names.add(imported_name.split(".")[0])
+                names.update(_names_from_import(node))
             elif isinstance(node, ast.Assign):
-                for target in node.targets:
-                    if isinstance(target, ast.Name) and not target.id.startswith("_"):
-                        names.add(target.id)
-
+                names.update(_names_from_assign(node))
         return names
 
     def _import_module(self) -> ModuleType:
@@ -183,14 +212,12 @@ class PublicApiExtractor:
         Raises:
             ImportError: If the module cannot be imported.
         """
-        # Derive module name from path
         rel_path = self.module_path.relative_to(self.module_path.parent.parent)
         module_name = ".".join(rel_path.parts)
 
         if module_name in sys.modules:
             return sys.modules[module_name]
 
-        # Try to import
         try:
             __import__(module_name)
             return sys.modules[module_name]
@@ -198,3 +225,53 @@ class PublicApiExtractor:
             raise ImportError(
                 f"Cannot import module '{module_name}' for marker inspection"
             ) from e
+
+
+def _names_from_import_from(node: ast.ImportFrom) -> set[str]:
+    """Collect public names from a ``from x import y`` node.
+
+    Args:
+        node: AST ImportFrom node.
+
+    Returns:
+        Public names (no ``_`` prefix).
+    """
+    names: set[str] = set()
+    for alias in node.names:
+        imported_name = alias.asname or alias.name
+        if not imported_name.startswith("_"):
+            names.add(imported_name)
+    return names
+
+
+def _names_from_import(node: ast.Import) -> set[str]:
+    """Collect public names from an ``import x`` node.
+
+    Args:
+        node: AST Import node.
+
+    Returns:
+        Public top-level names (no ``_`` prefix).
+    """
+    names: set[str] = set()
+    for alias in node.names:
+        imported_name = alias.asname or alias.name
+        if not imported_name.startswith("_"):
+            names.add(imported_name.split(".")[0])
+    return names
+
+
+def _names_from_assign(node: ast.Assign) -> set[str]:
+    """Collect public names from a top-level assignment node.
+
+    Args:
+        node: AST Assign node.
+
+    Returns:
+        Public names (no ``_`` prefix).
+    """
+    names: set[str] = set()
+    for target in node.targets:
+        if isinstance(target, ast.Name) and not target.id.startswith("_"):
+            names.add(target.id)
+    return names
