@@ -38,7 +38,7 @@ help:
 	@echo "  install       install git hooks"
 
 check-doc:
-	uv run mdformat --check .
+	uv run mdformat --check README.md AGENTS.md CONTRIBUTING.md docs/ src/
 
 check-format:
 	uv run ruff format --check .
@@ -57,13 +57,13 @@ ci:
 fix:
 	uv run ruff check --fix .
 	uv run ruff format .
-	uv run mdformat .
+	uv run mdformat README.md AGENTS.md CONTRIBUTING.md docs/ src/
 
 format:
 	uv run ruff format .
 
 format-doc:
-	uv run mdformat .
+	uv run mdformat README.md AGENTS.md CONTRIBUTING.md docs/ src/
 
 install:
 	@for hook in scripts/hooks/*; do \
