@@ -4,12 +4,12 @@ In-memory adapters for testing, examples, and lightweight local runs.
 
 ## Purpose
 
-`abcdef.in_memory` provides concrete in-memory implementations of selected
-framework abstractions. These adapters are useful for tests, spikes, and local
-composition where durability and external infrastructure are unnecessary.
+`abcdef.in_memory` provides concrete in-memory implementations of selected framework
+abstractions. These adapters are useful for tests, spikes, and local composition where
+durability and external infrastructure are unnecessary.
 
-This package is adapter infrastructure. It is not part of the conceptual core
-model of CQRS, DDD, or event sourcing.
+This package is adapter infrastructure. It is not part of the conceptual core model of
+CQRS, DDD, or event sourcing.
 
 ## Internal Dependencies
 
@@ -59,4 +59,3 @@ Public exports include:
 - [`abcdef.c`](../c/README.md)
 - [`abcdef.d`](../d/README.md)
 - [`abcdef.de`](../de/README.md)
-

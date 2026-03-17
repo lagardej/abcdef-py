@@ -4,8 +4,8 @@ Shared foundational primitives for the rest of `abcdef`.
 
 ## Purpose
 
-`abcdef.b` defines the smallest common building blocks used across the
-framework: messages, events, results, and class registries.
+`abcdef.b` defines the smallest common building blocks used across the framework:
+messages, events, results, and class registries.
 
 This package is the foundation layer. Other public bricks build on it.
 
@@ -45,4 +45,3 @@ from abcdef.b import ClassRegistry, Event, Message, Result
 - [Package reference](../README.md)
 - [`abcdef.c`](../c/README.md)
 - [`abcdef.d`](../d/README.md)
-

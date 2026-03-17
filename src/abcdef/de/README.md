@@ -4,13 +4,12 @@ Event-sourced extensions that build on the DDD model from `abcdef.d`.
 
 ## Purpose
 
-`abcdef.de` adds event-sourcing mechanics to the abstractions from
-`abcdef.d`. It provides event-sourced aggregates, append-only event storage,
-aggregate state snapshots, and repositories that rehydrate aggregates from
-history.
+`abcdef.de` adds event-sourcing mechanics to the abstractions from `abcdef.d`. It
+provides event-sourced aggregates, append-only event storage, aggregate state snapshots,
+and repositories that rehydrate aggregates from history.
 
-This package is the bridge between DDD and event sourcing. It is not meant to
-replace the domain model in `abcdef.d`.
+This package is the bridge between DDD and event sourcing. It is not meant to replace
+the domain model in `abcdef.d`.
 
 ## Internal Dependencies
 
@@ -58,4 +57,3 @@ Public exports include:
 - [`abcdef.d`](../d/README.md)
 - [`abcdef.c`](../c/README.md)
 - [`abcdef.in_memory`](../in_memory/README.md)
-

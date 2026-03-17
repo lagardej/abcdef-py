@@ -4,12 +4,12 @@ CQRS building blocks for commands, queries, handlers, buses, and read models.
 
 ## Purpose
 
-`abcdef.c` provides the plumbing for Command Query Responsibility Segregation.
-It defines write-side commands, read-side queries, handler abstractions,
-message buses, and document-side read-model support.
+`abcdef.c` provides the plumbing for Command Query Responsibility Segregation. It
+defines write-side commands, read-side queries, handler abstractions, message buses, and
+document-side read-model support.
 
-This package is about coordination and read/write separation. It is not a
-package for domain modelling.
+This package is about coordination and read/write separation. It is not a package for
+domain modelling.
 
 ## Internal Dependencies
 
@@ -54,4 +54,3 @@ Public exports include:
 - [`abcdef.b`](../b/README.md)
 - [`abcdef.d`](../d/README.md)
 - [`abcdef.de`](../de/README.md)
-

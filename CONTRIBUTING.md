@@ -7,7 +7,7 @@
 
 All commands below use `uv run`. No global installs are required.
 
----
+______________________________________________________________________
 
 ## Running tests
 
@@ -30,7 +30,7 @@ uv run pytest -v                       # verbose
 `make` is optional. All targets are thin wrappers around `uv run` commands and can be
 run directly on any platform.
 
----
+______________________________________________________________________
 
 ## Coverage
 
@@ -47,7 +47,7 @@ Branch coverage is enabled. The project targets high coverage but accepts that
 `pass`/`...` bodies in `@abstractmethod` definitions are structurally unreachable and
 will appear as misses.
 
----
+______________________________________________________________________
 
 ## Linting and formatting
 
@@ -67,7 +67,7 @@ uv run ruff check --fix .    # auto-fix
 uv run ruff format .         # format
 ```
 
----
+______________________________________________________________________
 
 ## Type checking
 
@@ -77,7 +77,7 @@ make check-types
 uv run pyright
 ```
 
----
+______________________________________________________________________
 
 ## Full CI check
 
@@ -88,7 +88,7 @@ make ci
 # or run each step individually (see above)
 ```
 
----
+______________________________________________________________________
 
 ## Logs
 

@@ -1,16 +1,16 @@
 # `abcdef.d`
 
-Domain-driven design building blocks for aggregates, value objects,
-repositories, and domain events.
+Domain-driven design building blocks for aggregates, value objects, repositories, and
+domain events.
 
 ## Purpose
 
-`abcdef.d` contains the core DDD abstractions used to model domain behaviour.
-It is the package where aggregates enforce invariants, domain events express
-business facts, and repositories abstract persistence.
+`abcdef.d` contains the core DDD abstractions used to model domain behaviour. It is the
+package where aggregates enforce invariants, domain events express business facts, and
+repositories abstract persistence.
 
-This package is domain-focused. It does not know about CQRS buses or
-event-sourcing storage.
+This package is domain-focused. It does not know about CQRS buses or event-sourcing
+storage.
 
 ## Internal Dependencies
 
@@ -20,8 +20,7 @@ event-sourcing storage.
 
 ## Public Imports
 
-Import from the package facade, for example
-`from abcdef.d import AggregateRoot`.
+Import from the package facade, for example `from abcdef.d import AggregateRoot`.
 
 Public exports include:
 
@@ -56,4 +55,3 @@ Public exports include:
 - [`abcdef.b`](../b/README.md)
 - [`abcdef.de`](../de/README.md)
 - [`abcdef.specification`](../specification/README.md)
-

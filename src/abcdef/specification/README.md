@@ -4,12 +4,12 @@ Composable business-rule predicates using the Specification pattern.
 
 ## Purpose
 
-`abcdef.specification` provides a small, focused abstraction for expressing
-reusable business rules as composable predicates. Specifications can be
-combined with `&`, `|`, and `~` and applied where rule composition matters.
+`abcdef.specification` provides a small, focused abstraction for expressing reusable
+business rules as composable predicates. Specifications can be combined with `&`, `|`,
+and `~` and applied where rule composition matters.
 
-This package is intentionally small and independent. It can support domain
-models, but it does not depend on the rest of the framework.
+This package is intentionally small and independent. It can support domain models, but
+it does not depend on the rest of the framework.
 
 ## Internal Dependencies
 
@@ -49,4 +49,3 @@ Public exports include:
 
 - [Package reference](../README.md)
 - [`abcdef.d`](../d/README.md)
-

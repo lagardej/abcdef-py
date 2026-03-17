@@ -1,8 +1,9 @@
 # Backlog
 
-Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries are removed.
+Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries are
+removed.
 
----
+______________________________________________________________________
 
 ## Conventions
 
@@ -16,11 +17,12 @@ Short-listed items: bugs, improvements, and refactoring tasks. Resolved entries 
 - **Agents:** follow the one-commit-per-item rule. Do not batch unrelated items into a
   single commit. Do not add speculative items to this backlog.
 
----
+______________________________________________________________________
 
 ## Backlog item template
 
-Use this template to add or triage backlog items. Keep entries concise and include the priority.
+Use this template to add or triage backlog items. Keep entries concise and include the
+priority.
 
 ```
 - Title: Short descriptive title
@@ -35,19 +37,19 @@ Use this template to add or triage backlog items. Keep entries concise and inclu
 - Notes: (optional)
 ```
 
----
+______________________________________________________________________
 
 ## Bugs
 
 (none)
 
----
+______________________________________________________________________
 
 ## Tasks
 
 (none)
 
----
+______________________________________________________________________
 
 ## Improvements
 

@@ -1,14 +1,19 @@
 # Modularity — Modular Architecture Validation and Documentation
 
-Tools for application developers to enforce, validate, and document the modular architecture of their applications built on the ABCDEF framework.
+Tools for application developers to enforce, validate, and document the modular
+architecture of their applications built on the ABCDEF framework.
 
 ## Purpose
 
-`abcdef.modularity` helps applications declare their module structure explicitly and enforce architectural constraints:
+`abcdef.modularity` helps applications declare their module structure explicitly and
+enforce architectural constraints:
 
-- **Explicit module declaration** — each module declares its type (command or query) and metadata via `__modularity__` dict in `__init__.py`
-- **Validation** — checks that modules respect their declared type and don't cross architectural boundaries
-- **Documentation** — generates clean Markdown showing each module's public API and inter-module communication (events, SPIs)
+- **Explicit module declaration** — each module declares its type (command or query) and
+  metadata via `__modularity__` dict in `__init__.py`
+- **Validation** — checks that modules respect their declared type and don't cross
+  architectural boundaries
+- **Documentation** — generates clean Markdown showing each module's public API and
+  inter-module communication (events, SPIs)
 
 ## Quick Start
 
@@ -54,11 +59,13 @@ else:
 Write side. Maintains aggregates, enforces invariants, publishes events.
 
 **Allowed exports:**
+
 - `@command` — commands that trigger state changes
 - `@domain_event` — domain events published by this module
 - `@spi` — abstract interfaces exposed to other modules
 
 **Not allowed:**
+
 - `@query` — queries belong on the read side
 
 ### Query Module
@@ -66,20 +73,24 @@ Write side. Maintains aggregates, enforces invariants, publishes events.
 Read side. Projects events into read models, serves queries.
 
 **Allowed exports:**
+
 - `@query` — queries that read without mutating
 - `@document` — denormalised read model types
 - `@spi` — abstract interfaces exposed to other modules
 
 **Not allowed:**
+
 - `@command` — commands belong on the write side
 
 ## Public API Boundaries
 
 Modules communicate **only through their root exports** (`__init__.py`).
 
-- **Events published** — commands/queries/events declared in root and decorated with framework markers
+- **Events published** — commands/queries/events declared in root and decorated with
+  framework markers
 - **SPIs** — abstract classes marked with `@spi` (modularity marker)
-- **No internal imports** — layers (domain, application, infrastructure, projection) must not import from other modules' internals
+- **No internal imports** — layers (domain, application, infrastructure, projection)
+  must not import from other modules' internals
 
 ## Validation Checks
 
@@ -89,7 +100,8 @@ Command modules cannot export queries. Query modules cannot export commands.
 
 ### Facade Rule
 
-Module `__init__.py` may only re-export symbols from its own namespace. No cross-module re-exports.
+Module `__init__.py` may only re-export symbols from its own namespace. No cross-module
+re-exports.
 
 ### Import Boundaries
 
@@ -102,9 +114,11 @@ The `generate_docs()` method produces Markdown describing:
 - **Module type** — command or query
 - **Description** — from `__init__.py` docstring or explicit metadata
 - **Public API** — commands, queries, events, SPIs exported at root
-- **Nothing else** — implementation details (layers, domain types, internal structure) are omitted
+- **Nothing else** — implementation details (layers, domain types, internal structure)
+  are omitted
 
-This focuses documentation on *what a module does* and *how it communicates*, not *how it's implemented*.
+This focuses documentation on *what a module does* and *how it communicates*, not *how
+it's implemented*.
 
 ## Example: Generated Documentation
 
@@ -113,6 +127,7 @@ This focuses documentation on *what a module does* and *how it communicates*, no
 Two example modules in an application:
 
 **`myapp/orders/__init__.py`** (command module):
+
 ```python
 """Order management — create, modify, and fulfill orders."""
 
@@ -128,6 +143,7 @@ __all__ = ["CreateOrder", "FulfillOrder", "OrderCreated", "OrderFulfilled"]
 ```
 
 **`myapp/reports/__init__.py`** (query module):
+
 ```python
 """Order reports and analytics — read-only views of order data."""
 
@@ -192,6 +208,7 @@ Order reports and analytics — read-only views of order data.
 ### What's NOT Shown
 
 The generated documentation **intentionally omits**:
+
 - Aggregate classes (`Order`, `OrderItem`)
 - Value objects (`OrderId`, `Money`)
 - Repositories and stores
@@ -199,11 +216,13 @@ The generated documentation **intentionally omits**:
 - Layer structure (domain, application, infrastructure)
 - Internal implementation types
 
-This keeps the documentation focused on the public contract: what commands trigger actions, what queries retrieve data, what events flow between modules.
+This keeps the documentation focused on the public contract: what commands trigger
+actions, what queries retrieve data, what events flow between modules.
 
 ## Module Discovery
 
-The `discover()` method scans the project for packages declaring `__modularity__` and loads them as `CommandModule` or `QueryModule` objects. It:
+The `discover()` method scans the project for packages declaring `__modularity__` and
+loads them as `CommandModule` or `QueryModule` objects. It:
 
 - Recursively walks the project from the root path
 - Skips `tests/`, `venv/`, and `abcdef/` directories
@@ -214,9 +233,12 @@ The `discover()` method scans the project for packages declaring `__modularity__
 ## Error Handling
 
 - **Missing type** — raises `ValueError` if `__modularity__['type']` is absent
-- **Invalid type** — raises `ValueError` if type is not `"command_module"` or `"query_module"`
-- **Import errors** — captured gracefully; module structure is still discoverable even if imports fail
-- **Violations** — collected and returned as `Violation` objects, not raised as exceptions
+- **Invalid type** — raises `ValueError` if type is not `"command_module"` or
+  `"query_module"`
+- **Import errors** — captured gracefully; module structure is still discoverable even
+  if imports fail
+- **Violations** — collected and returned as `Violation` objects, not raised as
+  exceptions
 
 ## Usage in Tests
 
@@ -238,28 +260,38 @@ def test_module_boundaries():
 
 Modularity recognises markers from the framework:
 
-| Marker | Attribute | From | Purpose |
-|---|---|---|---|
-| `@command` | `__cqrs_type__ = "command"` | `abcdef.c.markers` | Command in CQRS |
-| `@query` | `__cqrs_type__ = "query"` | `abcdef.c.markers` | Query in CQRS |
-| `@domain_event` | `__ddd_type__ = "domain_event"` | `abcdef.d.markers` | Domain event in DDD |
-| `@spi` | `__modularity_type__ = "spi"` | `abcdef.modularity.markers` | Service Provider Interface |
+| Marker | Attribute | From | Purpose | |---|---|---|---| | `@command` |
+`__cqrs_type__ = "command"` | `abcdef.c.markers` | Command in CQRS | | `@query` |
+`__cqrs_type__ = "query"` | `abcdef.c.markers` | Query in CQRS | | `@domain_event` |
+`__ddd_type__ = "domain_event"` | `abcdef.d.markers` | Domain event in DDD | | `@spi` |
+`__modularity_type__ = "spi"` | `abcdef.modularity.markers` | Service Provider Interface
+|
 
-No new decorators are needed for most code; the framework markers are sufficient. `@spi` is the only modularity-specific marker and is optional (use it to explicitly mark abstract base classes intended as contracts).
+No new decorators are needed for most code; the framework markers are sufficient. `@spi`
+is the only modularity-specific marker and is optional (use it to explicitly mark
+abstract base classes intended as contracts).
 
 ## Acknowledgments
 
-`abcdef.modularity` is directly inspired by [Spring Modulith](https://spring.io/projects/spring-modulith), a library for building modular Spring applications.
+`abcdef.modularity` is directly inspired by
+[Spring Modulith](https://spring.io/projects/spring-modulith), a library for building
+modular Spring applications.
 
 Spring Modulith defined most of the concepts and validation rules implemented here:
 
 - **Module as a first-class design unit** with explicit boundaries and public APIs
-- **Read/write separation** via command and query modules (inspired by Spring Modulith's command/event publishing distinction)
+- **Read/write separation** via command and query modules (inspired by Spring Modulith's
+  command/event publishing distinction)
 - **Facade rule** — modules expose only their root; no re-exports of foreign symbols
-- **Import boundary validation** — layers within a module must not bypass public APIs to import from other modules' internals
-- **Documentation focus** on "what" (public API and communication) rather than "how" (implementation details)
+- **Import boundary validation** — layers within a module must not bypass public APIs to
+  import from other modules' internals
+- **Documentation focus** on "what" (public API and communication) rather than "how"
+  (implementation details)
 
-The key difference: `abcdef.modularity` is tailored for ABCDEF applications (DDD, CQRS, Event Sourcing) and uses Python idioms (`__modularity__` dict, AST parsing) rather than Java/Spring conventions. The architecture principles, however, are directly drawn from Spring Modulith's proven approach.
+The key difference: `abcdef.modularity` is tailored for ABCDEF applications (DDD, CQRS,
+Event Sourcing) and uses Python idioms (`__modularity__` dict, AST parsing) rather than
+Java/Spring conventions. The architecture principles, however, are directly drawn from
+Spring Modulith's proven approach.
 
 ## Public API
 
@@ -283,8 +315,10 @@ The key difference: `abcdef.modularity` is tailored for ABCDEF applications (DDD
 
 ## Limitations and Future Work
 
-- **Module import resolution** — currently uses heuristics to map Python package paths to logical module names; may not work for complex nested structures
-- **Cross-module event subscriptions** — discovery detects which modules import event types, but does not model subscription routing
+- **Module import resolution** — currently uses heuristics to map Python package paths
+  to logical module names; may not work for complex nested structures
+- **Cross-module event subscriptions** — discovery detects which modules import event
+  types, but does not model subscription routing
 - **Circular dependencies** — not explicitly detected; will be added if needed
-- **Custom validation rules** — not yet supported; extend `BoundaryValidator` for custom checks
-
+- **Custom validation rules** — not yet supported; extend `BoundaryValidator` for custom
+  checks

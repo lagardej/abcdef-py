@@ -1,9 +1,9 @@
 # Session Log Index
 
-Master index of all working sessions. Post-mortem reference this log to track decision quality, iteration cycles, and
-architectural effectiveness.
+Master index of all working sessions. Post-mortem reference this log to track decision
+quality, iteration cycles, and architectural effectiveness.
 
----
+______________________________________________________________________
 
 Each session captures:
 
