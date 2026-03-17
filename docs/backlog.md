@@ -32,12 +32,6 @@ Use this template to add or triage backlog items. Keep entries concise and inclu
 
 ## Tasks
 
-- **`modularity/validation_boundary.py` — add unit tests for boundary validation**
-  Type: Task · Priority: High · Created: 2026-03-17
-  Description: Add tests covering each validation rule and failure modes (edge values, multi-violation cases).
-  Files: `src/abcdef/modularity/validation_boundary.py`, tests → `tests/abcdef/modularity/test_validation_boundary.py`
-  Rationale: Second-largest uncovered area (≈32 missing statements).
-
 - **`modularity/registry.py` — edge-case tests**
   Type: Task · Priority: Medium · Created: 2026-03-17
   Description: Cover registry edge branches and failure cases.
