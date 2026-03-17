@@ -153,3 +153,94 @@ class TestPublicApiEmpty:
         assert api.queries == frozenset()
         assert api.events == frozenset()
         assert api.spis == frozenset()
+
+
+def test_import_success_and_marker_categorisation() -> None:
+    """When the package can be imported, exported classes are categorised by markers."""
+    import sys
+    import importlib
+
+    with TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir) / "root"
+        pkg = root / "mypkg"
+        pkg.mkdir(parents=True)
+
+        code = """from abcdef.c.markers import command, query
+
+@command
+class CreateOrder:
+    pass
+
+@query
+class FetchOrder:
+    pass
+
+__all__ = ["CreateOrder", "FetchOrder"]
+"""
+        (pkg / "__init__.py").write_text(code, encoding="utf-8")
+
+        sys.path.insert(0, str(Path(tmpdir)))
+        try:
+            extractor = PublicApiExtractor(pkg)
+            api = extractor.extract()
+
+            cmd_names = {s.name for s in api.commands}
+            qry_names = {s.name for s in api.queries}
+
+            assert "CreateOrder" in cmd_names
+            assert "FetchOrder" in qry_names
+        finally:
+            # cleanup
+            sys.path.remove(str(Path(tmpdir)))
+            for m in list(sys.modules):
+                if m.startswith("root"):
+                    del sys.modules[m]
+
+
+def test_import_failure_returns_unknown_kinds() -> None:
+    """If importing the module fails, extractor falls back to unknown kinds."""
+    import sys
+
+    with TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir) / "root"
+        pkg = root / "badpkg"
+        pkg.mkdir(parents=True)
+
+        code = """__all__ = ["Bad"]
+raise ImportError("boom")
+"""
+        (pkg / "__init__.py").write_text(code, encoding="utf-8")
+
+        sys.path.insert(0, str(Path(tmpdir)))
+        try:
+            extractor = PublicApiExtractor(pkg)
+            api = extractor.extract()
+
+            symbol_names = {s.name for s in api.symbols}
+            assert "Bad" in symbol_names
+            assert all(s.kind == "unknown" for s in api.symbols)
+        finally:
+            sys.path.remove(str(Path(tmpdir)))
+            for m in list(sys.modules):
+                if m.startswith("root"):
+                    del sys.modules[m]
+
+
+def test_get_exported_names_handles_import_aliases() -> None:
+    """AST-based export inference should include aliased imports and top-level names."""
+    import ast
+
+    src = """from .bar import Foo as BarAlias
+import os
+X = 1
+_private = 2
+"""
+    tree = ast.parse(src)
+    extractor = PublicApiExtractor(Path("."))
+    names = extractor._get_exported_names(tree)
+
+    assert "BarAlias" in names
+    assert "os" in names
+    assert "X" in names
+    assert "_private" not in names
+
