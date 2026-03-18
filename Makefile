@@ -79,8 +79,8 @@ lint:
 mutate:
 	@mkdir -p logs
 	@logfile="logs/mutate-$(_LOG_TIMESTAMP).log"; \
-	uv run mutmut run 2>&1 | tee "$$logfile"; \
-	uv run mutmut results 2>&1 | tee -a "$$logfile"; \
+	uv run mutmut run; \
+	uv run mutmut results 2>&1 | tee "$$logfile"; \
 	ln -sf "$$(basename $$logfile)" logs/mutate.log; \
 
 test:
