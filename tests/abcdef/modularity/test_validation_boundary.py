@@ -305,7 +305,7 @@ def test_import_boundaries_continue_past_init_file(
 def test_facade_rule_continue_past_abcdef_import(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Scanning continues past an abcdef.* import and still detects a later violation."""
+    """Scanning continues past an abcdef.* import; still detects a later violation."""
     module_path = tmp_path / "my_mod"
     module_path.mkdir()
     init_file = module_path / "__init__.py"
