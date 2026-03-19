@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 
 from abcdef.codegen.generator import (
-    INTERFACE_API,
-    INTERFACE_CLI,
-    INTERFACE_WEB,
+    ENTRYPOINT_API,
+    ENTRYPOINT_CLI,
+    ENTRYPOINT_WEB,
     _to_pascal,
     generate_feature,
     generate_module,
@@ -44,7 +44,7 @@ class TestGenerateModule:
         assert Path("domain/orders_repository.py") in rel
         assert Path("application/placeholder.py") in rel
         assert Path("infrastructure/placeholder.py") in rel
-        assert Path("interface/cli/placeholder.py") in rel
+        assert Path("entrypoint/cli/placeholder.py") in rel
 
     def test_query_module_creates_expected_files(self, tmp_path: Path) -> None:
         """Query module scaffold creates all expected files."""
@@ -55,7 +55,7 @@ class TestGenerateModule:
         assert Path("projection/reports.py") in rel
         assert Path("application/placeholder.py") in rel
         assert Path("infrastructure/placeholder.py") in rel
-        assert Path("interface/cli/placeholder.py") in rel
+        assert Path("entrypoint/cli/placeholder.py") in rel
 
     def test_command_init_contains_modularity_dict(self, tmp_path: Path) -> None:
         """Generated __init__.py contains __modularity__ dict with COMMAND_MODULE."""
@@ -152,11 +152,11 @@ class TestGenerateFeature:
         assert (tmp_path / "orders" / "application" / "create_order.py").exists()
 
     def test_command_feature_creates_cli_file(self, tmp_path: Path) -> None:
-        """Feature adds interface/cli/<use_case>.py for a command module."""
+        """Feature adds entrypoint/cli/<use_case>.py for a command module."""
         self._scaffold_command_module(tmp_path)
         generate_feature("orders", "create_order", tmp_path)
 
-        assert (tmp_path / "orders" / "interface" / "cli" / "create_order.py").exists()
+        assert (tmp_path / "orders" / "entrypoint" / "cli" / "create_order.py").exists()
 
     def test_query_feature_creates_application_file(self, tmp_path: Path) -> None:
         """Feature adds application/<use_case>.py for a query module."""
@@ -166,11 +166,11 @@ class TestGenerateFeature:
         assert (tmp_path / "reports" / "application" / "get_report.py").exists()
 
     def test_query_feature_creates_cli_file(self, tmp_path: Path) -> None:
-        """Feature adds interface/cli/<use_case>.py for a query module."""
+        """Feature adds entrypoint/cli/<use_case>.py for a query module."""
         self._scaffold_query_module(tmp_path)
         generate_feature("reports", "get_report", tmp_path)
 
-        assert (tmp_path / "reports" / "interface" / "cli" / "get_report.py").exists()
+        assert (tmp_path / "reports" / "entrypoint" / "cli" / "get_report.py").exists()
 
     def test_command_feature_content_has_correct_class_names(
         self, tmp_path: Path
@@ -256,141 +256,147 @@ class TestGenerateFeature:
             generate_feature("orders", "create_order", tmp_path)
 
 
-class TestInterfaces:
-    """Tests for --interfaces parameter on generate_module and generate_feature."""
+class TestEntrypoints:
+    """Tests for --entrypoints parameter on generate_module and generate_feature."""
 
-    def test_module_default_interface_is_cli(self, tmp_path: Path) -> None:
-        """Default interface is cli when interfaces is not specified."""
+    def test_module_default_entrypoint_is_cli(self, tmp_path: Path) -> None:
+        """Default entrypoint is cli when entrypoints is not specified."""
         created = generate_module("orders", COMMAND_MODULE, tmp_path)
 
         rel = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/cli/placeholder.py") in rel
+        assert Path("entrypoint/cli/placeholder.py") in rel
         assert not any("web" in str(p) for p in rel)
         assert not any("api" in str(p) for p in rel)
 
-    def test_module_web_interface(self, tmp_path: Path) -> None:
-        """Web interface generates interface/web/placeholder.py."""
+    def test_module_web_entrypoint(self, tmp_path: Path) -> None:
+        """Web entrypoint generates entrypoint/web/placeholder.py."""
         created = generate_module(
-            "orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_WEB]
+            "orders", COMMAND_MODULE, tmp_path, entrypoints=[ENTRYPOINT_WEB]
         )
 
         rel = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/web/placeholder.py") in rel
+        assert Path("entrypoint/web/placeholder.py") in rel
         assert not any("cli" in str(p) for p in rel)
 
-    def test_module_api_interface(self, tmp_path: Path) -> None:
-        """API interface generates interface/api/placeholder.py."""
+    def test_module_api_entrypoint(self, tmp_path: Path) -> None:
+        """API entrypoint generates entrypoint/api/placeholder.py."""
         created = generate_module(
-            "orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_API]
+            "orders", COMMAND_MODULE, tmp_path, entrypoints=[ENTRYPOINT_API]
         )
 
         rel = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/api/placeholder.py") in rel
+        assert Path("entrypoint/api/placeholder.py") in rel
         assert not any("cli" in str(p) for p in rel)
 
-    def test_module_multiple_interfaces(self, tmp_path: Path) -> None:
-        """Multiple interfaces each generate their own stub."""
+    def test_module_multiple_entrypoints(self, tmp_path: Path) -> None:
+        """Multiple entrypoints each generate their own stub."""
         created = generate_module(
             "orders",
             COMMAND_MODULE,
             tmp_path,
-            interfaces=[INTERFACE_CLI, INTERFACE_WEB, INTERFACE_API],
+            entrypoints=[ENTRYPOINT_CLI, ENTRYPOINT_WEB, ENTRYPOINT_API],
         )
 
         rel = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/cli/placeholder.py") in rel
-        assert Path("interface/web/placeholder.py") in rel
-        assert Path("interface/api/placeholder.py") in rel
+        assert Path("entrypoint/cli/placeholder.py") in rel
+        assert Path("entrypoint/web/placeholder.py") in rel
+        assert Path("entrypoint/api/placeholder.py") in rel
 
-    def test_module_invalid_interface_raises(self, tmp_path: Path) -> None:
-        """Raises ValueError for unrecognised interface name."""
-        with pytest.raises(ValueError, match="Unknown interface"):
-            generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=["graphql"])
+    def test_module_invalid_entrypoint_raises(self, tmp_path: Path) -> None:
+        """Raises ValueError for unrecognised entrypoint name."""
+        with pytest.raises(ValueError, match="Unknown entrypoint"):
+            generate_module("orders", COMMAND_MODULE, tmp_path, entrypoints=["graphql"])
 
-    def test_query_module_web_interface(self, tmp_path: Path) -> None:
-        """Web interface works for query modules."""
+    def test_query_module_web_entrypoint(self, tmp_path: Path) -> None:
+        """Web entrypoint works for query modules."""
         created = generate_module(
-            "reports", QUERY_MODULE, tmp_path, interfaces=[INTERFACE_WEB]
+            "reports", QUERY_MODULE, tmp_path, entrypoints=[ENTRYPOINT_WEB]
         )
 
         rel = {p.relative_to(tmp_path / "reports") for p in created}
-        assert Path("interface/web/placeholder.py") in rel
+        assert Path("entrypoint/web/placeholder.py") in rel
 
-    def test_query_module_api_interface(self, tmp_path: Path) -> None:
-        """API interface works for query modules."""
+    def test_query_module_api_entrypoint(self, tmp_path: Path) -> None:
+        """API entrypoint works for query modules."""
         created = generate_module(
-            "reports", QUERY_MODULE, tmp_path, interfaces=[INTERFACE_API]
+            "reports", QUERY_MODULE, tmp_path, entrypoints=[ENTRYPOINT_API]
         )
 
         rel = {p.relative_to(tmp_path / "reports") for p in created}
-        assert Path("interface/api/placeholder.py") in rel
+        assert Path("entrypoint/api/placeholder.py") in rel
 
-    def test_feature_default_interface_is_cli(self, tmp_path: Path) -> None:
-        """Feature default interface is cli."""
+    def test_feature_default_entrypoint_is_cli(self, tmp_path: Path) -> None:
+        """Feature default entrypoint is cli."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         created = generate_feature("orders", "create_order", tmp_path)
 
         assert any("cli" in str(p) for p in created)
         assert not any("web" in str(p) for p in created)
 
-    def test_feature_web_interface(self, tmp_path: Path) -> None:
-        """Feature generates interface/web/<use_case>.py for web interface."""
+    def test_feature_web_entrypoint(self, tmp_path: Path) -> None:
+        """Feature generates entrypoint/web/<use_case>.py for web entrypoint."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         created = generate_feature(
-            "orders", "create_order", tmp_path, interfaces=[INTERFACE_WEB]
+            "orders", "create_order", tmp_path, entrypoints=[ENTRYPOINT_WEB]
         )
 
         paths = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/web/create_order.py") in paths
+        assert Path("entrypoint/web/create_order.py") in paths
 
-    def test_feature_api_interface(self, tmp_path: Path) -> None:
-        """Feature generates interface/api/<use_case>.py for api interface."""
+    def test_feature_api_entrypoint(self, tmp_path: Path) -> None:
+        """Feature generates entrypoint/api/<use_case>.py for api entrypoint."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         created = generate_feature(
-            "orders", "create_order", tmp_path, interfaces=[INTERFACE_API]
+            "orders", "create_order", tmp_path, entrypoints=[ENTRYPOINT_API]
         )
 
         paths = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/api/create_order.py") in paths
+        assert Path("entrypoint/api/create_order.py") in paths
 
-    def test_feature_multiple_interfaces(self, tmp_path: Path) -> None:
-        """Feature with multiple interfaces creates one file per interface."""
+    def test_feature_multiple_entrypoints(self, tmp_path: Path) -> None:
+        """Feature with multiple entrypoints creates one file per entrypoint."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         created = generate_feature(
             "orders",
             "create_order",
             tmp_path,
-            interfaces=[INTERFACE_CLI, INTERFACE_WEB, INTERFACE_API],
+            entrypoints=[ENTRYPOINT_CLI, ENTRYPOINT_WEB, ENTRYPOINT_API],
         )
 
-        # application file + 3 interface files
+        # application file + 3 entrypoint files
         assert len(created) == 4
         paths = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/cli/create_order.py") in paths
-        assert Path("interface/web/create_order.py") in paths
-        assert Path("interface/api/create_order.py") in paths
+        assert Path("entrypoint/cli/create_order.py") in paths
+        assert Path("entrypoint/web/create_order.py") in paths
+        assert Path("entrypoint/api/create_order.py") in paths
 
-    def test_feature_invalid_interface_raises(self, tmp_path: Path) -> None:
-        """Raises ValueError for unrecognised interface name in feature."""
+    def test_feature_invalid_entrypoint_raises(self, tmp_path: Path) -> None:
+        """Raises ValueError for unrecognised entrypoint name in feature."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
 
-        with pytest.raises(ValueError, match="Unknown interface"):
-            generate_feature("orders", "create_order", tmp_path, interfaces=["graphql"])
+        with pytest.raises(ValueError, match="Unknown entrypoint"):
+            generate_feature(
+                "orders", "create_order", tmp_path, entrypoints=["graphql"]
+            )
 
     def test_web_template_content_mentions_html(self, tmp_path: Path) -> None:
-        """Web interface stub mentions HTML in its docstring."""
-        generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_WEB])
+        """Web entrypoint stub mentions HTML in its docstring."""
+        generate_module(
+            "orders", COMMAND_MODULE, tmp_path, entrypoints=[ENTRYPOINT_WEB]
+        )
         content = (
-            tmp_path / "orders" / "interface" / "web" / "placeholder.py"
+            tmp_path / "orders" / "entrypoint" / "web" / "placeholder.py"
         ).read_text(encoding="utf-8")
 
         assert "HTML" in content or "template" in content.lower()
 
     def test_api_template_content_mentions_json(self, tmp_path: Path) -> None:
-        """API interface stub mentions JSON in its docstring."""
-        generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_API])
+        """API entrypoint stub mentions JSON in its docstring."""
+        generate_module(
+            "orders", COMMAND_MODULE, tmp_path, entrypoints=[ENTRYPOINT_API]
+        )
         content = (
-            tmp_path / "orders" / "interface" / "api" / "placeholder.py"
+            tmp_path / "orders" / "entrypoint" / "api" / "placeholder.py"
         ).read_text(encoding="utf-8")
 
         assert "JSON" in content

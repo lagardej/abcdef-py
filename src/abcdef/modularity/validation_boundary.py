@@ -148,7 +148,7 @@ class BoundaryValidator:
         module_prefix = self._module_name_from_path(module.path)
 
         # Scan all .py files in layers
-        # (domain, application, projection, infrastructure, interface)
+        # (domain, application, projection, infrastructure, entrypoint)
         for py_file in module.path.rglob("*.py"):
             if py_file.name == "__init__.py":
                 continue

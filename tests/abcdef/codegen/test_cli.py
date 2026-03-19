@@ -107,7 +107,7 @@ class TestFeatureCommand:
         main(["feature", "orders", "create_order", "--root", str(tmp_path)])
 
         assert (tmp_path / "orders" / "application" / "create_order.py").exists()
-        assert (tmp_path / "orders" / "interface" / "cli" / "create_order.py").exists()
+        assert (tmp_path / "orders" / "entrypoint" / "cli" / "create_order.py").exists()
 
     def test_feature_command_missing_module_returns_one(self, tmp_path: Path) -> None:
         """Feature command returns exit code 1 if module dir does not exist."""
@@ -142,18 +142,18 @@ class TestFeatureCommand:
         assert exc_info.value.code != 0
 
 
-class TestInterfacesFlag:
-    """Tests for --interfaces flag on both sub-commands."""
+class TestEntrypointsFlag:
+    """Tests for --entrypoints flag on both sub-commands."""
 
-    def test_module_web_interface_flag(self, tmp_path: Path) -> None:
-        """--interfaces web generates web stub."""
+    def test_module_web_entrypoint_flag(self, tmp_path: Path) -> None:
+        """--entrypoints web generates web stub."""
         rc = main(
             [
                 "module",
                 "orders",
                 "--type",
                 COMMAND_MODULE,
-                "--interfaces",
+                "--entrypoints",
                 "web",
                 "--root",
                 str(tmp_path),
@@ -161,17 +161,17 @@ class TestInterfacesFlag:
         )
 
         assert rc == 0
-        assert (tmp_path / "orders" / "interface" / "web" / "placeholder.py").exists()
+        assert (tmp_path / "orders" / "entrypoint" / "web" / "placeholder.py").exists()
 
-    def test_module_api_interface_flag(self, tmp_path: Path) -> None:
-        """--interfaces api generates api stub."""
+    def test_module_api_entrypoint_flag(self, tmp_path: Path) -> None:
+        """--entrypoints api generates api stub."""
         rc = main(
             [
                 "module",
                 "orders",
                 "--type",
                 COMMAND_MODULE,
-                "--interfaces",
+                "--entrypoints",
                 "api",
                 "--root",
                 str(tmp_path),
@@ -179,17 +179,17 @@ class TestInterfacesFlag:
         )
 
         assert rc == 0
-        assert (tmp_path / "orders" / "interface" / "api" / "placeholder.py").exists()
+        assert (tmp_path / "orders" / "entrypoint" / "api" / "placeholder.py").exists()
 
-    def test_module_multiple_interfaces_flag(self, tmp_path: Path) -> None:
-        """--interfaces cli web api generates all three stubs."""
+    def test_module_multiple_entrypoints_flag(self, tmp_path: Path) -> None:
+        """--entrypoints cli web api generates all three stubs."""
         rc = main(
             [
                 "module",
                 "orders",
                 "--type",
                 COMMAND_MODULE,
-                "--interfaces",
+                "--entrypoints",
                 "cli",
                 "web",
                 "api",
@@ -199,12 +199,12 @@ class TestInterfacesFlag:
         )
 
         assert rc == 0
-        assert (tmp_path / "orders" / "interface" / "cli" / "placeholder.py").exists()
-        assert (tmp_path / "orders" / "interface" / "web" / "placeholder.py").exists()
-        assert (tmp_path / "orders" / "interface" / "api" / "placeholder.py").exists()
+        assert (tmp_path / "orders" / "entrypoint" / "cli" / "placeholder.py").exists()
+        assert (tmp_path / "orders" / "entrypoint" / "web" / "placeholder.py").exists()
+        assert (tmp_path / "orders" / "entrypoint" / "api" / "placeholder.py").exists()
 
-    def test_module_invalid_interface_exits_nonzero(self, tmp_path: Path) -> None:
-        """Invalid --interfaces value causes argparse to exit non-zero."""
+    def test_module_invalid_entrypoint_exits_nonzero(self, tmp_path: Path) -> None:
+        """Invalid --entrypoints value causes argparse to exit non-zero."""
         with pytest.raises(SystemExit) as exc_info:
             main(
                 [
@@ -212,7 +212,7 @@ class TestInterfacesFlag:
                     "orders",
                     "--type",
                     COMMAND_MODULE,
-                    "--interfaces",
+                    "--entrypoints",
                     "graphql",
                     "--root",
                     str(tmp_path),
@@ -221,8 +221,8 @@ class TestInterfacesFlag:
 
         assert exc_info.value.code != 0
 
-    def test_feature_web_interface_flag(self, tmp_path: Path) -> None:
-        """--interfaces web on feature generates web stub."""
+    def test_feature_web_entrypoint_flag(self, tmp_path: Path) -> None:
+        """--entrypoints web on feature generates web stub."""
         main(
             [
                 "module",
@@ -238,7 +238,7 @@ class TestInterfacesFlag:
                 "feature",
                 "orders",
                 "create_order",
-                "--interfaces",
+                "--entrypoints",
                 "web",
                 "--root",
                 str(tmp_path),
@@ -246,19 +246,19 @@ class TestInterfacesFlag:
         )
 
         assert rc == 0
-        assert (tmp_path / "orders" / "interface" / "web" / "create_order.py").exists()
+        assert (tmp_path / "orders" / "entrypoint" / "web" / "create_order.py").exists()
 
-    def test_module_output_mentions_interfaces(
+    def test_module_output_mentions_entrypoints(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        """Module command output includes selected interface names."""
+        """Module command output includes selected entrypoint names."""
         main(
             [
                 "module",
                 "orders",
                 "--type",
                 COMMAND_MODULE,
-                "--interfaces",
+                "--entrypoints",
                 "web",
                 "api",
                 "--root",

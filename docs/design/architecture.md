@@ -38,8 +38,8 @@ enforced boundaries, explicit public APIs, and automated verification where prac
   encapsulated within their module. A module's public API must be explicitly declared in
   a clear, language-appropriate place (for example: a module export file, package
   manifest, or public API declaration). Avoid implicitly exporting internals.
-- Sub-packages are allowed if structurally necessary (for example, `interface/cli/` or
-  `interface/web/`) provided their public exports are explicitly declared.
+- Sub-packages are allowed if structurally necessary (for example, `entrypoint/cli/` or
+  `entrypoint/web/`) provided their public exports are explicitly declared.
 - Package facades should only re-export symbols from their own module boundary. Do not
   re-export symbols from sibling modules without explicit intent.
 
@@ -92,7 +92,7 @@ below). All modules share common layers:
 - *application* — Use case handlers (commands for write modules, queries for read
   modules)
 - *infrastructure* — Concrete implementations (repositories, stores, external services)
-- *interface* — User-facing entry points (CLI, web routes)
+- *entrypoint* — User-facing entry points (CLI, web routes, event listeners, schedulers)
 
 **Module independence:** Module names and responsibilities may change over time. The
 rules below apply to every module regardless of its concrete domain.
@@ -105,7 +105,7 @@ that other modules may extend or consume.
 **Rules for shared/:**
 
 - Still follows the same layer separation: `domain`, `application`, `infrastructure`,
-  `interface`.
+  `entrypoint`.
 - Still obeys the dependency rules below.
 - May be imported by any module.
 - Contains no domain-specific models or logic.
@@ -118,17 +118,17 @@ project_root/
 │   ├── domain
 │   ├── application
 │   ├── infrastructure
-│   └── interface
+│   └── entrypoint
 ├── <module_query>/                   # Query Module (read side)
 │   ├── projection
 │   ├── application
 │   ├── infrastructure
-│   └── interface
+│   └── entrypoint
 └── shared/                           # Shared abstractions and services (non-module)
     ├── domain
     ├── application
     ├── infrastructure
-    └── interface
+    └── entrypoint
 ```
 
 **Key insight:** Modules follow a layered structure. Command modules use domain for
@@ -152,7 +152,7 @@ This project enforces strict separation between write-side (command) and read-si
 ├── domain               # Aggregate, Repository ABC, value objects, invariants
 ├── application          # Command handlers (use cases)
 ├── infrastructure       # Concrete implementations (repositories, external services)
-└── interface            # CLI/web entry points
+└── entrypoint           # CLI/web entry points
 ```
 
 **Strict rules:**
@@ -173,7 +173,7 @@ This project enforces strict separation between write-side (command) and read-si
 ├── projection           # Projection documents, read model stores
 ├── application          # Query handlers (read use cases)
 ├── infrastructure       # Concrete projection stores
-└── interface            # CLI/web entry points
+└── entrypoint           # CLI/web entry points
 ```
 
 **Pragmatic approach:**
@@ -195,7 +195,7 @@ Strict module hierarchy is an architectural constraint and should be enforced by
 conventions, verification scripts, or build-time checks where possible:
 
 ```
-interface → application → domain
+entrypoint → application → domain
 infrastructure → any layer (never the reverse)
 ```
 
@@ -222,9 +222,10 @@ infrastructure → any layer (never the reverse)
 - Provide implementations that are wired into higher layers at the composition root;
   avoid direct imports of infrastructure from domain code.
 
-### Interface Layer (`interface`)
+### Entrypoint Layer (`entrypoint`)
 
-- *User-facing entry points.* CLI commands, web routes, API endpoints.
+- *User-facing entry points.* CLI commands, web routes, API endpoints, event listeners,
+  scheduled jobs.
 - Parses user input, calls application handlers, formats output.
 - Depends only on application handlers (no domain logic here).
 
@@ -250,7 +251,7 @@ documents.
 ```
 1. User input via CLI or web
    ↓
-2. Interface layer parses input and builds a command/query
+2. Entrypoint layer parses input and builds a command/query
    ↓
 3. Application handler orchestrates domain logic
    ↓
@@ -349,7 +350,7 @@ coupling.
 Physical location follows clear patterns. Aggregates and value objects live in `domain`
 and are not exported as part of other modules' internals. Application handlers follow
 their layer structure. Sub-packages are allowed if they reflect structural needs (for
-example, `interface/cli` for CLI commands, `interface/web` for web routes), but public
+example, `entrypoint/cli` for CLI commands, `entrypoint/web` for web routes), but public
 exports must be declared explicitly in a module's public API declaration.
 
 - **Aggregate** — `domain/<aggregate>`
@@ -357,8 +358,8 @@ exports must be declared explicitly in a module's public API declaration.
 - **Use case command + handler** — `application/<use_case>`
 - **Concrete implementation** — `infrastructure/<tech>_<concept>`
 - **Query handler** — `application/<query>`
-- **CLI command** — `interface/cli/<command>`
-- **Web route** — `interface/web/<route>`
+- **CLI command** — `entrypoint/cli/<command>`
+- **Web route** — `entrypoint/web/<route>`
 - **Module public API** — module root export / public API file
 
 ## Defensive Parsing (Abstract)
