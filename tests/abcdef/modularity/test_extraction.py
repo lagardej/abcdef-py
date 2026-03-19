@@ -189,6 +189,11 @@ __all__ = ["CreateOrder", "FetchOrder"]
 
             assert "CreateOrder" in cmd_names
             assert "FetchOrder" in qry_names
+
+            # Symbols must also carry the correct kind — not "unknown".
+            sym_by_name = {s.name: s for s in api.symbols}
+            assert sym_by_name["CreateOrder"].kind == "command"
+            assert sym_by_name["FetchOrder"].kind == "query"
         finally:
             # cleanup
             sys.path.remove(str(Path(tmpdir)))
@@ -353,6 +358,11 @@ __all__ = ['E', 'S']
 
             assert any(s.name == "E" for s in api.events)
             assert any(s.name == "S" for s in api.spis)
+
+            # Symbols must also carry the correct kind — not "unknown".
+            sym_by_name = {s.name: s for s in api.symbols}
+            assert sym_by_name["E"].kind == "event"
+            assert sym_by_name["S"].kind == "spi"
         finally:
             sys.path.remove(str(Path(tmpdir)))
             for m in list(sys.modules):

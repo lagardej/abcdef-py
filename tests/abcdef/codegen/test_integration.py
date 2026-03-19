@@ -8,8 +8,8 @@ the architecture rules.
 from pathlib import Path
 
 from abcdef.codegen.generator import (
-    ENTRYPOINT_API,
-    ENTRYPOINT_WEB,
+    INTERFACE_API,
+    INTERFACE_WEB,
     generate_feature,
     generate_module,
 )
@@ -120,16 +120,14 @@ class TestMultipleGeneratedModules:
         )
 
 
-class TestGeneratedEntrypointAreValid:
-    """Modules generated with non-default entrypoint pass modularity validation."""
+class TestGeneratedInterfacesAreValid:
+    """Modules generated with non-default interfaces pass modularity validation."""
 
     def test_command_module_web_interface_has_no_violations(
         self, tmp_path: Path
     ) -> None:
         """Command module scaffolded with web interface has zero violations."""
-        generate_module(
-            "orders", COMMAND_MODULE, tmp_path, entrypoints=[ENTRYPOINT_WEB]
-        )
+        generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_WEB])
 
         modularity = Modularity(tmp_path)
         modularity.discover()
@@ -143,9 +141,7 @@ class TestGeneratedEntrypointAreValid:
         self, tmp_path: Path
     ) -> None:
         """Command module scaffolded with api interface has zero violations."""
-        generate_module(
-            "orders", COMMAND_MODULE, tmp_path, entrypoints=[ENTRYPOINT_API]
-        )
+        generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_API])
 
         modularity = Modularity(tmp_path)
         modularity.discover()
@@ -155,15 +151,15 @@ class TestGeneratedEntrypointAreValid:
             str(v) for v in violations
         )
 
-    def test_command_module_all_entrypoint_has_no_violations(
+    def test_command_module_all_interfaces_has_no_violations(
         self, tmp_path: Path
     ) -> None:
-        """Command module with all three entrypoint has zero violations."""
+        """Command module with all three interfaces has zero violations."""
         generate_module(
             "orders",
             COMMAND_MODULE,
             tmp_path,
-            entrypoints=["cli", ENTRYPOINT_WEB, ENTRYPOINT_API],
+            interfaces=["cli", INTERFACE_WEB, INTERFACE_API],
         )
 
         modularity = Modularity(tmp_path)
@@ -171,18 +167,18 @@ class TestGeneratedEntrypointAreValid:
         violations = modularity.validate()
 
         assert violations == [], (
-            "Command module (all entrypoint) has violations:\n"
+            "Command module (all interfaces) has violations:\n"
             + "\n".join(str(v) for v in violations)
         )
 
     def test_feature_with_web_and_api_has_no_violations(self, tmp_path: Path) -> None:
-        """Feature scaffolded with web and api entrypoint has zero violations."""
+        """Feature scaffolded with web and api interfaces has zero violations."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         generate_feature(
             "orders",
             "create_order",
             tmp_path,
-            entrypoints=[ENTRYPOINT_WEB, ENTRYPOINT_API],
+            interfaces=[INTERFACE_WEB, INTERFACE_API],
         )
 
         modularity = Modularity(tmp_path)

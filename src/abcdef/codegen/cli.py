@@ -6,11 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from abcdef.codegen.generator import (
-    VALID_ENTRYPOINTS,
-    generate_feature,
-    generate_module,
-)
+from abcdef.codegen.generator import VALID_INTERFACES, generate_feature, generate_module
 from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
 
 
@@ -36,14 +32,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Module type: command_module or query_module.",
     )
     module_cmd.add_argument(
-        "--entrypoints",
+        "--interfaces",
         nargs="+",
-        choices=list(VALID_ENTRYPOINTS),
+        choices=list(VALID_INTERFACES),
         default=["cli"],
-        metavar="ENTRYPOINT",
+        metavar="INTERFACE",
         help=(
-            "Entrypoint types to scaffold (default: cli). "
-            f"Choices: {', '.join(VALID_ENTRYPOINTS)}. "
+            "Interface types to scaffold (default: cli). "
+            f"Choices: {', '.join(VALID_INTERFACES)}. "
             "Multiple values accepted."
         ),
     )
@@ -64,14 +60,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "use_case", help="Use-case name in snake_case (e.g. create_order)."
     )
     feature_cmd.add_argument(
-        "--entrypoints",
+        "--interfaces",
         nargs="+",
-        choices=list(VALID_ENTRYPOINTS),
+        choices=list(VALID_INTERFACES),
         default=["cli"],
-        metavar="ENTRYPOINT",
+        metavar="INTERFACE",
         help=(
-            "Entrypoint types to scaffold (default: cli). "
-            f"Choices: {', '.join(VALID_ENTRYPOINTS)}. "
+            "Interface types to scaffold (default: cli). "
+            f"Choices: {', '.join(VALID_INTERFACES)}. "
             "Multiple values accepted."
         ),
     )
@@ -104,11 +100,11 @@ def main(argv: list[str] | None = None) -> int:
                 name=args.name,
                 module_type=args.module_type,
                 root=root,
-                entrypoints=args.entrypoints,
+                interfaces=args.interfaces,
             )
             print(
                 f"Created module '{args.name}' ({args.module_type}) "
-                f"[entrypoints: {', '.join(args.entrypoints)}]:"
+                f"[interfaces: {', '.join(args.interfaces)}]:"
             )
             for path in created:
                 print(f"  {path}")
@@ -118,11 +114,11 @@ def main(argv: list[str] | None = None) -> int:
                 module_name=args.module,
                 use_case_name=args.use_case,
                 root=root,
-                entrypoints=args.entrypoints,
+                interfaces=args.interfaces,
             )
             print(
                 f"Added feature '{args.use_case}' to module '{args.module}' "
-                f"[entrypoints: {', '.join(args.entrypoints)}]:"
+                f"[interfaces: {', '.join(args.interfaces)}]:"
             )
             for path in created:
                 print(f"  {path}")
