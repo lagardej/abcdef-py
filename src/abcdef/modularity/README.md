@@ -27,7 +27,7 @@ In each module's `__init__.py`:
 # ... your exports ...
 
 __modularity__ = {
-    "type": "command_module",  # or "query_module"
+    "type": "command",         # or "query"
     "name": "orders",          # optional: defaults to package name
     "description": "...",      # optional: defaults to docstring above
 }
@@ -135,7 +135,7 @@ from .commands import CreateOrder, FulfillOrder
 from .events import OrderCreated, OrderFulfilled
 
 __modularity__ = {
-    "type": "command_module",
+    "type": "command",
     "name": "orders",
 }
 
@@ -151,7 +151,7 @@ from .queries import OrderSummary, OrderHistory
 from .projections import OrderDocument
 
 __modularity__ = {
-    "type": "query_module",
+    "type": "query",
     "name": "reports",
 }
 
@@ -233,8 +233,7 @@ loads them as `CommandModule` or `QueryModule` objects. It:
 ## Error Handling
 
 - **Missing type** — raises `ValueError` if `__modularity__['type']` is absent
-- **Invalid type** — raises `ValueError` if type is not `"command_module"` or
-  `"query_module"`
+- **Invalid type** — raises `ValueError` if type is not `"command"` or `"query"`
 - **Import errors** — captured gracefully; module structure is still discoverable even
   if imports fail
 - **Violations** — collected and returned as `Violation` objects, not raised as

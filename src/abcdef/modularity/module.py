@@ -19,7 +19,7 @@ class ModuleDeclaration:
     """Module metadata declared in __init__.py.
 
     Attributes:
-        module_type: Either "command_module" or "query_module".
+        module_type: Either "command" or "query".
         name: Logical name of the module (for documentation).
         description: Human-readable description (from docstring or explicit).
     """

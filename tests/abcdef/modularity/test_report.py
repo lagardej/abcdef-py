@@ -51,7 +51,7 @@ class TestMarkdownReporter:
 
         assert "orders" in docs
         assert "Order management system" in docs
-        assert "command module" in docs.lower()
+        assert "command" in docs.lower()
         assert "CreateOrder" in docs
         assert "OrderCreated" in docs
 
@@ -83,7 +83,7 @@ class TestMarkdownReporter:
         docs = reporter.generate()
 
         assert "orders_reports" in docs
-        assert "query module" in docs.lower()
+        assert "query" in docs.lower()
         assert "GetOrders" in docs
 
     def test_multiple_modules_listed_in_toc(self) -> None:

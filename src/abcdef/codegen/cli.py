@@ -29,7 +29,7 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="module_type",
         choices=[COMMAND_MODULE, QUERY_MODULE],
         required=True,
-        help="Module type: command_module or query_module.",
+        help="Module type: command or query.",
     )
     module_cmd.add_argument(
         "--interfaces",

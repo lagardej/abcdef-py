@@ -8,8 +8,8 @@ Marker attribute convention:
 """
 
 # Constants for module type declaration
-COMMAND_MODULE = "command_module"
-QUERY_MODULE = "query_module"
+COMMAND_MODULE = "command"
+QUERY_MODULE = "query"
 SPI = "spi"
 
 __all__ = [

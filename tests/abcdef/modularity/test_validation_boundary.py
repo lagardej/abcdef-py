@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from abcdef.modularity.markers import QUERY_MODULE
 from abcdef.modularity.module import CommandModule, ModuleDeclaration, QueryModule
 from abcdef.modularity.validation import PublicApi, PublicApiSymbol
 from abcdef.modularity.validation_boundary import BoundaryValidator
@@ -27,7 +28,7 @@ def test_read_write_constraints_command_exports_query(tmp_path: Path) -> None:
     """Command module that exposes a query produces a read_write_constraint."""
     module_path = tmp_path / "cmd_module"
     module_path.mkdir()
-    decl = ModuleDeclaration(module_type="command_module", name="app.commands")
+    decl = ModuleDeclaration(module_type="command", name="app.commands")
 
     query_sym = PublicApiSymbol(
         name="get_x", kind="query", full_path="app.commands.get_x"
@@ -52,7 +53,7 @@ def test_read_write_constraints_query_exports_command(tmp_path: Path) -> None:
     """Query module that exposes a command produces a read_write_constraint."""
     module_path = tmp_path / "qry_module"
     module_path.mkdir()
-    decl = ModuleDeclaration(module_type="query_module", name="app.queries")
+    decl = ModuleDeclaration(module_type=QUERY_MODULE, name="app.queries")
 
     cmd_sym = PublicApiSymbol(name="do_x", kind="command", full_path="app.queries.do_x")
     api = _public_api_with(commands=(cmd_sym,))
@@ -80,7 +81,7 @@ def test_facade_rule_reexports_foreign_module(
     init_file = module_path / "__init__.py"
     init_file.write_text("from other.app import something\n", encoding="utf-8")
 
-    decl = ModuleDeclaration(module_type="command_module", name="facade.mod")
+    decl = ModuleDeclaration(module_type="command", name="facade.mod")
     api = _public_api_with()
     module = CommandModule(_declaration=decl, _path=module_path, _public_api=api)
 
@@ -115,8 +116,8 @@ def test_import_boundaries_detect_internal_imports(
     other_path = tmp_path / "other_mod"
     other_path.mkdir()
 
-    this_decl = ModuleDeclaration(module_type="command_module", name="this.mod")
-    other_decl = ModuleDeclaration(module_type="query_module", name="other.mod")
+    this_decl = ModuleDeclaration(module_type="command", name="this.mod")
+    other_decl = ModuleDeclaration(module_type=QUERY_MODULE, name="other.mod")
 
     this_module = CommandModule(
         _declaration=this_decl, _path=this_path, _public_api=PublicApi.empty()
@@ -156,8 +157,8 @@ def test_import_boundaries_allow_root_import(
     other_path = tmp_path / "other_mod2"
     other_path.mkdir()
 
-    this_decl = ModuleDeclaration(module_type="command_module", name="this.mod2")
-    other_decl = ModuleDeclaration(module_type="query_module", name="other.mod2")
+    this_decl = ModuleDeclaration(module_type="command", name="this.mod2")
+    other_decl = ModuleDeclaration(module_type=QUERY_MODULE, name="other.mod2")
 
     this_module = CommandModule(
         _declaration=this_decl, _path=this_path, _public_api=PublicApi.empty()
@@ -188,7 +189,7 @@ def test_facade_rule_allows_abcdef_prefixed_imports(
     init_file = module_path / "__init__.py"
     init_file.write_text("from abcdef.c.markers import command\n", encoding="utf-8")
 
-    decl = ModuleDeclaration(module_type="command_module", name="my.mod")
+    decl = ModuleDeclaration(module_type="command", name="my.mod")
     api = _public_api_with()
     module = CommandModule(_declaration=decl, _path=module_path, _public_api=api)
 
@@ -216,7 +217,7 @@ def test_import_boundaries_allows_abcdef_prefixed_imports(
         "from abcdef.c.command_handler import CommandHandler\n", encoding="utf-8"
     )
 
-    decl = ModuleDeclaration(module_type="command_module", name="my.mod")
+    decl = ModuleDeclaration(module_type="command", name="my.mod")
     module = CommandModule(
         _declaration=decl, _path=this_path, _public_api=PublicApi.empty()
     )
@@ -242,7 +243,7 @@ def test_facade_rule_allows_own_sub_namespace(
     init_file = module_path / "__init__.py"
     init_file.write_text("from orders.domain.orders import Orders\n", encoding="utf-8")
 
-    decl = ModuleDeclaration(module_type="command_module", name="orders")
+    decl = ModuleDeclaration(module_type="command", name="orders")
     api = _public_api_with()
     module = CommandModule(_declaration=decl, _path=module_path, _public_api=api)
 
@@ -278,8 +279,8 @@ def test_import_boundaries_continue_past_init_file(
     other_path = tmp_path / "other_mod"
     other_path.mkdir()
 
-    this_decl = ModuleDeclaration(module_type="command_module", name="this.mod")
-    other_decl = ModuleDeclaration(module_type="query_module", name="other.mod")
+    this_decl = ModuleDeclaration(module_type="command", name="this.mod")
+    other_decl = ModuleDeclaration(module_type=QUERY_MODULE, name="other.mod")
 
     this_module = CommandModule(
         _declaration=this_decl, _path=this_path, _public_api=PublicApi.empty()
@@ -315,7 +316,7 @@ def test_facade_rule_continue_past_abcdef_import(
         encoding="utf-8",
     )
 
-    decl = ModuleDeclaration(module_type="command_module", name="my.mod")
+    decl = ModuleDeclaration(module_type="command", name="my.mod")
     module = CommandModule(
         _declaration=decl, _path=module_path, _public_api=_public_api_with()
     )
@@ -353,8 +354,8 @@ def test_import_boundaries_abcdef_prefixed_module_not_flagged(
     abcdef_foo_path = tmp_path / "abcdef_foo"
     abcdef_foo_path.mkdir()
 
-    this_decl = ModuleDeclaration(module_type="command_module", name="this.mod")
-    abcdef_foo_decl = ModuleDeclaration(module_type="query_module", name="abcdef.foo")
+    this_decl = ModuleDeclaration(module_type="command", name="this.mod")
+    abcdef_foo_decl = ModuleDeclaration(module_type=QUERY_MODULE, name="abcdef.foo")
 
     this_module = CommandModule(
         _declaration=this_decl, _path=this_path, _public_api=PublicApi.empty()
@@ -400,8 +401,8 @@ def test_import_boundaries_continue_past_abcdef_import(
     other_path = tmp_path / "other_mod"
     other_path.mkdir()
 
-    this_decl = ModuleDeclaration(module_type="command_module", name="this.mod")
-    other_decl = ModuleDeclaration(module_type="query_module", name="other.mod")
+    this_decl = ModuleDeclaration(module_type="command", name="this.mod")
+    other_decl = ModuleDeclaration(module_type=QUERY_MODULE, name="other.mod")
 
     this_module = CommandModule(
         _declaration=this_decl, _path=this_path, _public_api=PublicApi.empty()
