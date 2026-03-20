@@ -44,30 +44,4 @@ ______________________________________________________________________
 
 ## Improvements
 
-### Silence noise mutants with `# pragma: no mutate`
-
-```
-Priority: Low
-Created:  2026-03-18
-Files:    src/abcdef/codegen/cli.py, src/abcdef/codegen/generator.py,
-          src/abcdef/modularity/validation_boundary.py,
-          src/abcdef/de/event_sourced_repository.py
-```
-
-Approximately 80 of the remaining stable survivors (mutation run 2026-03-18-165915) are
-pure noise: string-literal mutations on CLI help text, error message casing, `prog=` /
-`description=` values, `NotImplementedError` messages, and similar UI strings with no
-behavioural significance. mutmut 3 supports `# pragma: no mutate` inline comments to
-exclude individual lines from mutation. Add the pragma to all affected lines. The bulk
-is in `codegen/cli.py` `_build_parser` (all help/prog/description/metavar strings) and
-`main` (print-format strings); smaller clusters in `codegen/generator.py` (error message
-strings, placeholder literal values), `modularity/validation_boundary.py` (violation
-message string content), and `de/event_sourced_repository.py` (`NotImplementedError`
-message).
-
-Rationale: noise survivors require manual triage on every mutation run; silencing them
-makes the surviving mutants list actionable at a glance without any loss of meaningful
-signal.
-
-Suggested steps: after adding pragmas, re-run `make mutate` and confirm the survivor
-count drops significantly with no previously-killed mutants now surviving.
+(none)
