@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from abcdef.codegen.generator import VALID_INTERFACES, generate_feature, generate_module
+from abcdef.codegen.generator import VALID_ENDPOINTS, generate_feature, generate_module
 from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
 
 
@@ -32,14 +32,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Module type: command or query.",
     )
     module_cmd.add_argument(
-        "--interfaces",
+        "--endpoints",
         nargs="+",
-        choices=list(VALID_INTERFACES),
+        choices=list(VALID_ENDPOINTS),
         default=["cli"],
-        metavar="INTERFACE",
+        metavar="ENDPOINT",
         help=(
-            "Interface types to scaffold (default: cli). "
-            f"Choices: {', '.join(VALID_INTERFACES)}. "
+            "Endpoint types to scaffold (default: cli). "
+            f"Choices: {', '.join(VALID_ENDPOINTS)}. "
             "Multiple values accepted."
         ),
     )
@@ -60,14 +60,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "use_case", help="Use-case name in snake_case (e.g. create_order)."
     )
     feature_cmd.add_argument(
-        "--interfaces",
+        "--endpoints",
         nargs="+",
-        choices=list(VALID_INTERFACES),
+        choices=list(VALID_ENDPOINTS),
         default=["cli"],
-        metavar="INTERFACE",
+        metavar="ENDPOINT",
         help=(
-            "Interface types to scaffold (default: cli). "
-            f"Choices: {', '.join(VALID_INTERFACES)}. "
+            "Endpoint types to scaffold (default: cli). "
+            f"Choices: {', '.join(VALID_ENDPOINTS)}. "
             "Multiple values accepted."
         ),
     )
@@ -100,11 +100,11 @@ def main(argv: list[str] | None = None) -> int:
                 name=args.name,
                 module_type=args.module_type,
                 root=root,
-                interfaces=args.interfaces,
+                endpoints=args.endpoints,
             )
             print(
                 f"Created module '{args.name}' ({args.module_type}) "
-                f"[interfaces: {', '.join(args.interfaces)}]:"
+                f"[endpoints: {', '.join(args.endpoints)}]:"
             )
             for path in created:
                 print(f"  {path}")
@@ -114,11 +114,11 @@ def main(argv: list[str] | None = None) -> int:
                 module_name=args.module,
                 use_case_name=args.use_case,
                 root=root,
-                interfaces=args.interfaces,
+                endpoints=args.endpoints,
             )
             print(
                 f"Added feature '{args.use_case}' to module '{args.module}' "
-                f"[interfaces: {', '.join(args.interfaces)}]:"
+                f"[endpoints: {', '.join(args.endpoints)}]:"
             )
             for path in created:
                 print(f"  {path}")

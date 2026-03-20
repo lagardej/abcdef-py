@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 
 from abcdef.codegen.generator import (
-    INTERFACE_API,
-    INTERFACE_CLI,
-    INTERFACE_WEB,
+    ENDPOINT_API,
+    ENDPOINT_CLI,
+    ENDPOINT_WEB,
     _to_pascal,
     _write,
     generate_feature,
@@ -67,7 +67,7 @@ class TestGenerateModule:
         assert Path("domain/orders_repository.py") in rel
         assert Path("application/placeholder.py") in rel
         assert Path("infrastructure/placeholder.py") in rel
-        assert Path("interface/cli/placeholder.py") in rel
+        assert Path("endpoint/cli/placeholder.py") in rel
 
     def test_query_module_creates_expected_files(self, tmp_path: Path) -> None:
         """Query module scaffold creates all expected files."""
@@ -78,7 +78,7 @@ class TestGenerateModule:
         assert Path("projection/reports.py") in rel
         assert Path("application/placeholder.py") in rel
         assert Path("infrastructure/placeholder.py") in rel
-        assert Path("interface/cli/placeholder.py") in rel
+        assert Path("endpoint/cli/placeholder.py") in rel
 
     def test_command_init_contains_modularity_dict(self, tmp_path: Path) -> None:
         """Generated __init__.py contains __modularity__ dict with COMMAND_MODULE."""
@@ -175,11 +175,11 @@ class TestGenerateFeature:
         assert (tmp_path / "orders" / "application" / "create_order.py").exists()
 
     def test_command_feature_creates_cli_file(self, tmp_path: Path) -> None:
-        """Feature adds interface/cli/<use_case>.py for a command module."""
+        """Feature adds endpoint/cli/<use_case>.py for a command module."""
         self._scaffold_command_module(tmp_path)
         generate_feature("orders", "create_order", tmp_path)
 
-        assert (tmp_path / "orders" / "interface" / "cli" / "create_order.py").exists()
+        assert (tmp_path / "orders" / "endpoint" / "cli" / "create_order.py").exists()
 
     def test_query_feature_creates_application_file(self, tmp_path: Path) -> None:
         """Feature adds application/<use_case>.py for a query module."""
@@ -189,11 +189,11 @@ class TestGenerateFeature:
         assert (tmp_path / "reports" / "application" / "get_report.py").exists()
 
     def test_query_feature_creates_cli_file(self, tmp_path: Path) -> None:
-        """Feature adds interface/cli/<use_case>.py for a query module."""
+        """Feature adds endpoint/cli/<use_case>.py for a query module."""
         self._scaffold_query_module(tmp_path)
         generate_feature("reports", "get_report", tmp_path)
 
-        assert (tmp_path / "reports" / "interface" / "cli" / "get_report.py").exists()
+        assert (tmp_path / "reports" / "endpoint" / "cli" / "get_report.py").exists()
 
     def test_command_feature_content_has_correct_class_names(
         self, tmp_path: Path
@@ -279,141 +279,141 @@ class TestGenerateFeature:
             generate_feature("orders", "create_order", tmp_path)
 
 
-class TestInterfaces:
-    """Tests for --interfaces parameter on generate_module and generate_feature."""
+class TestEndpoints:
+    """Tests for --endpoints parameter on generate_module and generate_feature."""
 
-    def test_module_default_interface_is_cli(self, tmp_path: Path) -> None:
-        """Default interface is cli when interfaces is not specified."""
+    def test_module_default_endpoint_is_cli(self, tmp_path: Path) -> None:
+        """Default endpoint is cli when endpoints is not specified."""
         created = generate_module("orders", COMMAND_MODULE, tmp_path)
 
         rel = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/cli/placeholder.py") in rel
+        assert Path("endpoint/cli/placeholder.py") in rel
         assert not any("web" in str(p) for p in rel)
         assert not any("api" in str(p) for p in rel)
 
-    def test_module_web_interface(self, tmp_path: Path) -> None:
-        """Web interface generates interface/web/placeholder.py."""
+    def test_module_web_endpoint(self, tmp_path: Path) -> None:
+        """Web endpoint generates endpoint/web/placeholder.py."""
         created = generate_module(
-            "orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_WEB]
+            "orders", COMMAND_MODULE, tmp_path, endpoints=[ENDPOINT_WEB]
         )
 
         rel = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/web/placeholder.py") in rel
+        assert Path("endpoint/web/placeholder.py") in rel
         assert not any("cli" in str(p) for p in rel)
 
-    def test_module_api_interface(self, tmp_path: Path) -> None:
-        """API interface generates interface/api/placeholder.py."""
+    def test_module_api_endpoint(self, tmp_path: Path) -> None:
+        """API endpoint generates endpoint/api/placeholder.py."""
         created = generate_module(
-            "orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_API]
+            "orders", COMMAND_MODULE, tmp_path, endpoints=[ENDPOINT_API]
         )
 
         rel = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/api/placeholder.py") in rel
+        assert Path("endpoint/api/placeholder.py") in rel
         assert not any("cli" in str(p) for p in rel)
 
-    def test_module_multiple_interfaces(self, tmp_path: Path) -> None:
-        """Multiple interfaces each generate their own stub."""
+    def test_module_multiple_endpoints(self, tmp_path: Path) -> None:
+        """Multiple endpoints each generate their own stub."""
         created = generate_module(
             "orders",
             COMMAND_MODULE,
             tmp_path,
-            interfaces=[INTERFACE_CLI, INTERFACE_WEB, INTERFACE_API],
+            endpoints=[ENDPOINT_CLI, ENDPOINT_WEB, ENDPOINT_API],
         )
 
         rel = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/cli/placeholder.py") in rel
-        assert Path("interface/web/placeholder.py") in rel
-        assert Path("interface/api/placeholder.py") in rel
+        assert Path("endpoint/cli/placeholder.py") in rel
+        assert Path("endpoint/web/placeholder.py") in rel
+        assert Path("endpoint/api/placeholder.py") in rel
 
-    def test_module_invalid_interface_raises(self, tmp_path: Path) -> None:
-        """Raises ValueError for unrecognised interface name."""
-        with pytest.raises(ValueError, match="Unknown interface"):
-            generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=["graphql"])
+    def test_module_invalid_endpoint_raises(self, tmp_path: Path) -> None:
+        """Raises ValueError for unrecognised endpoint name."""
+        with pytest.raises(ValueError, match="Unknown endpoint"):
+            generate_module("orders", COMMAND_MODULE, tmp_path, endpoints=["graphql"])
 
-    def test_query_module_web_interface(self, tmp_path: Path) -> None:
-        """Web interface works for query modules."""
+    def test_query_module_web_endpoint(self, tmp_path: Path) -> None:
+        """Web endpoint works for query modules."""
         created = generate_module(
-            "reports", QUERY_MODULE, tmp_path, interfaces=[INTERFACE_WEB]
+            "reports", QUERY_MODULE, tmp_path, endpoints=[ENDPOINT_WEB]
         )
 
         rel = {p.relative_to(tmp_path / "reports") for p in created}
-        assert Path("interface/web/placeholder.py") in rel
+        assert Path("endpoint/web/placeholder.py") in rel
 
-    def test_query_module_api_interface(self, tmp_path: Path) -> None:
-        """API interface works for query modules."""
+    def test_query_module_api_endpoint(self, tmp_path: Path) -> None:
+        """API endpoint works for query modules."""
         created = generate_module(
-            "reports", QUERY_MODULE, tmp_path, interfaces=[INTERFACE_API]
+            "reports", QUERY_MODULE, tmp_path, endpoints=[ENDPOINT_API]
         )
 
         rel = {p.relative_to(tmp_path / "reports") for p in created}
-        assert Path("interface/api/placeholder.py") in rel
+        assert Path("endpoint/api/placeholder.py") in rel
 
-    def test_feature_default_interface_is_cli(self, tmp_path: Path) -> None:
-        """Feature default interface is cli."""
+    def test_feature_default_endpoint_is_cli(self, tmp_path: Path) -> None:
+        """Feature default endpoint is cli."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         created = generate_feature("orders", "create_order", tmp_path)
 
         assert any("cli" in str(p) for p in created)
         assert not any("web" in str(p) for p in created)
 
-    def test_feature_web_interface(self, tmp_path: Path) -> None:
-        """Feature generates interface/web/<use_case>.py for web interface."""
+    def test_feature_web_endpoint(self, tmp_path: Path) -> None:
+        """Feature generates endpoint/web/<use_case>.py for web endpoint."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         created = generate_feature(
-            "orders", "create_order", tmp_path, interfaces=[INTERFACE_WEB]
+            "orders", "create_order", tmp_path, endpoints=[ENDPOINT_WEB]
         )
 
         paths = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/web/create_order.py") in paths
+        assert Path("endpoint/web/create_order.py") in paths
 
-    def test_feature_api_interface(self, tmp_path: Path) -> None:
-        """Feature generates interface/api/<use_case>.py for api interface."""
+    def test_feature_api_endpoint(self, tmp_path: Path) -> None:
+        """Feature generates endpoint/api/<use_case>.py for api endpoint."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         created = generate_feature(
-            "orders", "create_order", tmp_path, interfaces=[INTERFACE_API]
+            "orders", "create_order", tmp_path, endpoints=[ENDPOINT_API]
         )
 
         paths = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/api/create_order.py") in paths
+        assert Path("endpoint/api/create_order.py") in paths
 
-    def test_feature_multiple_interfaces(self, tmp_path: Path) -> None:
-        """Feature with multiple interfaces creates one file per interface."""
+    def test_feature_multiple_endpoints(self, tmp_path: Path) -> None:
+        """Feature with multiple endpoints creates one file per endpoint."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         created = generate_feature(
             "orders",
             "create_order",
             tmp_path,
-            interfaces=[INTERFACE_CLI, INTERFACE_WEB, INTERFACE_API],
+            endpoints=[ENDPOINT_CLI, ENDPOINT_WEB, ENDPOINT_API],
         )
 
-        # application file + 3 interface files
+        # application file + 3 endpoint files
         assert len(created) == 4
         paths = {p.relative_to(tmp_path / "orders") for p in created}
-        assert Path("interface/cli/create_order.py") in paths
-        assert Path("interface/web/create_order.py") in paths
-        assert Path("interface/api/create_order.py") in paths
+        assert Path("endpoint/cli/create_order.py") in paths
+        assert Path("endpoint/web/create_order.py") in paths
+        assert Path("endpoint/api/create_order.py") in paths
 
-    def test_feature_invalid_interface_raises(self, tmp_path: Path) -> None:
-        """Raises ValueError for unrecognised interface name in feature."""
+    def test_feature_invalid_endpoint_raises(self, tmp_path: Path) -> None:
+        """Raises ValueError for unrecognised endpoint name in feature."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
 
-        with pytest.raises(ValueError, match="Unknown interface"):
-            generate_feature("orders", "create_order", tmp_path, interfaces=["graphql"])
+        with pytest.raises(ValueError, match="Unknown endpoint"):
+            generate_feature("orders", "create_order", tmp_path, endpoints=["graphql"])
 
     def test_web_template_content_mentions_html(self, tmp_path: Path) -> None:
-        """Web interface stub mentions HTML in its docstring."""
-        generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_WEB])
+        """Web endpoint stub mentions HTML in its docstring."""
+        generate_module("orders", COMMAND_MODULE, tmp_path, endpoints=[ENDPOINT_WEB])
         content = (
-            tmp_path / "orders" / "interface" / "web" / "placeholder.py"
+            tmp_path / "orders" / "endpoint" / "web" / "placeholder.py"
         ).read_text(encoding="utf-8")
 
         assert "HTML" in content or "template" in content.lower()
 
     def test_api_template_content_mentions_json(self, tmp_path: Path) -> None:
-        """API interface stub mentions JSON in its docstring."""
-        generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_API])
+        """API endpoint stub mentions JSON in its docstring."""
+        generate_module("orders", COMMAND_MODULE, tmp_path, endpoints=[ENDPOINT_API])
         content = (
-            tmp_path / "orders" / "interface" / "api" / "placeholder.py"
+            tmp_path / "orders" / "endpoint" / "api" / "placeholder.py"
         ).read_text(encoding="utf-8")
 
         assert "JSON" in content

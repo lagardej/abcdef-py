@@ -10,13 +10,13 @@ the start.
 After `uv sync`, the `abcdef-gen` command is available on `PATH`:
 
 ```
-abcdef-gen module <name> --type command|query [--interfaces INTERFACE ...] [--root PATH]
-abcdef-gen feature <module> <use-case> [--interfaces INTERFACE ...] [--root PATH]
+abcdef-gen module <name> --type command|query [--endpoints ENDPOINT ...] [--root PATH]
+abcdef-gen feature <module> <use-case> [--endpoints ENDPOINT ...] [--root PATH]
 ```
 
 `--root` defaults to the current working directory.
 
-`--interfaces` accepts one or more of `cli`, `web`, `api` (default: `cli`):
+`--endpoints` accepts one or more of `cli`, `web`, `api` (default: `cli`):
 
 - `cli` — command-line handler stub
 - `web` — server-side HTML handler stub
@@ -30,7 +30,7 @@ Creates a full directory tree for a new command or query module:
 
 ```
 abcdef-gen module orders --type command --root src/myapp
-abcdef-gen module orders --type command --interfaces cli web api --root src/myapp
+abcdef-gen module orders --type command --endpoints cli web api --root src/myapp
 ```
 
 Creates under `src/myapp/orders/`:
@@ -38,12 +38,12 @@ Creates under `src/myapp/orders/`:
 ```
 __init__.py               # __modularity__ dict + __all__ = []
 domain/orders.py          # AggregateRoot + AggregateId skeleton
-domain/orders_repository.py  # Repository interface
+domain/orders_repository.py  # Repository endpoint
 application/placeholder.py   # Command + CommandHandler stub
 infrastructure/placeholder.py  # TODO comment for concrete implementations
-interface/cli/placeholder.py   # CLI function stub        (if cli selected)
-interface/web/placeholder.py   # Web handler stub         (if web selected)
-interface/api/placeholder.py   # API handler stub         (if api selected)
+endpoint/cli/placeholder.py   # CLI function stub        (if cli selected)
+endpoint/web/placeholder.py   # Web handler stub         (if web selected)
+endpoint/api/placeholder.py   # API handler stub         (if api selected)
 ```
 
 For `--type query`:
@@ -53,9 +53,9 @@ __init__.py               # __modularity__ dict + __all__ = []
 projection/reports.py     # Document (read model) skeleton
 application/placeholder.py   # Query + QueryHandler stub
 infrastructure/placeholder.py  # TODO comment
-interface/cli/placeholder.py   # CLI stub    (if cli selected)
-interface/web/placeholder.py   # Web stub    (if web selected)
-interface/api/placeholder.py   # API stub    (if api selected)
+endpoint/cli/placeholder.py   # CLI stub    (if cli selected)
+endpoint/web/placeholder.py   # Web stub    (if web selected)
+endpoint/api/placeholder.py   # API stub    (if api selected)
 ```
 
 Refuses with an error if the module directory already exists.
@@ -66,16 +66,16 @@ Adds files to a module that already exists on disk:
 
 ```
 abcdef-gen feature orders create_order --root src/myapp
-abcdef-gen feature orders create_order --interfaces web api --root src/myapp
+abcdef-gen feature orders create_order --endpoints web api --root src/myapp
 ```
 
 Creates:
 
 ```
 orders/application/create_order.py         # Command + CommandHandler (or Query + QueryHandler)
-orders/interface/cli/create_order.py       # CLI stub    (if cli selected)
-orders/interface/web/create_order.py       # Web stub    (if web selected)
-orders/interface/api/create_order.py       # API stub    (if api selected)
+orders/endpoint/cli/create_order.py       # CLI stub    (if cli selected)
+orders/endpoint/web/create_order.py       # Web stub    (if web selected)
+orders/endpoint/api/create_order.py       # API stub    (if api selected)
 ```
 
 The module type (`command` or `query`) is inferred from the existing `__init__.py`
@@ -93,15 +93,15 @@ from abcdef.modularity.markers import COMMAND_MODULE
 # Default: cli only
 created = generate_module("orders", COMMAND_MODULE, Path("src/myapp"))
 
-# Multiple interfaces
+# Multiple endpoints
 created = generate_module(
     "orders", COMMAND_MODULE, Path("src/myapp"),
-    interfaces=["cli", "web", "api"],
+    endpoints=["cli", "web", "api"],
 )
 
 created = generate_feature(
     "orders", "create_order", Path("src/myapp"),
-    interfaces=["web", "api"],
+    endpoints=["web", "api"],
 )
 ```
 

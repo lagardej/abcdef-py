@@ -8,8 +8,8 @@ the architecture rules.
 from pathlib import Path
 
 from abcdef.codegen.generator import (
-    INTERFACE_API,
-    INTERFACE_WEB,
+    ENDPOINT_API,
+    ENDPOINT_WEB,
     generate_feature,
     generate_module,
 )
@@ -120,14 +120,14 @@ class TestMultipleGeneratedModules:
         )
 
 
-class TestGeneratedInterfacesAreValid:
-    """Modules generated with non-default interfaces pass modularity validation."""
+class TestGeneratedEndpointsAreValid:
+    """Modules generated with non-default endpoints pass modularity validation."""
 
-    def test_command_module_web_interface_has_no_violations(
+    def test_command_module_web_endpoint_has_no_violations(
         self, tmp_path: Path
     ) -> None:
-        """Command module scaffolded with web interface has zero violations."""
-        generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_WEB])
+        """Command module scaffolded with web endpoint has zero violations."""
+        generate_module("orders", COMMAND_MODULE, tmp_path, endpoints=[ENDPOINT_WEB])
 
         modularity = Modularity(tmp_path)
         modularity.discover()
@@ -137,11 +137,11 @@ class TestGeneratedInterfacesAreValid:
             str(v) for v in violations
         )
 
-    def test_command_module_api_interface_has_no_violations(
+    def test_command_module_api_endpoint_has_no_violations(
         self, tmp_path: Path
     ) -> None:
-        """Command module scaffolded with api interface has zero violations."""
-        generate_module("orders", COMMAND_MODULE, tmp_path, interfaces=[INTERFACE_API])
+        """Command module scaffolded with api endpoint has zero violations."""
+        generate_module("orders", COMMAND_MODULE, tmp_path, endpoints=[ENDPOINT_API])
 
         modularity = Modularity(tmp_path)
         modularity.discover()
@@ -151,15 +151,15 @@ class TestGeneratedInterfacesAreValid:
             str(v) for v in violations
         )
 
-    def test_command_module_all_interfaces_has_no_violations(
+    def test_command_module_all_endpoints_has_no_violations(
         self, tmp_path: Path
     ) -> None:
-        """Command module with all three interfaces has zero violations."""
+        """Command module with all three endpoints has zero violations."""
         generate_module(
             "orders",
             COMMAND_MODULE,
             tmp_path,
-            interfaces=["cli", INTERFACE_WEB, INTERFACE_API],
+            endpoints=["cli", ENDPOINT_WEB, ENDPOINT_API],
         )
 
         modularity = Modularity(tmp_path)
@@ -167,18 +167,18 @@ class TestGeneratedInterfacesAreValid:
         violations = modularity.validate()
 
         assert violations == [], (
-            "Command module (all interfaces) has violations:\n"
+            "Command module (all endpoints) has violations:\n"
             + "\n".join(str(v) for v in violations)
         )
 
     def test_feature_with_web_and_api_has_no_violations(self, tmp_path: Path) -> None:
-        """Feature scaffolded with web and api interfaces has zero violations."""
+        """Feature scaffolded with web and api endpoints has zero violations."""
         generate_module("orders", COMMAND_MODULE, tmp_path)
         generate_feature(
             "orders",
             "create_order",
             tmp_path,
-            interfaces=[INTERFACE_WEB, INTERFACE_API],
+            endpoints=[ENDPOINT_WEB, ENDPOINT_API],
         )
 
         modularity = Modularity(tmp_path)

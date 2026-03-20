@@ -11,12 +11,12 @@ from abcdef.modularity.registry import Modularity
 
 _TEMPLATES_DIR = Path(__file__).parent / "templates"
 
-INTERFACE_CLI = "cli"
-INTERFACE_WEB = "web"
-INTERFACE_API = "api"
-VALID_INTERFACES = (INTERFACE_CLI, INTERFACE_WEB, INTERFACE_API)
+ENDPOINT_CLI = "cli"
+ENDPOINT_WEB = "web"
+ENDPOINT_API = "api"
+VALID_ENDPOINTS = (ENDPOINT_CLI, ENDPOINT_WEB, ENDPOINT_API)
 
-# Files that are always generated regardless of interface selection.
+# Files that are always generated regardless of endpoint selection.
 _COMMAND_MODULE_BASE_FILES: list[tuple[str, str]] = [
     ("command_module/__init__.py.tmpl", "__init__.py"),
     ("command_module/domain/aggregate.py.tmpl", "domain/${module_name}.py"),
@@ -41,59 +41,59 @@ _QUERY_MODULE_BASE_FILES: list[tuple[str, str]] = [
     ),
 ]
 
-# Interface stubs for module scaffolding — keyed by (module_type, interface).
-_MODULE_INTERFACE_FILES: dict[tuple[str, str], tuple[str, str]] = {
-    (COMMAND_MODULE, INTERFACE_CLI): (
-        "command_module/interface/cli/use_case.py.tmpl",
-        "interface/cli/placeholder.py",
+# Endpoint stubs for module scaffolding — keyed by (module_type, endpoint).
+_MODULE_ENDPOINT_FILES: dict[tuple[str, str], tuple[str, str]] = {
+    (COMMAND_MODULE, ENDPOINT_CLI): (
+        "command_module/endpoint/cli/use_case.py.tmpl",
+        "endpoint/cli/placeholder.py",
     ),
-    (COMMAND_MODULE, INTERFACE_WEB): (
-        "command_module/interface/web/use_case.py.tmpl",
-        "interface/web/placeholder.py",
+    (COMMAND_MODULE, ENDPOINT_WEB): (
+        "command_module/endpoint/web/use_case.py.tmpl",
+        "endpoint/web/placeholder.py",
     ),
-    (COMMAND_MODULE, INTERFACE_API): (
-        "command_module/interface/api/use_case.py.tmpl",
-        "interface/api/placeholder.py",
+    (COMMAND_MODULE, ENDPOINT_API): (
+        "command_module/endpoint/api/use_case.py.tmpl",
+        "endpoint/api/placeholder.py",
     ),
-    (QUERY_MODULE, INTERFACE_CLI): (
-        "query_module/interface/cli/query.py.tmpl",
-        "interface/cli/placeholder.py",
+    (QUERY_MODULE, ENDPOINT_CLI): (
+        "query_module/endpoint/cli/query.py.tmpl",
+        "endpoint/cli/placeholder.py",
     ),
-    (QUERY_MODULE, INTERFACE_WEB): (
-        "query_module/interface/web/query.py.tmpl",
-        "interface/web/placeholder.py",
+    (QUERY_MODULE, ENDPOINT_WEB): (
+        "query_module/endpoint/web/query.py.tmpl",
+        "endpoint/web/placeholder.py",
     ),
-    (QUERY_MODULE, INTERFACE_API): (
-        "query_module/interface/api/query.py.tmpl",
-        "interface/api/placeholder.py",
+    (QUERY_MODULE, ENDPOINT_API): (
+        "query_module/endpoint/api/query.py.tmpl",
+        "endpoint/api/placeholder.py",
     ),
 }
 
-# Interface stubs for feature generation — keyed by (module_type, interface).
-_FEATURE_INTERFACE_FILES: dict[tuple[str, str], tuple[str, str]] = {
-    (COMMAND_MODULE, INTERFACE_CLI): (
-        "command_module/interface/cli/use_case.py.tmpl",
-        "interface/cli/${use_case_name}.py",
+# Endpoint stubs for feature generation — keyed by (module_type, endpoint).
+_FEATURE_ENDPOINT_FILES: dict[tuple[str, str], tuple[str, str]] = {
+    (COMMAND_MODULE, ENDPOINT_CLI): (
+        "command_module/endpoint/cli/use_case.py.tmpl",
+        "endpoint/cli/${use_case_name}.py",
     ),
-    (COMMAND_MODULE, INTERFACE_WEB): (
-        "command_module/interface/web/use_case.py.tmpl",
-        "interface/web/${use_case_name}.py",
+    (COMMAND_MODULE, ENDPOINT_WEB): (
+        "command_module/endpoint/web/use_case.py.tmpl",
+        "endpoint/web/${use_case_name}.py",
     ),
-    (COMMAND_MODULE, INTERFACE_API): (
-        "command_module/interface/api/use_case.py.tmpl",
-        "interface/api/${use_case_name}.py",
+    (COMMAND_MODULE, ENDPOINT_API): (
+        "command_module/endpoint/api/use_case.py.tmpl",
+        "endpoint/api/${use_case_name}.py",
     ),
-    (QUERY_MODULE, INTERFACE_CLI): (
-        "query_module/interface/cli/query.py.tmpl",
-        "interface/cli/${use_case_name}.py",
+    (QUERY_MODULE, ENDPOINT_CLI): (
+        "query_module/endpoint/cli/query.py.tmpl",
+        "endpoint/cli/${use_case_name}.py",
     ),
-    (QUERY_MODULE, INTERFACE_WEB): (
-        "query_module/interface/web/query.py.tmpl",
-        "interface/web/${use_case_name}.py",
+    (QUERY_MODULE, ENDPOINT_WEB): (
+        "query_module/endpoint/web/query.py.tmpl",
+        "endpoint/web/${use_case_name}.py",
     ),
-    (QUERY_MODULE, INTERFACE_API): (
-        "query_module/interface/api/query.py.tmpl",
-        "interface/api/${use_case_name}.py",
+    (QUERY_MODULE, ENDPOINT_API): (
+        "query_module/endpoint/api/query.py.tmpl",
+        "endpoint/api/${use_case_name}.py",
     ),
 }
 
@@ -133,20 +133,20 @@ def _write(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-def _validate_interfaces(interfaces: list[str]) -> None:
-    """Raise ValueError if any interface value is not recognised.
+def _validate_endpoints(endpoints: list[str]) -> None:
+    """Raise ValueError if any endpoint value is not recognised.
 
     Args:
-        interfaces: Interface names to validate.
+        endpoints: Endpoint names to validate.
 
     Raises:
-        ValueError: If any value is not in VALID_INTERFACES.
+        ValueError: If any value is not in VALID_ENDPOINTS.
     """
-    invalid = [i for i in interfaces if i not in VALID_INTERFACES]
+    invalid = [i for i in endpoints if i not in VALID_ENDPOINTS]
     if invalid:
-        valid_str = ", ".join(f"'{v}'" for v in VALID_INTERFACES)
+        valid_str = ", ".join(f"'{v}'" for v in VALID_ENDPOINTS)
         raise ValueError(
-            f"Unknown interface(s): {invalid}. Valid values are: {valid_str}."
+            f"Unknown endpoint(s): {invalid}. Valid values are: {valid_str}."
         )
 
 
@@ -194,7 +194,7 @@ def generate_module(
     name: str,
     module_type: str,
     root: Path,
-    interfaces: list[str] | None = None,
+    endpoints: list[str] | None = None,
 ) -> list[Path]:
     """Scaffold a new module directory tree under root.
 
@@ -202,14 +202,14 @@ def generate_module(
         name: Module name in snake_case (e.g. 'orders').
         module_type: COMMAND_MODULE or QUERY_MODULE constant.
         root: Root directory to create the module under.
-        interfaces: Interface types to scaffold (default: ['cli']).
+        endpoints: Endpoint types to scaffold (default: ['cli']).
             Valid values: 'cli', 'web', 'api'.
 
     Returns:
         List of created file paths.
 
     Raises:
-        ValueError: If module_type or any interface value is invalid.
+        ValueError: If module_type or any endpoint value is invalid.
         FileExistsError: If <root>/<name> already exists.
     """
     if module_type not in (COMMAND_MODULE, QUERY_MODULE):
@@ -218,8 +218,8 @@ def generate_module(
             f"got '{module_type}'."
         )
 
-    resolved_interfaces = interfaces if interfaces is not None else [INTERFACE_CLI]
-    _validate_interfaces(resolved_interfaces)
+    resolved_endpoints = endpoints if endpoints is not None else [ENDPOINT_CLI]
+    _validate_endpoints(resolved_endpoints)
 
     module_dir = root / name
     if module_dir.exists():
@@ -247,8 +247,8 @@ def generate_module(
     )
 
     file_specs: list[tuple[str, str]] = list(base_files)
-    for iface in resolved_interfaces:
-        file_specs.append(_MODULE_INTERFACE_FILES[(module_type, iface)])
+    for iface in resolved_endpoints:
+        file_specs.append(_MODULE_ENDPOINT_FILES[(module_type, iface)])
 
     created: list[Path] = []
     for tmpl_rel, out_rel in file_specs:
@@ -265,13 +265,13 @@ def generate_feature(
     module_name: str,
     use_case_name: str,
     root: Path,
-    interfaces: list[str] | None = None,
+    endpoints: list[str] | None = None,
 ) -> list[Path]:
     """Add a use-case feature to an existing module.
 
     Creates:
     - application/<use_case_name>.py
-    - interface/<type>/<use_case_name>.py for each requested interface
+    - endpoint/<type>/<use_case_name>.py for each requested endpoint
 
     Does not modify __init__.py — export wiring is manual.
 
@@ -279,7 +279,7 @@ def generate_feature(
         module_name: Name of the existing module (snake_case).
         use_case_name: Name of the use case (snake_case, e.g. 'create_order').
         root: Root directory containing the module.
-        interfaces: Interface types to scaffold (default: ['cli']).
+        endpoints: Endpoint types to scaffold (default: ['cli']).
             Valid values: 'cli', 'web', 'api'.
 
     Returns:
@@ -288,10 +288,10 @@ def generate_feature(
     Raises:
         FileNotFoundError: If the module directory does not exist.
         FileExistsError: If any target file already exists.
-        ValueError: If module type cannot be determined or interface is invalid.
+        ValueError: If module type cannot be determined or endpoint is invalid.
     """
-    resolved_interfaces = interfaces if interfaces is not None else [INTERFACE_CLI]
-    _validate_interfaces(resolved_interfaces)
+    resolved_endpoints = endpoints if endpoints is not None else [ENDPOINT_CLI]
+    _validate_endpoints(resolved_endpoints)
 
     module_dir = root / module_name
     if not module_dir.exists():
@@ -317,8 +317,8 @@ def generate_feature(
 
     app_tmpl, app_out = _FEATURE_APPLICATION_FILE[module_type]
     file_specs: list[tuple[str, str]] = [(app_tmpl, app_out)]
-    for iface in resolved_interfaces:
-        file_specs.append(_FEATURE_INTERFACE_FILES[(module_type, iface)])
+    for iface in resolved_endpoints:
+        file_specs.append(_FEATURE_ENDPOINT_FILES[(module_type, iface)])
 
     # Check for existing files before writing any.
     planned: list[tuple[str, Path]] = []
