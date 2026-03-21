@@ -89,6 +89,10 @@ class Modularity:
     def validate(self) -> list[Violation]:
         """Validate all discovered modules.
 
+        Checks:
+        - Facade rule (root exports only)
+        - Import boundaries (layers only import from module roots)
+
         Returns:
             List of violations (empty if valid).
         """
