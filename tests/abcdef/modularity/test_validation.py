@@ -18,7 +18,7 @@ class TestValidation:
 
     def test_validate_detects_facade_rule_violation(self) -> None:
         """Facade rule violation: module exports internal symbols."""
-        fixture_root = Path(__file__).parent / "fixtures" / "facade_violation"
+        fixture_root = Path(__file__).parent / "fixtures" / "validation_violations"
         modularity = Modularity(fixture_root)
         modularity.discover()
         violations = modularity.validate()
@@ -26,10 +26,16 @@ class TestValidation:
         assert any(v.violation_type == "facade_rule" for v in violations), (
             f"Expected facade_rule violation, got {violations}"
         )
+        # Ensure location is populated for each violation
+        for v in violations:
+            assert v.location is not None, "Violation location should not be None"
+            assert Path(v.location).exists(), (
+                f"Violation location {v.location} does not exist"
+            )
 
     def test_validate_detects_import_boundary_violation(self) -> None:
         """Import boundary violation: module imports from another module's internal."""
-        fixture_root = Path(__file__).parent / "fixtures" / "import_boundary_violation"
+        fixture_root = Path(__file__).parent / "fixtures" / "validation_violations"
         modularity = Modularity(fixture_root)
         modularity.discover()
         violations = modularity.validate()
@@ -37,3 +43,9 @@ class TestValidation:
         assert any(v.violation_type == "import_boundary" for v in violations), (
             f"Expected import_boundary violation, got {violations}"
         )
+        # Ensure location is populated for each violation
+        for v in violations:
+            assert v.location is not None, "Violation location should not be None"
+            assert Path(v.location).exists(), (
+                f"Violation location {v.location} does not exist"
+            )
