@@ -15,3 +15,25 @@ class TestValidation:
         modularity.discover()
         violations = modularity.validate()
         assert violations == [], f"Expected no violations, got {violations}"
+
+    def test_validate_detects_facade_rule_violation(self) -> None:
+        """Facade rule violation: module exports internal symbols."""
+        fixture_root = Path(__file__).parent / "fixtures" / "facade_violation"
+        modularity = Modularity(fixture_root)
+        modularity.discover()
+        violations = modularity.validate()
+        assert len(violations) > 0, "Expected at least one violation"
+        assert any(v.violation_type == "facade_rule" for v in violations), (
+            f"Expected facade_rule violation, got {violations}"
+        )
+
+    def test_validate_detects_import_boundary_violation(self) -> None:
+        """Import boundary violation: module imports from another module's internal."""
+        fixture_root = Path(__file__).parent / "fixtures" / "import_boundary_violation"
+        modularity = Modularity(fixture_root)
+        modularity.discover()
+        violations = modularity.validate()
+        assert len(violations) > 0, "Expected at least one violation"
+        assert any(v.violation_type == "import_boundary" for v in violations), (
+            f"Expected import_boundary violation, got {violations}"
+        )
