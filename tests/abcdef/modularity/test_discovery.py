@@ -26,3 +26,10 @@ class TestDiscovery:
         modules = modularity.discover()
         module_names = [m.declaration.name for m in modules]
         assert modules == [], f"Expected no modules, got {module_names}"
+
+    def test_skips_modules_with_syntax_errors(self) -> None:
+        """Modules with syntax errors in __init__.py should be skipped, not crash."""
+        fixture_root = Path(__file__).parent / "fixtures" / "syntax_error"
+        modularity = Modularity(fixture_root)
+        modules = modularity.discover()
+        assert modules == [], f"Expected no modules due to syntax errors, got {modules}"

@@ -51,7 +51,7 @@ do_not_mutate = [
 
 [tool.pyright]
 include = ["src", "tests"]
-exclude = ["mutants/", "**/node_modules", "**/__pycache__", "**/.*", ".venv"]
+exclude = ["mutants/", "tests/abcdef/modularity/fixtures/syntax_error", "**/node_modules", "**/__pycache__", "**/.*", ".venv"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=abcdef --cov-report=term-missing"
@@ -63,7 +63,7 @@ wrap = 88
 end_of_line = "lf"
 
 [tool.ruff]
-exclude = ["mutants/"]
+exclude = ["mutants/", "tests/abcdef/modularity/fixtures/syntax_error"]
 line-length = 88
 target-version = "py312"
 

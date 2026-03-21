@@ -66,8 +66,8 @@ class Modularity:
 
             try:
                 decl = self._read_declaration(init_file, path)
-            except ValueError:
-                # Invalid declaration, skip this package
+            except Exception:
+                # Invalid or unparsable declaration, skip this package
                 continue
 
             if decl is None:
