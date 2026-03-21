@@ -19,12 +19,15 @@ class TestDiscovery:
             f"Expected modules {{module_a, module_b, module_c}}, got {module_names}"
         )
 
-        # Ensure API extraction succeeded for each module
+    def test_api_extraction_succeeds_for_all_modules(self) -> None:
+        """All discovered modules should have non-empty public API."""
+        fixture_root = Path(__file__).parent / "fixtures" / "validation_boundary_valid"
+        modularity = Modularity(fixture_root)
+        modules = modularity.discover()
+
         for m in modules:
-            assert m.public_api is not None, f"Module {m.declaration.name} missing API"
-            # At least some modules should have symbols; command/query modules should have at least one symbol
-            assert len(m.public_api.symbols) > 0, (
-                f"Module {m.declaration.name} should have public symbols"
+            assert m.public_api is not None and len(m.public_api.symbols) > 0, (
+                f"Module {m.declaration.name} should have non-empty public API"
             )
 
     def test_discovers_nothing_from_non_module_packages(self) -> None:
