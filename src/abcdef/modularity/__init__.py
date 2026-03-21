@@ -27,13 +27,13 @@ Examples:
 
 from abcdef.modularity.extraction import PublicApiExtractor
 from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE, SPI
+from abcdef.modularity.modularity import Modularity
 from abcdef.modularity.module import (
     CommandModule,
     Module,
     ModuleDeclaration,
     QueryModule,
 )
-from abcdef.modularity.registry import Modularity
 from abcdef.modularity.report import MarkdownReporter
 from abcdef.modularity.validation import PublicApi, PublicApiSymbol, Violation
 from abcdef.modularity.validation_boundary import BoundaryValidator

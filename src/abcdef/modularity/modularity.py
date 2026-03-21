@@ -5,7 +5,6 @@ from __future__ import annotations
 import ast
 from typing import TYPE_CHECKING
 
-from abcdef.modularity.extraction import PublicApiExtractor
 from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
 from abcdef.modularity.module import (
     CommandModule,
@@ -53,28 +52,6 @@ class Modularity:
             ValueError: If a module declaration is invalid.
         """
         self.modules = []
-
-        # Find all packages with __modularity__ declaration
-        for init_file in self.root_path.rglob("__init__.py"):
-            module_path = init_file.parent
-
-            # Skip abcdef itself
-            if "abcdef" in module_path.parts:
-                continue
-
-            # Skip tests and build directories
-            if any(p in module_path.parts for p in ("tests", ".venv", "venv", "build")):
-                continue
-
-            decl = self._read_declaration(init_file, module_path)
-            if decl is None:
-                continue
-
-            api_extractor = PublicApiExtractor(module_path)
-            api = api_extractor.extract()
-
-            module = self._create_module(decl, module_path, api)
-            self.modules.append(module)
 
         return self.modules
 

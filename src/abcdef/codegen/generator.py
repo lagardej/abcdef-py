@@ -7,7 +7,7 @@ from pathlib import Path
 from string import Template
 
 from abcdef.modularity.markers import COMMAND_MODULE, QUERY_MODULE
-from abcdef.modularity.registry import Modularity
+from abcdef.modularity.modularity import Modularity
 
 _TEMPLATES_DIR = Path(__file__).parent / "templates"
 
