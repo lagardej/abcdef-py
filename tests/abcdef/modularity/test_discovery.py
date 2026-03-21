@@ -1,12 +1,12 @@
-"""Tests for boundary validation of modules."""
+"""Tests for module discovery."""
 
 from pathlib import Path
 
 from abcdef.modularity.modularity import Modularity
 
 
-class TestValidationBoundaryValid:
-    """Test boundary validation against the validation_boundary_valid fixture."""
+class TestDiscovery:
+    """Test module discovery against the validation_boundary_valid fixture."""
 
     def test_discovers_only_module_packages(self) -> None:
         """Should discover only module_a and module_b (excluding shared package)."""
