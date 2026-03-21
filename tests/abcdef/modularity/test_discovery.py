@@ -15,6 +15,14 @@ class TestDiscovery:
         modules = modularity.discover()
 
         module_names = {m.declaration.name for m in modules}
-        assert module_names == {"module_a", "module_b"}, (
-            f"Expected modules {{module_a, module_b}}, got {module_names}"
+        assert module_names == {"module_a", "module_b", "module_c"}, (
+            f"Expected modules {{module_a, module_b, module_c}}, got {module_names}"
         )
+
+    def test_discovers_nothing_from_non_module_packages(self) -> None:
+        """Should discover no modules when packages lack __modularity__ declarations."""
+        fixture_root = Path(__file__).parent / "fixtures" / "only_non_modules"
+        modularity = Modularity(fixture_root)
+        modules = modularity.discover()
+        module_names = [m.declaration.name for m in modules]
+        assert modules == [], f"Expected no modules, got {module_names}"
