@@ -26,12 +26,10 @@ class TestValidation:
         assert any(v.violation_type == "facade_rule" for v in violations), (
             f"Expected facade_rule violation, got {violations}"
         )
-        # Ensure location is populated for each violation
-        for v in violations:
-            assert v.location is not None, "Violation location should not be None"
-            assert Path(v.location).exists(), (
-                f"Violation location {v.location} does not exist"
-            )
+        assert all(
+            v.location is not None and Path(v.location).exists() and v.message
+            for v in violations
+        ), "Violations must have valid location and non-empty message"
 
     def test_validate_detects_import_boundary_violation(self) -> None:
         """Import boundary violation: module imports from another module's internal."""
@@ -43,9 +41,7 @@ class TestValidation:
         assert any(v.violation_type == "import_boundary" for v in violations), (
             f"Expected import_boundary violation, got {violations}"
         )
-        # Ensure location is populated for each violation
-        for v in violations:
-            assert v.location is not None, "Violation location should not be None"
-            assert Path(v.location).exists(), (
-                f"Violation location {v.location} does not exist"
-            )
+        assert all(
+            v.location is not None and Path(v.location).exists() and v.message
+            for v in violations
+        ), "Violations must have valid location and non-empty message"
