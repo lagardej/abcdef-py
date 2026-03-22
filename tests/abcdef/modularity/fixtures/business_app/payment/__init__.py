@@ -1,59 +1,81 @@
-"""Payment processing — processes customer payments, tracks payment status, handles failures and credits.
+"""Payment processing — processes customer payments, tracks status.
 
-Process customer payments (credit cards, bank transfers, etc.), track payment status and handle payment failures,
-apply customer credits to invoices, maintain payment records and statements.
+Handles failures and credits.
+
+- Process customer payments (credit cards, bank transfers, etc.)
+- Track payment status and handle payment failures
+- Apply customer credits to invoices
+- Maintain payment records and statements
 """
+
+from __future__ import annotations
+
+from dataclasses import dataclass
 
 from abcdef.c import Command, Document, Query
 from abcdef.d import DomainEvent
 
 
-@Command
-class RecordPayment:
+# Commands
+@dataclass
+class RecordPayment(Command):
     """Record a payment against an invoice."""
+
     pass
 
 
-@Command
-class ApplyCredit:
+@dataclass
+class ApplyCredit(Command):
     """Apply customer credit to outstanding invoices."""
+
     pass
 
 
-@Query
-class GetOutstandingBalance:
+# Queries
+@dataclass
+class GetOutstandingBalance(Query):
     """Calculate total amount owed by customer."""
+
     pass
 
 
-@Document
-class Payment:
+# Documents
+@dataclass
+class Payment(Document):
     """Payment record with method, amount, timestamp."""
+
     pass
 
 
+# SPIs
 class PaymentProcessor:
     """External payment gateway (Stripe, PayPal, etc.)."""
+
     pass
 
 
+# Events
 class CreditApplied(DomainEvent):
     """Customer credit used to offset invoice."""
+
     event_type = "payment.credit_applied"
 
 
 class PaymentFailed(DomainEvent):
     """Payment attempt failed (card declined, etc.)."""
+
     event_type = "payment.failed"
 
 
 class PaymentRecorded(DomainEvent):
     """Payment successfully processed."""
+
     event_type = "payment.recorded"
 
 
 class PaymentReceived(DomainEvent):
     """Payment notification (alias for external event)."""
+
     event_type = "payment.received"
 
 

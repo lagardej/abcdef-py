@@ -1,106 +1,136 @@
-"""Order management — creates, tracks, and fulfills customer orders throughout their lifecycle.
+"""Order management — creates, tracks, fulfills customer orders.
 
-Accept new orders from customers, validate orders (credit, inventory availability via events),
-manage order state (draft → placed → confirmed → fulfilled → cancelled),
-coordinate order lifecycle across modules through events, support order modifications and cancellations.
+Throughout their lifecycle.
+
+- Accept new orders from customers
+- Validate orders (credit, inventory availability via events)
+- Manage order state (draft → placed → confirmed → fulfilled → cancelled)
+- Coordinate order lifecycle across modules through events
+- Support order modifications and cancellations
 """
+
+from __future__ import annotations
+
+from dataclasses import dataclass
 
 from abcdef.c import Command, Document, Query
 from abcdef.d import DomainEvent
 
 
-@Command
-class CancelOrder:
+# Commands
+@dataclass
+class CancelOrder(Command):
     """Cancel an order (if not yet fulfilled)."""
+
     pass
 
 
-@Command
-class ConfirmOrder:
+@dataclass
+class ConfirmOrder(Command):
     """Mark order as confirmed after validations pass."""
+
     pass
 
 
-@Command
-class CreateOrder:
+@dataclass
+class CreateOrder(Command):
     """Create a new draft order for a customer."""
+
     pass
 
 
-@Command
-class PlaceOrder:
+@dataclass
+class PlaceOrder(Command):
     """Submit an order for processing."""
+
     pass
 
 
-@Command
-class UpdateOrderLine:
+@dataclass
+class UpdateOrderLine(Command):
     """Modify items in a draft order."""
+
     pass
 
 
-@Query
-class GetCustomerOrders:
+# Queries
+@dataclass
+class GetCustomerOrders(Query):
     """Find all orders for a specific customer."""
+
     pass
 
 
-@Query
-class GetOrderDetails:
+@dataclass
+class GetOrderDetails(Query):
     """Retrieve full order information including all lines and status."""
+
     pass
 
 
-@Query
-class SearchOrders:
+@dataclass
+class SearchOrders(Query):
     """Search orders by ID, status, date range, customer."""
+
     pass
 
 
-@Document
-class Order:
+# Documents
+@dataclass
+class Order(Document):
     """Complete order read model with lines, status, and history."""
+
     pass
 
 
-@Document
-class OrderSummary:
+@dataclass
+class OrderSummary(Document):
     """Summary view for order listings."""
+
     pass
 
 
+# SPIs
 class OrderNumberGenerator:
     """Generates unique order identifiers."""
+
     pass
 
 
 class OrderRepository:
     """Abstract repository for order persistence."""
+
     pass
 
 
+# Events
 class OrderCancelled(DomainEvent):
     """Order cancelled by customer or system."""
+
     event_type = "order.cancelled"
 
 
 class OrderConfirmed(DomainEvent):
     """Order passed all validations, ready for fulfillment."""
+
     event_type = "order.confirmed"
 
 
 class OrderCreated(DomainEvent):
     """New draft order created (before validation)."""
+
     event_type = "order.created"
 
 
 class OrderLineUpdated(DomainEvent):
     """Order line item changed."""
+
     event_type = "order.line_updated"
 
 
 class OrderPlaced(DomainEvent):
     """Order submitted for processing."""
+
     event_type = "order.placed"
 
 

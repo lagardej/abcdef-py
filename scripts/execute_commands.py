@@ -48,7 +48,7 @@ def main() -> None:
 
     with Path.open(log_file, "w", encoding="utf-8") as log:
         log.write(f"Executing commands from {commands_file}\n")
-        log.write(f"{'='*60}\n\n")
+        log.write(f"{'=' * 60}\n\n")
 
         for i, cmd in enumerate(commands, 1):
             print(f"[{i}/{len(commands)}] {cmd}")
@@ -73,7 +73,7 @@ def main() -> None:
             else:
                 print("  ✓ Success")
 
-            log.write(f"\n{'-'*60}\n\n")
+            log.write(f"\n{'-' * 60}\n\n")
 
     print(f"\nDone! See {log_file} for details")
 

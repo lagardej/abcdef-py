@@ -1,94 +1,122 @@
-"""Inventory management — tracks stock levels, manages reservations, and handles stock replenishment.
+"""Inventory management — tracks stock levels, manages reservations.
 
-Maintain accurate stock counts for all products, reserve stock when orders are placed,
-release reservations when orders are cancelled, detect stock shortages and trigger replenishment,
-provide inventory availability for order validation.
+Handles stock replenishment.
+
+- Maintain accurate stock counts for all products
+- Reserve stock when orders are placed
+- Release reservations when orders are cancelled
+- Detect stock shortages and trigger replenishment
+- Provide inventory availability for order validation
 """
+
+from __future__ import annotations
+
+from dataclasses import dataclass
 
 from abcdef.c import Command, Document, Query
 from abcdef.d import DomainEvent
 
 
-@Command
-class AdjustStockLevel:
+# Commands
+@dataclass
+class AdjustStockLevel(Command):
     """Manually adjust inventory (replenishment, shrinkage, etc.)."""
+
     pass
 
 
-@Command
-class ReleaseReservation:
+@dataclass
+class ReleaseReservation(Command):
     """Release a previously made reservation."""
+
     pass
 
 
-@Command
-class ReserveStock:
+@dataclass
+class ReserveStock(Command):
     """Reserve quantity of items for an order."""
+
     pass
 
 
-@Query
-class CheckAvailability:
+# Queries
+@dataclass
+class CheckAvailability(Query):
     """Check if sufficient stock exists for order fulfillment."""
+
     pass
 
 
-@Query
-class GetReservations:
+@dataclass
+class GetReservations(Query):
     """Find all active reservations for a product or order."""
+
     pass
 
 
-@Query
-class GetStockLevel:
+@dataclass
+class GetStockLevel(Query):
     """Get current available quantity for a product."""
+
     pass
 
 
-@Document
-class InventoryLevel:
+# Documents
+@dataclass
+class InventoryLevel(Document):
     """Current stock count and reserved quantities per product."""
+
     pass
 
 
-@Document
-class StockReservation:
+@dataclass
+class StockReservation(Document):
     """Details of a reservation (order, quantity, expiry)."""
+
     pass
 
 
+# SPIs
 class InventoryRepository:
     """Abstract repository for inventory and reservations."""
+
     pass
 
 
 class WarehouseManagementSystem:
     """Integration with external WMS for complex operations."""
+
     pass
 
 
+# Events
 class LowStockWarning(DomainEvent):
     """Stock fell below threshold."""
+
     event_type = "inventory.low_stock_warning"
 
 
 class ReservationReleased(DomainEvent):
     """Reservation cancelled (order cancelled or modified)."""
+
     event_type = "inventory.reservation_released"
 
 
 class StockAdjusted(DomainEvent):
     """Inventory levels changed (replenishment, loss, etc.)."""
+
     event_type = "inventory.stock_adjusted"
 
 
 class StockDepleted(DomainEvent):
     """Product completely out of stock."""
+
     event_type = "inventory.stock_depleted"
 
 
 class StockReserved(DomainEvent):
     """Stock successfully reserved for an order."""
+
     event_type = "inventory.stock_reserved"
 
 

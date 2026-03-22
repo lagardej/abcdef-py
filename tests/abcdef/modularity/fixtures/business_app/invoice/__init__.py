@@ -1,76 +1,102 @@
-"""Invoice management — generates invoices when orders are confirmed, tracks invoice state and payment status.
+"""Invoice management — generates invoices when orders are confirmed.
 
-Generate invoices from confirmed orders, track invoice state (draft → issued → paid → voided),
-apply taxes and calculate totals, support invoice modifications and voiding, maintain billing history.
+Tracks invoice state and payment status.
+
+- Generate invoices from confirmed orders
+- Track invoice state (draft → issued → paid → voided)
+- Apply taxes and calculate totals
+- Support invoice modifications and voiding
+- Maintain billing history
 """
+
+from __future__ import annotations
+
+from dataclasses import dataclass
 
 from abcdef.c import Command, Document, Query
 from abcdef.d import DomainEvent
 
 
-@Command
-class CreateInvoice:
+# Commands
+@dataclass
+class CreateInvoice(Command):
     """Generate invoice for a confirmed order."""
+
     pass
 
 
-@Command
-class VoidInvoice:
+@dataclass
+class VoidInvoice(Command):
     """Void an unpaid invoice."""
+
     pass
 
 
-@Query
-class GetInvoice:
+# Queries
+@dataclass
+class GetInvoice(Query):
     """Retrieve invoice details by invoice number."""
+
     pass
 
 
-@Query
-class GetCustomerBillingHistory:
+@dataclass
+class GetCustomerBillingHistory(Query):
     """Get all invoices and payments for a customer."""
+
     pass
 
 
-@Query
-class SearchInvoices:
+@dataclass
+class SearchInvoices(Query):
     """Search invoices by status, date, customer, amount."""
+
     pass
 
 
-@Document
-class Invoice:
+# Documents
+@dataclass
+class Invoice(Document):
     """Complete invoice with line items, taxes, totals, and payment status."""
+
     pass
 
 
+# SPIs
 class InvoiceRepository:
     """Abstract repository for invoice persistence."""
+
     pass
 
 
 class TaxCalculator:
     """Calculate taxes based on jurisdiction and product type."""
+
     pass
 
 
+# Events
 class InvoiceCreated(DomainEvent):
     """Invoice generated for confirmed order."""
+
     event_type = "invoice.created"
 
 
 class InvoicePaid(DomainEvent):
     """Invoice fully paid."""
+
     event_type = "invoice.paid"
 
 
 class InvoicePartiallyPaid(DomainEvent):
     """Partial payment received."""
+
     event_type = "invoice.partially_paid"
 
 
 class InvoiceVoided(DomainEvent):
     """Invoice cancelled without payment."""
+
     event_type = "invoice.voided"
 
 

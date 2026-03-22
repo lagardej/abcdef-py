@@ -1,74 +1,96 @@
-"""Reporting — Analytics and read-optimized queries providing business intelligence, dashboards, and ad-hoc querying without impacting operational modules.
+"""Analytics and read-optimized queries for business intelligence.
 
-Serve as query-only module (CQRS), provide pre-computed aggregates for performance,
-generate business reports and dashboards, track KPI metrics (conversion rate, average order value, etc.),
-maintain materialized views for common queries.
+Dashboards and ad-hoc querying without impacting operational modules.
+
+- Serve as query-only module (CQRS)
+- Provide pre-computed aggregates for performance
+- Generate business reports and dashboards
+- Track KPI metrics (conversion rate, average order value, etc.)
+- Maintain materialized views for common queries
 """
+
+from __future__ import annotations
+
+from dataclasses import dataclass
 
 from abcdef.c import Document, Query
 
 
-@Query
-class GetCustomerLifetimeValue:
+# Queries
+@dataclass
+class GetCustomerLifetimeValue(Query):
     """Total spend and retention metrics per customer."""
+
     pass
 
 
-@Query
-class GetInventoryTurnover:
+@dataclass
+class GetInventoryTurnover(Query):
     """How quickly inventory sells (by product)."""
+
     pass
 
 
-@Query
-class GetModuleHealth:
+@dataclass
+class GetModuleHealth(Query):
     """Operational metrics per module (event processing lag, error rates)."""
+
     pass
 
 
-@Query
-class GetPaymentSuccessRate:
+@dataclass
+class GetPaymentSuccessRate(Query):
     """Percentage of successful vs failed payments."""
+
     pass
 
 
-@Query
-class GetSalesReport:
+@dataclass
+class GetSalesReport(Query):
     """Revenue, orders, average order value by period."""
+
     pass
 
 
-@Query
-class GetShippingPerformance:
+@dataclass
+class GetShippingPerformance(Query):
     """On-time delivery rates by carrier and region."""
+
     pass
 
 
-@Document
-class CustomerAnalytics:
+# Documents
+@dataclass
+class CustomerAnalytics(Document):
     """Customer behavior and value metrics."""
+
     pass
 
 
-@Document
-class OperationalDashboard:
+@dataclass
+class OperationalDashboard(Document):
     """System health and business health indicators."""
+
     pass
 
 
-@Document
-class SalesMetrics:
+@dataclass
+class SalesMetrics(Document):
     """Aggregated sales data for dashboard visualization."""
+
     pass
 
 
+# SPIs
 class MetricsCollector:
     """Collects operational metrics from modules."""
+
     pass
 
 
 class ReportRepository:
     """Read-optimized database/repository for reporting data."""
+
     pass
 
 

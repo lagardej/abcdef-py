@@ -18,7 +18,9 @@ def test_documentation_matches_expected() -> None:
     mod.discover()
     actual = mod.document()
 
-    expected_path = Path(__file__).parent / "fixtures" / "business_module_doc_single" / "modules.md"
+    expected_path = (
+        Path(__file__).parent / "fixtures" / "business_module_doc_single" / "modules.md"
+    )
     expected = expected_path.read_text(encoding="utf-8")
 
     assert actual == expected, "Generated documentation does not match expected output"
