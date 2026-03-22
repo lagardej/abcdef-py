@@ -99,7 +99,7 @@ class Modularity:
         validator = BoundaryValidator(self.modules)
         return validator.validate()
 
-    def generate_docs(self) -> str:
+    def document(self) -> str:
         """Generate Markdown documentation for all modules.
 
         Returns:
